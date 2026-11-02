@@ -1615,6 +1615,50 @@ html.has-bg .select {
   font-size: 14px;
 }
 
+/* HTML・Markdown のプレビュー（iframe でページとして出す） */
+.md-preview.page-preview {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.page-preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 12px;
+  min-height: 32px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: none;
+}
+
+.page-preview-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-preview-gap {
+  flex: 1;
+}
+
+.page-preview-frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: #fff;
+}
+
+.run-btn.preview-btn.active {
+  background: var(--accent-soft, rgba(90, 140, 255, 0.18));
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .md-preview > :first-child {
   margin-top: 0;
 }

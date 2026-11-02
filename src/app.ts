@@ -31,6 +31,8 @@ import { createAiChatView, type AiChatView } from "./ui/aiChatView";
 import { createDictView, type DictView } from "./ui/dictView";
 import { aiRewrite } from "./ui/aiRewrite";
 import { renderMarkdown } from "./ui/markdown";
+import { PagePreview, previewKind } from "./ui/pagePreview";
+import { invoke } from "@tauri-apps/api/core";
 import { initAppearance, zoomBy } from "./ui/appearance";
 import { menu, type MenuItem } from "./ui/menu";
 import { menuDrawer } from "./ui/menuDrawer";
@@ -147,6 +149,7 @@ export class App {
   private previewEl!: HTMLElement;
   private editorArea!: HTMLElement;
   private previewOn = false;
+  private pagePreview!: PagePreview;
   private previewTimer: number | undefined;
   private autoSaveTimer: number | undefined;
   private gitBranch: string | null = null;
@@ -563,7 +566,15 @@ export class App {
     this.editorMount = h("div", { class: "editor-mount" });
     this.welcomeEl = this.buildWelcome();
     this.breadcrumbsEl = h("nav", { class: "breadcrumbs", "aria-label": t("breadcrumbs.label") });
-    this.previewEl = h("article", { class: "md-preview", hidden: true, "aria-label": t("preview.label") });
+    this.pagePreview = new PagePreview({
+      onClose: () => {
+        this.previewOn = false;
+        this.renderPreview();
+        this.renderBreadcrumbs();
+      },
+      openExternal: (path) => void invoke("preview_open_external", { path }).catch((e) => toast(String(e), "error")),
+    });
+    this.previewEl = this.pagePreview.el;
     this.editorArea = h("div", { class: "editor-area" }, this.editorMount, this.previewEl, this.welcomeEl);
     const editorArea = this.editorArea;
     const main = h("main", { class: "main" }, this.tabsEl, editorArea, panelResizer, this.terminal.el);
@@ -1197,13 +1208,30 @@ export class App {
       tools.append(this.sideSwitch());
       // このファイルを実行する（押すと、先にこのがわが「今のファイル」になる）
       const act = (fn: () => unknown) => () => void fn();
+      // HTML・Markdown・SVG は、出来上がったページを見られる
+      if (this.previewKindOf(doc)) {
+        const on = this.previewOn && doc.id === this.activeId;
+        tools.append(
+          h(
+            "button",
+            { class: "run-btn secondary small preview-btn" + (on ? " active" : ""), type: "button", "aria-pressed": String(on), title: `${t("pane.preview")} (Ctrl+Shift+V)`, onclick: act(() => this.togglePreview()) },
+            h("span", { html: icon("book", 13) }),
+            h("span", {}, t("top.preview")),
+          ),
+        );
+      }
+      // 値を見るは、プログラムのファイルだけ（HTML・Markdown にはない）
+      if (!this.previewKindOf(doc)) {
+        tools.append(
+          h(
+            "button",
+            { class: "run-btn secondary small", type: "button", title: `${t("pane.trace")} (F6)`, onclick: act(() => this.traceActive()) },
+            h("span", { html: icon("eye", 13) }),
+            h("span", {}, t("top.trace")),
+          ),
+        );
+      }
       tools.append(
-        h(
-          "button",
-          { class: "run-btn secondary small", type: "button", title: `${t("pane.trace")} (F6)`, onclick: act(() => this.traceActive()) },
-          h("span", { html: icon("eye", 13) }),
-          h("span", {}, t("top.trace")),
-        ),
         h(
           "button",
           { class: "run-btn small", type: "button", title: `${t("pane.run")} (F5)`, onclick: act(() => this.runActive()) },
@@ -1219,23 +1247,35 @@ export class App {
     return !!doc && [".md", ".markdown", ".mdx"].includes(extname(doc.path ?? doc.name));
   }
 
+  /** HTML・Markdown・SVG なら、プレビューできる */
+  private previewKindOf(doc?: Doc) {
+    return doc ? previewKind(doc.path ?? doc.name) : null;
+  }
+
   private renderPreview() {
     const doc = this.activeDoc();
-    const show = this.previewOn && this.isMarkdown(doc);
+    const kind = this.previewKindOf(doc);
+    const show = this.previewOn && !!kind;
     this.previewEl.hidden = !show;
     this.editorArea.classList.toggle("with-preview", show);
-    if (!show) return;
-    clear(this.previewEl);
-    this.previewEl.append(renderMarkdown(this.editor.getText()));
+    if (!show || !doc || !kind) return;
+    // 画面が暗い色なら、Markdown のページも暗い色で
+    const bg = getComputedStyle(document.body).backgroundColor.match(/\d+/g)?.map(Number) ?? [255, 255, 255];
+    const dark = bg[0] * 0.3 + bg[1] * 0.59 + bg[2] * 0.11 < 128;
+    void this.pagePreview.show(
+      { docId: doc.id, kind, text: this.editor.getText(doc.id), title: doc.name, dir: doc.path ? dirname(doc.path) : null, root: this.root ?? null, path: doc.path ?? null },
+      dark,
+    );
   }
 
   private togglePreview() {
-    if (!this.isMarkdown(this.activeDoc())) {
+    if (!this.previewKindOf(this.activeDoc())) {
       toast(t("preview.onlyMarkdown"), "info");
       return;
     }
     this.previewOn = !this.previewOn;
     this.renderPreview();
+    this.renderBreadcrumbs();
   }
 
   /**
@@ -3014,7 +3054,7 @@ export class App {
       }
       if (this.previewOn && id === this.activeId) {
         window.clearTimeout(this.previewTimer);
-        this.previewTimer = window.setTimeout(() => this.renderPreview(), 200);
+        this.previewTimer = window.setTimeout(() => this.renderPreview(), 350);
       }
       if (doc && !doc.dirty) {
         doc.dirty = true;

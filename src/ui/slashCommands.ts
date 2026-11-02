@@ -451,7 +451,7 @@ export function registerBuiltinSlash(d: SlashDeps) {
     cmd("smaller", ["小さく", "ちいさく", "縮小", "しゅくしょう", "zoomout"], "view.zoomOut", G.view, "x"),
     cmd("wrap", ["折り返し", "おりかえし", "orikaeshi"], "editor.toggleWrap", G.view, "text"),
     cmd("sidebar", ["サイドバー", "さいどばー", "エクスプローラー"], "view.toggleSidebar", G.view, "sidebar"),
-    cmd("preview", ["プレビュー", "ぷれびゅー", "markdown", "md"], "view.markdownPreview", G.view, "file"),
+    cmd("preview", ["プレビュー", "ぷれびゅー", "markdown", "md", "html", "ページ"], "view.markdownPreview", G.view, "file"),
     cmd("menu", ["メニュー", "めにゅー"], "view.menu", G.view, "sidebar"),
 
     // ───── 設定

@@ -5,6 +5,7 @@ mod fsops;
 mod git;
 mod local_ai;
 mod os_integration;
+mod preview;
 mod pty;
 mod runtimes;
 mod encoding;
@@ -101,6 +102,8 @@ pub fn run() {
             Ok(())
         })
         .manage(pty::PtyState::default())
+        .manage(preview::PreviewState::default())
+        .register_uri_scheme_protocol("aizpv", preview::handle)
         .manage(ai::AiState::new())
         .manage(local_ai::LocalAiState::default())
         .invoke_handler(tauri::generate_handler![
@@ -145,6 +148,8 @@ pub fn run() {
             os_integration::os_integration_set,
             os_integration::os_default_apps,
             os_integration::os_open_with,
+            preview::preview_set,
+            preview::preview_open_external,
             updater::update_install,
             extensions::ext_dir,
             extensions::ext_list,
