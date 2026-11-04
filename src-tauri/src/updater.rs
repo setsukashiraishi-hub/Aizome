@@ -12,7 +12,7 @@ use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
 
 /// 更新を配っているリポジトリ
-const REPO: &str = "zjybttvmpr-ux/aizome";
+const REPO: &str = "setsukashiraishi-hub/Aizome";
 
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]

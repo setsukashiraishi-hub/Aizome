@@ -563,7 +563,7 @@ function sections(): Section[] {
           row(t("set.autoUpdate"), toggle("update.autoCheck"), t("set.autoUpdateHelp"), true),
           osRow(),
           row(t("help.shortcuts"), button(t("set.showShortcuts"), () => commands.execute("help.shortcuts"))),
-          row(t("set.downloadPage"), h("code", { class: "set-code" }, "https://zjybttvmpr-ux.github.io/aizome/"), t("set.downloadHelp")),
+          row(t("set.downloadPage"), h("code", { class: "set-code" }, "https://setsukashiraishi-hub.github.io/Aizome/"), t("set.downloadHelp")),
           row(t("set.reset"), button(t("set.resetButton"), async () => {
             if (await confirmBox(t("set.reset"), t("set.resetConfirm"), t("set.resetButton"), true)) {
               localStorage.removeItem("aizome.settings.v1");

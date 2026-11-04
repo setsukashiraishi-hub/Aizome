@@ -2,6 +2,8 @@
 
 ローカルAIでコード補完ができる、拡張しやすい多言語コードエディタです。Windows・Mac・Linux で動きます。
 
+**ダウンロード**：https://setsukashiraishi-hub.github.io/Aizome/ （[すべてのリリース](https://github.com/setsukashiraishi-hub/Aizome/releases)）
+
 - **AI 補完**：入力を止めると、ローカルAI（Ollama など）の候補が薄く表示されます。Tab で確定、Ctrl/Alt+→ で1語ずつ確定、Esc で消せます。
 - **多言語**：CodeMirror 6 の言語パックで、Python・JavaScript/TypeScript・Rust・Go・C/C++・Java・PHP・Ruby・HTML/CSS・SQL・Markdown など100以上の形式を色分けします。画面は日本語と英語に対応しています。
 - **ターミナル**：下のパネルで本物のシェルが動きます。F5 か「実行」ボタンで、開いているファイルをすぐ試せます。出力に出た `main.py:12` のような場所はクリックで開けます。
@@ -39,6 +41,11 @@
 - 書いた日本語は各処理のコメントとして残り、あいまいな所は「仮定:」としてコードの先頭に書き出されます
 - メニューの AI →「組み立て用のひな形を入れる」で見本が入ります
 - 小さいモデル（1.5b）だと組み立ての質が落ちます。できれば `qwen2.5-coder:7b` 以上を使ってください
+
+### 0.48.0：置き場所の引っこし
+
+- リポジトリを [setsukashiraishi-hub/Aizome](https://github.com/setsukashiraishi-hub/Aizome) に移しました。アプリの更新の確認と、設定画面のダウンロードページも新しい場所を見ます
+- 0.47.0 以前をお使いの方は、一度だけ新しいダウンロードページから入れ直してください（古い版は古い場所の更新を見に行くため）
 
 ### 0.47.0：HTML・Markdown のプレビュー
 
@@ -563,7 +570,7 @@ docs/                 拡張機能の作り方とサンプル
    git push origin v0.1.0
    ```
 4. **Actions** タブで「Release」が終わるのを待ちます（20〜30分）。Windows・Mac・Linux のインストーラーがリリースに載ります。
-5. ダウンロードページは `https://<ユーザー名>.github.io/<リポジトリ名>/` です。開いた人の OS に合ったボタンが自動で出ます。
+5. ダウンロードページは `https://<ユーザー名>.github.io/<リポジトリ名>/` です（このリポジトリなら https://setsukashiraishi-hub.github.io/Aizome/ ）。開いた人の OS に合ったボタンが自動で出ます。
 
 新しいバージョンを出すときは、`package.json`・`src-tauri/tauri.conf.json`・`src-tauri/Cargo.toml` の version を上げて、同じ番号のタグを push します。ページは自動で最新版を指します。
 
