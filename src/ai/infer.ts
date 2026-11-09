@@ -21,39 +21,98 @@ export interface InferResult {
 
 const MAX_LINES = 300;
 
+/** 名前ではないもの（型・キーワード）。「int x = 1」の int などを変数とまちがえないため */
+const NOT_NAME = /^(if|elif|else|while|for|return|yield|await|async|def|class|function|fn|func|import|from|as|with|in|of|not|and|or|is|new|delete|typeof|case|switch|do|try|except|catch|finally|throw|raise|lambda|pass|break|continue|global|nonlocal|let|const|var|final|static|auto|mut|val|public|private|protected|int|long|short|float|double|char|bool|boolean|byte|void|string|String|unsigned|signed|size_t|struct|enum|self|this|None|True|False|null|true|false|nil|undefined)$/;
+
+const FOR_PY = /^\s*(?:async\s+)?for\s+(.+?)\s+in\s+/;
+const FOR_C = /^\s*for\s*\(\s*(?:(?:let|const|var|auto|final|[A-Za-z_][\w.]*(?:<[^>]*>)?(?:\[\])*\*?)\s+)?([A-Za-z_]\w*)\s*(?:=|:|\bof\b|\bin\b)/;
+const FOR_GO = /^\s*for\s+([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)?)\s*:=/;
+const VAR_GO = /^\s*var\s+([A-Za-z_]\w*)\s+[\w.\[\]*]+\s*=/;
+const ASSIGN_ANY = /^\s*(?:(?:let|const|var|final|static|auto|mut|val|my|local|[A-Za-z_][\w.]*(?:<[^>]*>)?(?:\[\])*\*?)\s+)*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*(?::\s*[^=:]+?)?\s*(?::=|\+=|-=|\*=|\/=|\/\/=|%=|\*\*=|=)(?![=>])/;
+const INC_DEC = /^\s*([A-Za-z_]\w*)\s*(?:\+\+|--)\s*;?\s*$/;
+const WITH_AS = /\bas\s+([A-Za-z_]\w*)\s*:\s*$/;
+
+/**
+ * 変数に値が入る（変わる）行と、その変数の名前。AI にはこの一覧の値を埋めてもらう。
+ * 例：「a = []」「total += i」「let x = 1」「int n = 5」「for i in range(5)」「for (let i = 0; …)」
+ */
+export function assignTargets(lines: string[], max = 80): { line: number; name: string }[] {
+  const out: { line: number; name: string }[] = [];
+  const add = (line: number, names: string) => {
+    for (const raw of names.split(",")) {
+      const name = raw.replace(/[()\[\]\s]/g, "");
+      if (!/^[A-Za-z_]\w*$/.test(name) || NOT_NAME.test(name) || name === "_") continue;
+      if (!out.some((o) => o.line === line && o.name === name)) out.push({ line, name });
+    }
+  };
+  for (let i = 0; i < lines.length && out.length < max; i++) {
+    const text = lines[i];
+    if (/^\s*(#|\/\/|\/\*|\*|--)/.test(text)) continue;
+    const n = i + 1;
+    let m: RegExpExecArray | null;
+    if ((m = FOR_GO.exec(text))) add(n, m[1]);
+    else if ((m = FOR_C.exec(text))) add(n, m[1]);
+    else if ((m = FOR_PY.exec(text))) add(n, m[1]);
+    else if ((m = VAR_GO.exec(text))) add(n, m[1]);
+    else if ((m = INC_DEC.exec(text))) add(n, m[1]);
+    else if ((m = ASSIGN_ANY.exec(text))) add(n, m[1]);
+    else if ((m = WITH_AS.exec(text))) add(n, m[1]);
+  }
+  return out.slice(0, max);
+}
+
+/**
+ * 自動判定で AI に送る指示の「お手本」。コード・値が入る行の一覧・答えを一組で見せる。
+ * 答えだけを見せると、小さいモデルはコードを読まずにその答えを写してしまう。
+ * 一覧だけを見せると、値を書かずに一覧を写して終わってしまう。
+ */
+const EXAMPLE_CODE = ["1: x = 3", "2: s = 0", "3: for k in range(x):", "4:     s += k", "5: w = input()"];
+const EXAMPLE_LIST = ["V|1|x|", "V|2|s|", "V|3|k|", "V|4|s|", "V|5|w|"];
+const EXAMPLE_ANSWER = ["V|1|x|3", "V|2|s|0", "V|3|k|0 → 1 → 2", "V|4|s|0 → 1 → 3", "V|5|w|ユーザーの入力（文字列）"];
+/** お手本の答えを写しただけの行（読み取るときに捨てる） */
+const EXAMPLE_ROWS = new Set(EXAMPLE_ANSWER.map((r) => r.replace(/\s/g, "")));
+
+/**
+ * 自動判定で AI に送る指示。
+ * 値が入る行はこちらで拾って一覧にし、お手本と同じ形で「| のあとを埋めて」と頼む。
+ */
 export function buildInferPrompt(code: string, filename: string): string {
   const lang = languageOf(filename) || "プログラム";
-  const numbered = code
-    .split("\n")
-    .slice(0, MAX_LINES)
-    .map((l, i) => `${i + 1}: ${l}`)
-    .join("\n");
+  const lines = code.split("\n").slice(0, MAX_LINES);
+  const numbered = lines.map((l, i) => `${i + 1}: ${l}`).join("\n");
+  const targets = assignTargets(lines);
+  const list = targets.length ? targets.map((t) => `V|${t.line}|${t.name}|`) : ["（値が入る行は自分で探して、同じ形で書く）"];
   return [
-    `次の ${lang} のコードを、実行せずに読んで考えてください。`,
+    `${lang} のコードを、実行せずに読んで考えてください。`,
     "",
-    "1. 変数に値が入る（変わる）行ごとに、その行を実行したあとの値を予想する。",
-    "   - くり返しの中なら「0 → 1 → … → 9」のように変化を書く。リストなどは最後の中身。",
-    "   - input() で受け取る値は「ユーザーの入力に依存（整数）」のように書く。入力から計算できるなら「n * 2（n はユーザーの入力）」のような式で書く。",
-    "   - ファイルや通信から読む値は「ファイルの内容に依存（文字列のリスト）」のように書く。",
-    "   - 値がわからないときは、None と書かずに、その V 行を書かない（本当に None が入るときだけ None と書く）。",
-    "2. 実行するとエラーになりそうな行と、その原因を短く書く（なければ書かない）。",
+    "1. 「一覧」の各行の最後の | のあとに、その行を実行したあとの変数の値を書きたす。",
+    "   - くり返しの中で変わる値は、変わる順に → でつなぐ。リストなどは最後の中身を書く。",
+    "   - input() などで受け取る値は「ユーザーの入力（整数）」、ファイルや通信から読む値は「ファイルの内容（文字列のリスト）」のように書く。入力から計算できるなら「n * 2（n はユーザーの入力）」のような式で書く。",
+    "   - 本当に None・null が入るときだけ None と書く。値がわからない行は、その行ごと書かない。",
+    "2. 実行するとエラーになりそうな行があれば「E|行番号|エラーの名前：原因」の形で書く（原因は 30 文字くらい、必ず日本語）。なければ E の行は書かない。",
     "   - 本当に実行するとエラーになるものだけ。書き方の好み・字下げ（Python 以外では字下げはエラーにならない）・正しい書式（%T %t %d など）は書かない。",
     "",
-    "出力は、次の 2 種類の行だけにしてください。前置きや説明の文章は書かないでください。",
-    "V|行番号|変数名|値",
-    "E|行番号|起きそうなエラーと原因（30 文字くらい。必ず日本語で書く）",
+    "答えは V の行と E の行だけにしてください。前置きや説明の文章は書かないでください。",
     "",
-    "例：",
-    "V|1|a|[]",
-    "V|2|i|0 → 1 → 2 → … → 9",
-    "V|3|a|[0, 1, 2, …, 9]",
-    "V|5|n|ユーザーの入力に依存（整数）",
-    "E|6|ZeroDivisionError：n が 0 だと割り算できない",
+    "【お手本】",
+    "コード：",
+    ...EXAMPLE_CODE,
+    "一覧：",
+    ...EXAMPLE_LIST,
+    "答え：",
+    ...EXAMPLE_ANSWER,
     "",
+    "【本番】（お手本の答えは写さず、このコードを読んで答える）",
     "コード：",
     numbered,
+    "一覧：",
+    ...list,
+    "答え：",
   ].join("\n");
 }
+
+/** 指示の中の言い回しを写しただけの値 */
+const PLACEHOLDER_VALUE = /^(値|最初の値 → 次の値 → … → 最後の値|その行を実行したあとの(変数の)?値|…+|\.\.\.)$/;
 
 const V_LINE = /^\s*V\s*[|｜]\s*(\d+)\s*[|｜]\s*([A-Za-z_][\w.]*(?:\[[^\]]*\])?)\s*[|｜]\s*(.+?)\s*$/;
 const E_LINE = /^\s*E\s*[|｜]\s*(\d+)\s*[|｜]\s*(.+?)\s*$/;
@@ -62,10 +121,12 @@ export function parseInfer(answer: string, lineCount: number, lang: string | nul
   const vars: InferVar[] = [];
   const risks: InferRisk[] = [];
   for (const row of answer.split("\n")) {
+    if (EXAMPLE_ROWS.has(row.replace(/\s/g, ""))) continue;
     const v = V_LINE.exec(row);
     if (v) {
       const line = Number(v[1]);
-      if (line >= 1 && line <= lineCount) vars.push({ line, name: v[2], value: v[3].slice(0, 160) });
+      // 指示の文をそのまま写しただけの値は使わない
+      if (line >= 1 && line <= lineCount && !PLACEHOLDER_VALUE.test(v[3])) vars.push({ line, name: v[2], value: v[3].slice(0, 160) });
       continue;
     }
     const e = E_LINE.exec(row);

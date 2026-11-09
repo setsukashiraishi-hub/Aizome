@@ -1,7 +1,7 @@
 {
   "name": "aizome",
   "private": true,
-  "version": "0.48.0",
+  "version": "0.48.1",
   "type": "module",
   "description": "ローカルAIで補完する、拡張しやすい多言語コードエディタ",
   "scripts": {

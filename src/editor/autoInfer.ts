@@ -277,6 +277,18 @@ function tracedValue(state: EditorState, name: string, lineNo: number): { value:
   return null;
 }
 
+/**
+ * AI が予想した値の行が「input() などで受け取る」行なのに、AI の答えが入力のことに触れていなければ、
+ * コードから読み取った見当（「ユーザーの入力に依存（整数）」など）を返す。それ以外は null
+ */
+function inputGuessFor(lines: string[], name: string, lineNo: number, inferred: { value: string; from: number }): string | null {
+  const text = lines[inferred.from - 1] ?? "";
+  if (!/\binput\s*\(|Console\.ReadLine|\bnextInt\b|\bnextLine\b|\bscanf\b|\bprompt\s*\(|readline\s*\(/.test(text)) return null;
+  if (/入力|input/i.test(inferred.value)) return null;
+  const guess = staticGuess(lines.slice(0, lineNo), name, lineNo);
+  return guess && /入力/.test(guess) ? guess : null;
+}
+
 function tooltipBox(name: string, lineNo: number, body: string, source: string): HTMLElement {
   const dom = document.createElement("div");
   dom.className = "cm-var-tip";
@@ -322,6 +334,10 @@ const hoverSource: Parameters<typeof hoverTooltip>[0] = (view, pos) => {
       if (sim) {
         body = sim.text;
         source = "コードを上から順に計算した予想・実行はしていません（入力や乱数があると変わります）";
+      } else if (inferred && "value" in inferred && inputGuessFor(docLines, word.text, lineNo, inferred)) {
+        // 入力で決まる値なのに、AI が「5」のように勝手な値を答えたときは、コードから確かにわかる方を出す
+        body = inputGuessFor(docLines, word.text, lineNo, inferred)!;
+        source = "コードから読み取った見当・実行はしていません";
       } else if (inferred && "value" in inferred) {
         body = inferred.value;
         source = `✦ AI の予想（${inferred.from} 行目で入る値）・実行はしていません`;
