@@ -4,7 +4,7 @@ import { t } from "../core/i18n";
 import { settings, type Settings } from "../core/settings";
 import { bus } from "../core/events";
 import { commands, formatKey } from "../core/commands";
-import { ai, dialog, osIntegration, runtimes, sys } from "../core/platform";
+import { ai, dialog, osIntegration, pty, runtimes, sys } from "../core/platform";
 import { quickPick } from "./palette";
 import { exportSettings, importSettings } from "./settingsTransfer";
 import { toast } from "./toast";
@@ -33,6 +33,24 @@ function row(label: string, control: HTMLElement, help?: string, inline = false)
 function select<K extends Key>(key: K, options: { value: string; label: string }[]) {
   const el = h("select", { class: "select" }, ...options.map((o) => h("option", { value: o.value, selected: String(settings.get(key)) === o.value }, o.label)));
   el.addEventListener("change", () => settings.set(key, el.value as Settings[K]));
+  return el;
+}
+
+/** Windows のシェルの選び方：この PC で使えるもの（PowerShell・コマンドプロンプトなど）から選ぶ */
+function shellSelect() {
+  const el = h("select", { class: "select" }) as HTMLSelectElement;
+  const fill = (shells: { name: string; command: string }[]) => {
+    clear(el);
+    const current = settings.get("terminal.shell") || "";
+    const auto = shells.some((x) => x.command === "pwsh.exe") ? "PowerShell 7" : "PowerShell";
+    const options = [{ value: "", label: t("settings.shellAuto", { name: auto }) }, ...shells.map((x) => ({ value: x.command, label: x.name }))];
+    // 前に手で書いたものが一覧にないときも、消さずに残す
+    if (current && !options.some((o) => o.value === current)) options.push({ value: current, label: current });
+    for (const o of options) el.append(h("option", { value: o.value, selected: o.value === current }, o.label));
+  };
+  fill([]);
+  void pty.shells().then(fill, () => {});
+  el.addEventListener("change", () => settings.set("terminal.shell", el.value));
   return el;
 }
 
@@ -547,7 +565,9 @@ function sections(): Section[] {
       label: t("settings.terminal"),
       icon: "terminal",
       build: () => [
-        row(t("settings.shell"), text("terminal.shell", t("settings.shellPlaceholder")), t("settings.shellHelp")),
+        navigator.userAgent.includes("Windows")
+          ? row(t("settings.shell"), shellSelect(), t("settings.shellHelpWin"))
+          : row(t("settings.shell"), text("terminal.shell", t("settings.shellPlaceholder")), t("settings.shellHelp")),
         row(t("settings.fontSize"), number("terminal.fontSize", 9, 24)),
       ],
     },

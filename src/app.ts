@@ -2622,7 +2622,7 @@ export class App {
       {
         type: "submenu",
         label: t("menu.run"),
-        items: () => [c("run.file"), c("run.build"), c("run.compareLast"), c("run.editInputs"), c("run.trace"), c("run.stepNext"), c("run.stepPrev"), c("run.clearValues"), sep, c("terminal.new"), c("terminal.toggle", () => this.terminal.isVisible), c("terminal.clear")],
+        items: () => [c("run.file"), c("run.build"), c("run.compareLast"), c("run.editInputs"), c("run.trace"), c("run.stepNext"), c("run.stepPrev"), c("run.clearValues"), sep, c("terminal.new"), ...(commands.get("terminal.newCmd") ? [c("terminal.newCmd"), c("terminal.newPowerShell")] : []), c("terminal.toggle", () => this.terminal.isVisible), c("terminal.clear")],
       },
       {
         type: "submenu",
@@ -2837,6 +2837,12 @@ export class App {
     reg("view.settings", "cmd.showSettings", () => settingsPage.toggle(), "Mod-,", true);
     reg("terminal.toggle", "cmd.toggleTerminal", () => this.terminal.toggle(), "Mod-`", true);
     reg("terminal.new", "cmd.newTerminal", () => this.terminal.newTerminal(), "Mod-Shift-`", true);
+    // ここは sys.info() を読む前に動くので、this.sys.os ではなく userAgent で Windows かどうかを見る
+    if (navigator.userAgent.includes("Windows")) {
+      // 授業のプリントはコマンドプロンプト向け・PowerShell 向けのどちらもあるので、すぐ開けるように
+      reg("terminal.newCmd", "cmd.newCmd", () => this.terminal.openShell("cmd"), undefined, true);
+      reg("terminal.newPowerShell", "cmd.newPowerShell", () => this.terminal.openShell("powershell"), undefined, true);
+    }
     reg("run.file", "cmd.run", () => this.runActive(), "F5", true);
     reg("editor.goToLine", "cmd.goToLine", () => this.goToLine(), "Mod-G");
     // 拡張機能用：commands.execute("editor.goToLineNumber", 行, 列)

@@ -334,7 +334,7 @@ export class TerminalPanel {
       type: "action",
       label: sh.name,
       hint: sh.command === (settings.get("terminal.shell") || "") ? t("terminal.default") : undefined,
-      run: () => this.newTerminal({ name: sh.name, shell: sh.command }),
+      run: () => this.newTerminal({ name: shellLabel(sh.command) ? undefined : sh.name, shell: sh.command }),
     }));
     if (shells.length) {
       items.push({ type: "separator" });
@@ -353,7 +353,26 @@ export class TerminalPanel {
     menu.open(anchor, items.length ? items : [{ type: "note", label: t("terminal.noShells") }]);
   }
 
+  /** PowerShell・コマンドプロンプトのターミナルを新しく開く（Windows だけ） */
+  openShell(kind: "powershell" | "cmd") {
+    return this.newTerminal({ shell: kind === "cmd" ? "cmd.exe" : "powershell.exe" });
+  }
+
+  /** そのシェルで開いたときのタブの名前（「PowerShell 1」「cmd 2」など）。種類がわからないときは「ターミナル 1」 */
+  private async tabName(shell: string | undefined): Promise<string> {
+    let label = shellLabel(shell ?? "");
+    if (!label && !shell && navigator.userAgent.includes("Windows")) {
+      // 何も選んでいないときは、pwsh.exe があればそれ、なければ powershell.exe が開く
+      const shells = (this.shells ??= await pty.shells().catch(() => []));
+      label = shells.some((x) => x.command === "pwsh.exe") ? "PowerShell 7" : "PowerShell";
+    }
+    const n = String(++this.counter);
+    return label ? `${label} ${n}` : t("terminal.tabName", { n });
+  }
+
   async newTerminal(opts: { name?: string; runner?: boolean; cwd?: string; shell?: string; key?: string } = {}): Promise<Session> {
+    const shell = opts.shell ?? (settings.get("terminal.shell") || undefined);
+    const name = opts.name ?? (await this.tabName(shell));
     await this.listen();
     if (!this.visible) {
       this.visible = true;
@@ -363,7 +382,7 @@ export class TerminalPanel {
     const view = createTermView({ fontSize: settings.get("terminal.fontSize") });
     const session: Session = {
       ptyId: null,
-      name: opts.name ?? t("terminal.tabName", { n: String(++this.counter) }),
+      name,
       view,
       alive: true,
       runner: !!opts.runner,
@@ -385,7 +404,7 @@ export class TerminalPanel {
         cwd: opts.cwd ?? this.deps.cwd(),
         cols: Math.max(view.cols, 20),
         rows: Math.max(view.rows, 5),
-        shell: opts.shell ?? (settings.get("terminal.shell") || undefined),
+        shell,
       });
     } catch (err) {
       session.alive = false;
@@ -566,4 +585,12 @@ export class TerminalPanel {
     this.show();
     if (s.ptyId !== null) await pty.write(s.ptyId, command + "\r");
   }
+}
+
+/** シェルのコマンドから、タブに出す短い名前を決める（わからなければ null） */
+export function shellLabel(command: string): string | null {
+  const exe = (command.trim().match(/^"([^"]+)"|^(\S+)/)?.slice(1).find(Boolean) ?? "").replace(/^.*[\\/]/, "").toLowerCase().replace(/\.exe$/, "");
+  const names: Record<string, string> = { powershell: "PowerShell", pwsh: "PowerShell 7", cmd: "cmd", bash: "Git Bash", wsl: "WSL" };
+  if (exe === "bash" && !/git/i.test(command)) return "bash";
+  return names[exe] ?? null;
 }

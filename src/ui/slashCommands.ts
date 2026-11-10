@@ -225,8 +225,15 @@ export function registerBuiltinSlash(d: SlashDeps) {
     cmd("step", ["ステップ", "すてっぷ", "1回ずつ", "次の回", "その時点", "step"], "run.stepNext", G.run, "chevron", "その行が何回目に動いた瞬間の値・出力を 1 回ずつ見る（F7 / Shift+F7）"),
     cmd("values", ["値", "あたい", "値を見る", "変数", "へんすう", "中身", "なかみ", "トレース", "trace", "デバッグ", "debug", "atai"], "run.trace", G.run, "eye", "行ごとに変数の値を記録しながら実行して、行の右に表示（Python）"),
     cmd("run", ["実行", "じっこう", "jikkou", "jikko", "うごかす", "動かす", "F5"], "run.file", G.run, "play"),
-    cmd("terminal", ["ターミナル", "たーみなる", "cmd", "コマンドプロンプト", "端末", "ta-minaru"], "terminal.toggle", G.run, "terminal"),
+    cmd("terminal", ["ターミナル", "たーみなる", "端末", "ta-minaru"], "terminal.toggle", G.run, "terminal"),
     cmd("newterm", ["新しいターミナル", "あたらしいたーみなる"], "terminal.new", G.run, "terminal"),
+    // 登録は OS の情報を読む前に動くので、d.os() ではなく userAgent で見る
+    ...(navigator.userAgent.includes("Windows")
+      ? [
+          cmd("cmd", ["コマンドプロンプト", "こまんどぷろんぷと", "コマプロ", "こまぷろ", "command", "komapuro"], "terminal.newCmd", G.run, "terminal", "コマンドプロンプトのターミナルを開く（set HTTPS_PROXY=… や dir /? が、プリントのとおりに使える）"),
+          cmd("powershell", ["パワーシェル", "ぱわーしぇる", "ps", "pawa-sheru"], "terminal.newPowerShell", G.run, "terminal", "PowerShell のターミナルを開く（環境変数は $env:HTTPS_PROXY=\"…\" の書き方）"),
+        ]
+      : []),
     cmd("clear", ["クリア", "くりあ", "画面を消す", "cls"], "terminal.clear", G.run, "trash"),
     {
       name: "error",
