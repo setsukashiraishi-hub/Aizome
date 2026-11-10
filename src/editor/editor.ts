@@ -36,6 +36,8 @@ import { langTag } from "./langTag";
 import { setValues, valueLens } from "./valueLens";
 import type { LineValue, TraceResult } from "../run/trace";
 import { autoInfer } from "./autoInfer";
+import { scopeGuides } from "./scopeGuides";
+import { renameSuggest } from "./renameSuggest";
 import { liveCheck } from "./liveCheck";
 import { runErrorsField, setRunErrors } from "./runErrors";
 import { occurrences, renameAll, symbolAt } from "./rename";
@@ -352,6 +354,8 @@ class CodeMirrorHost implements EditorHost {
       valueLens(),
       autoInfer(),
       liveCheck(),
+      scopeGuides(),
+      renameSuggest(),
       runErrorsField,
       languageSlot.of([]),
       configSlot.of(configExtensions()),

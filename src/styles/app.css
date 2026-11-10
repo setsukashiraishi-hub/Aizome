@@ -4458,3 +4458,74 @@ html.has-bg .pane-bar {
   color: var(--text-faint);
   text-decoration: line-through;
 }
+
+/* まとまりの線（if・for・関数など）。色は種類ごと、カーソルのあるまとまりは濃く */
+.cm-block-guides {
+  --g-branch: #e3a04f;
+  --g-loop: #5aa2ea;
+  --g-func: #b58ee6;
+  --g-class: #4fc49b;
+  --g-try: #e07474;
+  --g-with: #8fb3c9;
+  --g-data: #8b95a3;
+  --g-block: #8b95a3;
+}
+.cm-block-guide {
+  border-left: 1px solid var(--g, var(--g-block));
+  border-bottom: 1px solid var(--g, var(--g-block));
+  border-bottom-left-radius: 3px;
+  opacity: 0.32;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.cm-block-guide.on {
+  border-left-width: 2px;
+  border-bottom-width: 2px;
+  opacity: 0.95;
+}
+.cm-block-guide.k-branch { --g: var(--g-branch); }
+.cm-block-guide.k-loop { --g: var(--g-loop); }
+.cm-block-guide.k-func { --g: var(--g-func); }
+.cm-block-guide.k-class { --g: var(--g-class); }
+.cm-block-guide.k-try { --g: var(--g-try); }
+.cm-block-guide.k-with { --g: var(--g-with); }
+.cm-block-guide.k-data { --g: var(--g-data); border-left-style: dashed; }
+
+/* 分岐の「もし〇〇なら」 */
+.cm-branch-label {
+  margin-left: 1.6em;
+  padding: 0 6px;
+  border-left: 2px solid #e3a04f;
+  border-radius: 3px;
+  font-family: var(--font-ui);
+  font-size: 0.82em;
+  color: var(--text-muted);
+  background: color-mix(in srgb, #e3a04f 10%, transparent);
+  white-space: pre;
+  pointer-events: none;
+}
+.cm-branch-label.k-try {
+  border-left-color: #e07474;
+  background: color-mix(in srgb, #e07474 10%, transparent);
+}
+.cm-branch-label.k-loop {
+  border-left-color: #5aa2ea;
+  background: color-mix(in srgb, #5aa2ea 10%, transparent);
+}
+
+/* 名前をまとめて変えるか聞く小窓 */
+.cm-tooltip:has(.cm-rename-suggest) {
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border));
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+.cm-rename-suggest {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text);
+}

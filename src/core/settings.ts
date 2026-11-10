@@ -102,6 +102,12 @@ export interface Settings {
   "editor.valueHover": boolean;
   /** 自動判定で、Python を裏で安全に動かして本当の値を出す */
   "editor.realValues": boolean;
+  /** if・for・関数などのまとまりを、色つきの線で示す */
+  "editor.blockGuides": boolean;
+  /** 分岐（if・else など）に「もし〇〇なら」を出す */
+  "editor.branchLabels": boolean;
+  /** 名前を 1 か所書きかえたら、ほかもまとめて変えるか聞く */
+  "editor.renameSuggest": boolean;
   /** Shift+クリック・F12 で定義元へ飛ぶ */
   "editor.gotoDefinition": boolean;
   /** インデントを動かしたあと、Tab で下の行もまとめて動かす */
@@ -228,6 +234,9 @@ export const defaults: Settings = {
   "editor.buildLens": true,
   "editor.valueHover": true,
   "editor.realValues": true,
+  "editor.blockGuides": true,
+  "editor.branchLabels": true,
+  "editor.renameSuggest": true,
   "editor.gotoDefinition": true,
   "editor.indentFollow": true,
   "editor.liveCheck": true,
