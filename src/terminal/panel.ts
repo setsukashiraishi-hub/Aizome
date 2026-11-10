@@ -9,6 +9,7 @@ import { createTermView } from "./xtermView";
 import { toast } from "../ui/toast";
 import { menu, type MenuItem } from "../ui/menu";
 import type { TermView } from "./types";
+import { afterFor, completeLine, inputAfterPrompt, type ShellKind } from "./tabComplete";
 
 interface Session {
   ptyId: number | null;
@@ -18,6 +19,8 @@ interface Session {
   runner: boolean;
   /** 実行用のとき、どのファイルのものか（ファイルごとに別のタブで実行して比べられる） */
   key?: string;
+  /** Tab 補完のため：どのシェルか */
+  kind: ShellKind;
 }
 
 interface Watch {
@@ -353,6 +356,42 @@ export class TerminalPanel {
     menu.open(anchor, items.length ? items : [{ type: "note", label: t("terminal.noShells") }]);
   }
 
+  /**
+   * Tab 補完：pip ins → install のように、シェルがもともと補えないコマンドの続きを入れる。
+   * 候補がいくつもあれば一覧を出す。決められなければ false（シェル自身の補完にまかせる）
+   */
+  private tabComplete(s: Session): boolean {
+    if (!settings.get("terminal.tabComplete") || !s.alive || s.ptyId === null) return false;
+    const line = s.view.lineBeforeCursor();
+    const input = line === null ? null : inputAfterPrompt(line);
+    if (input === null) return false;
+    const c = completeLine(input, s.kind);
+    if (!c) return false;
+    const send = (text: string) => {
+      if (text && s.ptyId !== null) pty.write(s.ptyId, text).catch(() => {});
+    };
+    if (c.choices.length === 1) {
+      const word = c.choices[0].word;
+      send(c.common + afterFor(c, word));
+      return true;
+    }
+    send(c.common);
+    // 候補の一覧（↑↓ と Enter で選ぶ）
+    const typed = c.prefix.length + c.common.length;
+    const pos = s.view.cursorRect();
+    const anchor = h("div", { style: `position:fixed;left:${pos.left}px;top:${pos.top}px;width:1px;height:${pos.height}px;pointer-events:none` });
+    document.body.append(anchor);
+    menu.open(
+      anchor,
+      c.choices.map((ch) => ({ type: "action", label: ch.word, hint: ch.desc, run: () => send(ch.word.slice(typed) + afterFor(c, ch.word)) })),
+      () => {
+        anchor.remove();
+        s.view.focus();
+      },
+    );
+    return true;
+  }
+
   /** PowerShell・コマンドプロンプトのターミナルを新しく開く（Windows だけ） */
   openShell(kind: "powershell" | "cmd") {
     return this.newTerminal({ shell: kind === "cmd" ? "cmd.exe" : "powershell.exe" });
@@ -387,12 +426,14 @@ export class TerminalPanel {
       alive: true,
       runner: !!opts.runner,
       key: opts.key,
+      kind: shellKind(shell),
     };
     this.sessions.push(session);
     this.body.append(view.el);
     this.select(session);
     view.fit();
     view.onFileLink((p, l, c) => this.deps.openLocation(p, l, c));
+    view.onTab(() => this.tabComplete(session));
     view.onInput((data) => {
       if (session.alive && session.ptyId !== null) pty.write(session.ptyId, data).catch(() => {});
     });
@@ -593,4 +634,14 @@ export function shellLabel(command: string): string | null {
   const names: Record<string, string> = { powershell: "PowerShell", pwsh: "PowerShell 7", cmd: "cmd", bash: "Git Bash", wsl: "WSL" };
   if (exe === "bash" && !/git/i.test(command)) return "bash";
   return names[exe] ?? null;
+}
+
+/** Tab 補完のための、シェルの種類 */
+function shellKind(shell: string | undefined): ShellKind {
+  const label = shellLabel(shell ?? "");
+  if (label === "cmd") return "cmd";
+  if (label?.startsWith("PowerShell")) return "powershell";
+  // 何も選んでいない Windows は PowerShell が開く
+  if (!shell && navigator.userAgent.includes("Windows")) return "powershell";
+  return "other";
 }

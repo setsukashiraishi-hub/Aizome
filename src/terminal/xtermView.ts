@@ -87,7 +87,13 @@ export function createTermView(opts: { fontSize: number }): TermView {
       return false;
     }
   };
+  let tabCb: (() => boolean) | null = null;
   term.attachCustomKeyEventHandler((e) => {
+    // Tab：アイゾメの補完で決められれば、それを入れる（決められなければ、シェル自身の補完にまかせる）
+    if (e.type === "keydown" && e.key === "Tab" && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && !e.isComposing && tabCb?.()) {
+      e.preventDefault();
+      return false;
+    }
     if (e.type !== "keydown" || !settings.get("terminal.smartCopy")) return true;
     const mod = e.ctrlKey || e.metaKey;
     if (!mod || e.altKey) return true;
@@ -177,6 +183,31 @@ export function createTermView(opts: { fontSize: number }): TermView {
         else out.push(line.translateToString(true));
       }
       return out.join("\n");
+    },
+    onTab: (cb) => {
+      tabCb = cb;
+    },
+    lineBeforeCursor: () => {
+      const buf = term.buffer.active;
+      let y = buf.baseY + buf.cursorY;
+      const line = buf.getLine(y);
+      if (!line) return null;
+      if (line.translateToString(true, buf.cursorX).trim()) return null;
+      let text = line.translateToString(false, 0, buf.cursorX);
+      // 長い入力が折り返されているときは、前の行もつなげる
+      while (buf.getLine(y)?.isWrapped && y > 0) {
+        y--;
+        text = (buf.getLine(y)?.translateToString(false) ?? "") + text;
+      }
+      return text;
+    },
+    cursorRect: () => {
+      const screen = (el.querySelector(".xterm-screen") as HTMLElement | null) ?? el;
+      const r = screen.getBoundingClientRect();
+      const cw = r.width / Math.max(1, term.cols);
+      const ch = r.height / Math.max(1, term.rows);
+      const buf = term.buffer.active;
+      return { left: r.left + buf.cursorX * cw, top: r.top + buf.cursorY * ch, height: ch };
     },
     applyTheme: () => {
       term.options.theme = themeFromCss();

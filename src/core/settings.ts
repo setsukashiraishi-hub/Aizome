@@ -30,6 +30,8 @@ export interface Settings {
   "ai.maxTokens": number;
   "ai.apiKey": string;
   "terminal.shell": string;
+  /** ターミナルの Tab で、pip install などコマンドの続きを補う（cmd・PowerShell） */
+  "terminal.tabComplete": boolean;
   "terminal.fontSize": number;
   "workspace.last": string;
   "workspace.recent": string[];
@@ -98,6 +100,8 @@ export interface Settings {
   "editor.buildLens": boolean;
   /** 変数にマウスを乗せたときの小窓（値・自動判定） */
   "editor.valueHover": boolean;
+  /** 自動判定で、Python を裏で安全に動かして本当の値を出す */
+  "editor.realValues": boolean;
   /** Shift+クリック・F12 で定義元へ飛ぶ */
   "editor.gotoDefinition": boolean;
   /** インデントを動かしたあと、Tab で下の行もまとめて動かす */
@@ -174,6 +178,7 @@ export const defaults: Settings = {
   "ai.maxTokens": 96,
   "ai.apiKey": "",
   "terminal.shell": "",
+  "terminal.tabComplete": true,
   "terminal.fontSize": 13,
   "workspace.last": "",
   "workspace.recent": [],
@@ -222,6 +227,7 @@ export const defaults: Settings = {
   "ai.inline": true,
   "editor.buildLens": true,
   "editor.valueHover": true,
+  "editor.realValues": true,
   "editor.gotoDefinition": true,
   "editor.indentFollow": true,
   "editor.liveCheck": true,

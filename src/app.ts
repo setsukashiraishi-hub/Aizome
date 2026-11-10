@@ -4,6 +4,7 @@ import { t } from "./core/i18n";
 import { bus } from "./core/events";
 import { settings } from "./core/settings";
 import { commands, formatKey, installKeybindings } from "./core/commands";
+import { setLastRun } from "./editor/realValues";
 import { fs, dialog, sys, git, appWindow, osIntegration, runtimes, tools, type SysInfo } from "./core/platform";
 import { basename, dirname, extname, isInside, join, relative, resolveIn, stripExt } from "./core/paths";
 import { LANG_CHOICES, directiveAsComment, guessLanguage, parseDirective, setDirective } from "./core/langDirective";
@@ -1647,6 +1648,8 @@ export class App {
     const values = formatTrace(result);
     if (this.activeId !== docId) this.activate(docId);
     this.traceRaw.set(docId, result);
+    // 自動判定でも使えるように、そのときのコードといっしょに覚えておく（書きかえても、変えていない行は使える）
+    setLastRun(docId, result, startText);
     this.traceStep = null;
     this.valuesShown.add(docId);
     // 行の右の表示を「値」に切り替える（「戻り値」を見ているときはそのまま）

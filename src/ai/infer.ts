@@ -76,16 +76,23 @@ const EXAMPLE_ROWS = new Set(EXAMPLE_ANSWER.map((r) => r.replace(/\s/g, "")));
  * 自動判定で AI に送る指示。
  * 値が入る行はこちらで拾って一覧にし、お手本と同じ形で「| のあとを埋めて」と頼む。
  */
-export function buildInferPrompt(code: string, filename: string): string {
+export function buildInferPrompt(code: string, filename: string, known: Map<string, string> = new Map()): string {
   const lang = languageOf(filename) || "プログラム";
   const lines = code.split("\n").slice(0, MAX_LINES);
   const numbered = lines.map((l, i) => `${i + 1}: ${l}`).join("\n");
   const targets = assignTargets(lines);
-  const list = targets.length ? targets.map((t) => `V|${t.line}|${t.name}|`) : ["（値が入る行は自分で探して、同じ形で書く）"];
+  // 実際に計算してわかった値は、はじめから書いておく（AI はそれをもとに、空いている行だけ考えればよい）
+  const filled = (t: { line: number; name: string }) => {
+    const v = known.get(`${t.line}|${t.name}`);
+    return v === undefined ? "" : v.length > 80 ? v.slice(0, 79) + "…" : v;
+  };
+  const list = targets.length ? targets.map((t) => `V|${t.line}|${t.name}|${filled(t)}`) : ["（値が入る行は自分で探して、同じ形で書く）"];
+  const hasKnown = targets.some((t) => filled(t));
   return [
     `${lang} のコードを、実行せずに読んで考えてください。`,
     "",
     "1. 「一覧」の各行の最後の | のあとに、その行を実行したあとの変数の値を書きたす。",
+    ...(hasKnown ? ["   - 一覧で値がもう書いてある行は、実際に計算した確かな値。そのまま写し、空いている行は、その値をもとに考えて埋める。"] : []),
     "   - くり返しの中で変わる値は、変わる順に → でつなぐ。リストなどは最後の中身を書く。",
     "   - input() などで受け取る値は「ユーザーの入力（整数）」、ファイルや通信から読む値は「ファイルの内容（文字列のリスト）」のように書く。入力から計算できるなら「n * 2（n はユーザーの入力）」のような式で書く。",
     "   - 本当に None・null が入るときだけ None と書く。値がわからない行は、その行ごと書かない。",

@@ -43,6 +43,17 @@ Windows でビルドするときは、先に PowerShell で `./scripts/fetch-con
   - `release.yml`：インストーラーを作ってリリースに載せる
   - `pages.yml`：ダウンロードページの公開
 
+## 自動判定の値（マウスを乗せたとき）の仕組み
+
+| ファイル | 役目 |
+|---|---|
+| `src/editor/hoverValue.ts` | 出す値を決める順番（前の実行 → 実際に計算 → simulate → AI → 見当）。CodeMirror に頼らないので node から試せる |
+| `src/editor/realValues.ts` | F6 の記録をタブごとに覚える・書きかえていない行の対応・記録から「その行の時点の値」を探す |
+| `src/run/sandbox.ts` | Python を裏で安全に動かす（`TRACER_PY` を使う）。危ない import・open などは動かさず、input() で止める |
+| `src/editor/knownValues.ts` | AI に聞く前にわかっている値を集める（AI へのヒントと、食いちがう答えの直しに使う） |
+
+裏で動かす部分は「自分のコードで、うっかりファイルを消したり書いたりしない」ためのものです。わざと抜けようとするコードを完全に止めるものではありません。
+
 ## 変えたら確かめること
 
 ```bash

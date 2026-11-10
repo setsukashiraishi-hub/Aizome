@@ -1,21 +1,26 @@
-// 自動判定モード：実行せずに AI がコード全体を読んで、変数の中身とエラーになりそうな行を予想する。
+// 自動判定モード：変数の中身とエラーになりそうな行を見せる。
 // - 変数の上にマウスを置いて少し待つと、その行の時点での値を小窓で見せる（値モードでは実行した結果を見せる）
+//   値は「前の実行（F6）の記録」→「Python を裏で動かした本当の値」→ 上から計算した予想 → AI の予想 の順（hoverValue.ts）
 // - エラーになりそうな行には、右に薄く原因を書く
 import { Compartment, RangeSetBuilder, type EditorState, type Extension } from "@codemirror/state";
 import { Decoration, EditorView, ViewPlugin, WidgetType, hoverTooltip, type DecorationSet, type ViewUpdate } from "@codemirror/view";
 import { settings } from "../core/settings";
 import { completer } from "../ai/completer";
-import { buildInferPrompt, hashText, implausibleRisk, lookupInferred, parseInfer, staticGuess, type InferResult } from "../ai/infer";
+import { buildInferPrompt, hashText, implausibleRisk, parseInfer, type InferResult } from "../ai/infer";
 import { docFilename, docId } from "./ghost";
 import { fs } from "../core/platform";
 import { dirname, join } from "../core/paths";
-import { simulateValue } from "../ai/simulate";
 import { forEachView, sideMode, sideModeChanged, trackView } from "./sideMode";
 import { bus } from "../core/events";
 import { traceAt, traceTimeAt } from "./valueLens";
+import { cachedSandbox, runSandbox } from "../run/sandbox";
+import { lastRunFor } from "./realValues";
+import { autoHoverValue, skipHoverWord } from "./hoverValue";
+import { knownValues } from "./knownValues";
 import { inferBusy, setInferBusy } from "./inferState";
 import { checkLangOfState, predictedProblems, syntaxProblems } from "./liveCheck";
 import { t } from "../core/i18n";
+import { explainRuntime } from "../run/pyErrors";
 
 /** AI の予想が新しくなった合図（行の説明もこれで描き直す） */
 import { inferUpdated } from "./checkEvents";
@@ -27,7 +32,7 @@ export function riskLines(state: EditorState): Set<number> {
   const syntax = syntaxProblems(state);
   if (syntax.length) return new Set(syntax.map((s) => s.line));
   const ai = (resultFor(state)?.risks ?? []).filter((r) => r.line <= state.doc.lines && fileRisk(state, r.line, r.reason) !== "hide");
-  return new Set([...predictedProblems(state).map((p) => p.line), ...ai.map((r) => r.line)]);
+  return new Set([...realError(state).map((p) => p.line), ...predictedProblems(state).map((p) => p.line), ...ai.map((r) => r.line)]);
 }
 
 // ───────── AI の予想（コードごとに覚えておく）
@@ -42,8 +47,37 @@ function resultFor(state: EditorState): InferResult | null {
 
 function stop() {
   window.clearTimeout(timer);
+  window.clearTimeout(sandboxTimer);
   cancelRunning?.();
   cancelRunning = null;
+}
+
+// ───────── Python を裏で動かして本当の値を取る（書きかえが止まって 1 秒たったら）
+let sandboxTimer: number | undefined;
+let sandboxBusy = false;
+
+function isPython(state: EditorState): boolean {
+  return checkLangOfState(state) === "python";
+}
+
+function scheduleSandbox(view: EditorView, delay = 1000) {
+  window.clearTimeout(sandboxTimer);
+  if (sideMode() !== "auto" || !settings.get("editor.realValues") || !isPython(view.state)) return;
+  sandboxTimer = window.setTimeout(async () => {
+    const text = view.state.doc.toString();
+    if (!text.trim() || cachedSandbox(text)) return;
+    sandboxBusy = true;
+    try {
+      await runSandbox(text);
+    } finally {
+      sandboxBusy = false;
+    }
+    // 計算できた値は、AI に渡すヒントにもなるので、AI の予想を頼み直す
+    if (view.state.doc.toString() === text) {
+      view.dispatch({ effects: inferUpdated.of(null) });
+      schedule(view, 300);
+    }
+  }, delay);
 }
 
 function schedule(view: EditorView, delay = 2500) {
@@ -64,10 +98,23 @@ async function analyze(view: EditorView) {
     view.dispatch({ effects: inferUpdated.of(null) });
     return;
   }
+  // Python は、裏で計算している最中なら、その結果を待ってから（わかった値を AI に渡すため）
+  if (sandboxBusy) return schedule(view, 800);
+  const known = knownValues(view.state.doc.toString().split("\n"), {
+    lastRun: lastRunFor(view.state.facet(docId)),
+    sandbox: isPython(view.state) && settings.get("editor.realValues") ? cachedSandbox(text) : null,
+    simulate: settings.get("editor.liveCheck") !== false && isPython(view.state),
+  });
+  // 値が入る行がすべてわかっていて、実際に最後まで動いたなら、AI に聞くことはない
+  if (known.complete) {
+    cache.set(key, { vars: [], risks: [] });
+    view.dispatch({ effects: inferUpdated.of(null) });
+    return;
+  }
   let stopped = false;
   setInferBusy(true);
   try {
-    const answer = await completer.ask(buildInferPrompt(text, view.state.facet(docFilename)), {
+    const answer = await completer.ask(buildInferPrompt(text, view.state.facet(docFilename), known.values), {
       maxTokens: 1400,
       temperature: 0.1,
       onStart: (cancel) => {
@@ -80,6 +127,11 @@ async function analyze(view: EditorView) {
     cancelRunning = null;
     if (stopped) return;
     const result = parseInfer(answer, view.state.doc.lines, checkLangOfState(view.state));
+    // わかっている値と食いちがう AI の答えは、わかっている値に直す
+    for (const v of result.vars) {
+      const k = known.values.get(`${v.line}|${v.name}`);
+      if (k !== undefined) v.value = k;
+    }
     cache.set(key, result);
     while (cache.size > 30) cache.delete(cache.keys().next().value as string);
     view.dispatch({ effects: inferUpdated.of(null) });
@@ -191,6 +243,17 @@ function fileRisk(state: EditorState, lineNo: number, reason: string): { text: s
   return { text: t("predict.fileMaybeAny") };
 }
 
+/** Python を裏で動かしたら本当にエラーになった行（0 で割った・リストの範囲の外 など） */
+function realError(state: EditorState): { line: number; text: string }[] {
+  if (!settings.get("editor.realValues") || !isPython(state)) return [];
+  const text = state.doc.toString();
+  const sb = cachedSandbox(text);
+  const err = sb?.trace?.error;
+  if (!err?.line || sb?.stop?.kind !== "error" || err.line > state.doc.lines) return [];
+  const ex = explainRuntime(err, text);
+  return [{ line: err.line, text: `${t("check.runWillFail")}：${ex.text}` }];
+}
+
 function buildRisks(state: EditorState): DecorationSet {
   if (sideMode() !== "auto") return Decoration.none;
   // 文法のまちがいがあると実行そのものができないので、それを先に（AI の予想より確か）
@@ -205,7 +268,7 @@ function buildRisks(state: EditorState): DecorationSet {
   }
   const result = resultFor(state);
   // 書き方から確かにわかる「実行するとエラー」（まだない名前・math.cil など）を先に、AI の予想はほかの行に
-  const predicted = predictedProblems(state);
+  const predicted = [...realError(state), ...predictedProblems(state)];
   if (!result?.risks.length && !predicted.length) return Decoration.none;
   const b = new RangeSetBuilder<Decoration>();
   const seen = new Set<number>();
@@ -277,18 +340,6 @@ function tracedValue(state: EditorState, name: string, lineNo: number): { value:
   return null;
 }
 
-/**
- * AI が予想した値の行が「input() などで受け取る」行なのに、AI の答えが入力のことに触れていなければ、
- * コードから読み取った見当（「ユーザーの入力に依存（整数）」など）を返す。それ以外は null
- */
-function inputGuessFor(lines: string[], name: string, lineNo: number, inferred: { value: string; from: number }): string | null {
-  const text = lines[inferred.from - 1] ?? "";
-  if (!/\binput\s*\(|Console\.ReadLine|\bnextInt\b|\bnextLine\b|\bscanf\b|\bprompt\s*\(|readline\s*\(/.test(text)) return null;
-  if (/入力|input/i.test(inferred.value)) return null;
-  const guess = staticGuess(lines.slice(0, lineNo), name, lineNo);
-  return guess && /入力/.test(guess) ? guess : null;
-}
-
 function tooltipBox(name: string, lineNo: number, body: string, source: string): HTMLElement {
   const dom = document.createElement("div");
   dom.className = "cm-var-tip";
@@ -310,7 +361,9 @@ const hoverSource: Parameters<typeof hoverTooltip>[0] = (view, pos) => {
     if ((mode !== "auto" && mode !== "values" && mode !== "output") || !settings.get("editor.valueHover")) return null;
     const word = wordAt(view.state, pos);
     if (!word) return null;
-    const lineNo = view.state.doc.lineAt(pos).number;
+    const lineAt = view.state.doc.lineAt(pos);
+    if (skipHoverWord(lineAt.text, word.from - lineAt.from, word.to - lineAt.from, word.text, view.state.doc.toString())) return null;
+    const lineNo = lineAt.number;
     let body: string | null = null;
     let source = "";
     if (mode === "values" || mode === "output") {
@@ -328,49 +381,21 @@ const hoverSource: Parameters<typeof hoverTooltip>[0] = (view, pos) => {
     } else {
       const docLines: string[] = [];
       for (let n = 1; n <= view.state.doc.lines && n <= 2000; n++) docLines.push(view.state.doc.line(n).text);
-      const inferred = lookupInferred(resultFor(view.state), word.text, lineNo, docLines);
-      // かんたんなコードなら、上から順に計算した値（AI の予想より確か）
-      const sim = settings.get("editor.liveCheck") !== false ? simulateValue(docLines, word.text, lineNo) : null;
-      if (sim) {
-        body = sim.text;
-        source = "コードを上から順に計算した予想・実行はしていません（入力や乱数があると変わります）";
-      } else if (inferred && "value" in inferred && inputGuessFor(docLines, word.text, lineNo, inferred)) {
-        // 入力で決まる値なのに、AI が「5」のように勝手な値を答えたときは、コードから確かにわかる方を出す
-        body = inputGuessFor(docLines, word.text, lineNo, inferred)!;
-        source = "コードから読み取った見当・実行はしていません";
-      } else if (inferred && "value" in inferred) {
-        body = inferred.value;
-        source = `✦ AI の予想（${inferred.from} 行目で入る値）・実行はしていません`;
-      } else if (inferred && "later" in inferred) {
-        body = `まだ値が入っていません（${inferred.later} 行目で入ります）`;
-        source = "✦ AI の予想";
-      } else {
-        const lines: string[] = [];
-        for (let n = 1; n <= lineNo; n++) lines.push(view.state.doc.line(n).text);
-        const guess = staticGuess(lines, word.text, lineNo);
-        if (inferred && "unknown" in inferred) {
-          // AI が値を予想できなかった：わからないことをはっきり伝える
-          body = `わかりません（AI にも予想できませんでした）${guess ? `\nコードからわかること：${guess.replace(/・(実際の値は|いくつになるかは)、実行しないとわかりません$/, "")}` : ""}\n実際の値は「値を見る（F6）」で実行するとわかります`;
-          source = `✦ AI の予想（${inferred.unknown} 行目）・実行はしていません`;
-        } else if (guess) {
-          body = guess;
-          source = inferBusy ? "コードから読み取った見当（AI が考え中…）" : "コードから読み取った見当・実行はしていません";
-        } else if (inferBusy) {
-          body = "AI が考え中です。少し待ってから、もう一度マウスを乗せてください";
-          source = "✦ AI の予想";
-        } else {
-          const all = view.state.doc.toString();
-          const n = word.text;
-          // モジュール・関数・クラスの名前は値ではないので出さない
-          if (new RegExp(`^\\s*(import\\s+[\\w.,\\s]*\\b${n}\\b|from\\s+\\S+\\s+import\\s+.*\\b${n}\\b|.*\\bas\\s+${n}\\b|(async\\s+)?def\\s+${n}\\b|class\\s+${n}\\b)`, "m").test(all)) return null;
-          // 関数の引数
-          const param = new RegExp(`^\\s*(?:async\\s+)?def\\s+(\\w+)\\s*\\([^)]*\\b${n}\\b`, "m").exec(lines.join("\n"));
-          body = param
-            ? `わかりません：関数 ${param[1]} の引数なので、呼ぶときに渡す値で変わります`
-            : "わかりません：この時点の値は、コードを読むだけでは決められません\n実際の値は「値を見る（F6）」で実行するとわかります";
-          source = resultFor(view.state) ? "✦ AI の予想にもありませんでした" : "コードから読み取った見当";
-        }
-      }
+      const text = view.state.doc.toString();
+      const out = autoHoverValue({
+        lines: docLines,
+        name: word.text,
+        lineNo,
+        lastRun: lastRunFor(view.state.facet(docId)),
+        sandbox: isPython(view.state) && settings.get("editor.realValues") ? cachedSandbox(text) : null,
+        sandboxBusy,
+        inferred: resultFor(view.state),
+        aiBusy: inferBusy,
+        simulate: settings.get("editor.liveCheck") !== false,
+      });
+      if (!out) return null;
+      body = out.body;
+      source = out.source;
     }
     return {
       pos: word.from,
@@ -397,6 +422,7 @@ export function autoInfer(): Extension {
         constructor(readonly view: EditorView) {
           this.untrack = trackView(view);
           this.decorations = buildRisks(view.state);
+          scheduleSandbox(view, 300);
           schedule(view, 1500);
         }
         update(u: ViewUpdate) {
@@ -404,7 +430,10 @@ export function autoInfer(): Extension {
           const modeChanged = effects.some((e) => e.is(sideModeChanged));
           if (u.docChanged) stop();
           if (u.docChanged || modeChanged || effects.some((e) => e.is(inferUpdated))) this.decorations = buildRisks(u.state);
-          if (u.docChanged || modeChanged) schedule(u.view, modeChanged ? 300 : 2500);
+          if (u.docChanged || modeChanged) {
+            scheduleSandbox(u.view, modeChanged ? 300 : 1000);
+            schedule(u.view, modeChanged ? 300 : 2500);
+          }
         }
         destroy() {
           this.untrack();

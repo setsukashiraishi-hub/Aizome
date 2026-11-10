@@ -174,7 +174,8 @@ pub fn pty_spawn(
                 "-NoLogo",
                 "-NoExit",
                 "-Command",
-                "[Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; $OutputEncoding=[System.Text.Encoding]::UTF8; $PSDefaultParameterValues['Out-File:Encoding']='utf8'; chcp 65001 > $null",
+                // Tab：候補を一覧にして矢印で選ぶ（MenuComplete）。↑↓：打ちかけの文字から始まる前のコマンドを探す
+                "[Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; $OutputEncoding=[System.Text.Encoding]::UTF8; $PSDefaultParameterValues['Out-File:Encoding']='utf8'; chcp 65001 > $null; try { Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete -ErrorAction Stop; Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward; Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward } catch {}",
             ]);
         }
     }

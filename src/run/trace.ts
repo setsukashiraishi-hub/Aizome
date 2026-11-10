@@ -5,7 +5,7 @@ import { t } from "../core/i18n";
 
 /** トレーサー本体（Python）。ターミナルで python tracer.py 対象.py 記録.json と動かす */
 export const TRACER_PY = String.raw`# Aizome 値を見る（トレーサー）
-import sys, os, json, runpy, reprlib, types, traceback, re, linecache, ast, builtins, tokenize
+import sys, os, json, runpy, reprlib, types, traceback, re, linecache, ast, builtins, tokenize, time
 
 def main():
     target = os.path.abspath(sys.argv[1])
@@ -91,13 +91,13 @@ def main():
     def record(lineno, before, after, key):
         # before：その関数（フレーム）で最後に見たそれぞれの変数の値
         changed = {k: v for k, v in after.items() if before.get(k) != v}
+        # その行で使った変数の値（変わったものは c にあるので除く）。マウスを乗せたときの値に使う
         refs = {}
-        if not changed:
-            src = linecache.getline(target, lineno)
-            src = src.split("#", 1)[0]
-            for name in NAME.findall(src):
-                if name in after and name not in refs:
-                    refs[name] = after[name]
+        src = linecache.getline(target, lineno)
+        src = src.split("#", 1)[0]
+        for name in NAME.findall(src):
+            if name in after and name not in refs and name not in changed:
+                refs[name] = after[name]
         e = lines.setdefault(lineno, {"n": 0, "recs": []})
         e["n"] += 1
         # s：実行した順番の通し番号（「その瞬間」の値を見るため）、o：この実行で print などが出した文字
@@ -180,11 +180,20 @@ def main():
             # 書きかえられないとき（文法のまちがいなど）は、そのまま実行する（エラーの表示は Python に任せる）
             return None
 
+    # 裏で動かすとき（自動判定）だけ：決めた時刻を過ぎたら、そこまでの記録を残して止める
+    deadline = getattr(builtins, "__aizome_deadline__", None)
+
     def local(frame, event, arg):
         state["events"] += 1
+        if deadline is not None and state["events"] % 256 == 0 and time.time() > deadline:
+            sys.settrace(None)
+            raise builtins.__aizome_timeout__()
         if state["events"] > 300000:
             state["truncated"] = True
             sys.settrace(None)
+            # 裏で動かしているときは、記録をやめたあとに止まらなくなるので、ここで止める
+            if deadline is not None:
+                raise builtins.__aizome_timeout__()
             return None
         key = id(frame)
         now = snap(frame)
@@ -196,6 +205,12 @@ def main():
             known.update(now)
         else:
             known = now
+            # 裏で動かすとき（自動判定）だけ：関数が呼ばれたときの引数の値を、def の行に記録する
+            if deadline is not None and frame.f_code.co_name != "<module>" and now:
+                e = lines.setdefault(frame.f_code.co_firstlineno, {"n": 0, "recs": []})
+                e["n"] += 1
+                if len(e["recs"]) < 300:
+                    e["recs"].append({"c": {}, "r": dict(now)})
         if event == "line":
             last[key] = (frame.f_lineno, known)
         return local
@@ -301,7 +316,7 @@ export interface LineValue {
 
 const SHORT = 14;
 
-function seqText(values: string[], n: number): string {
+export function seqText(values: string[], n: number): string {
   // 同じ値が続くところはまとめる
   const uniq = values.filter((v, i) => i === 0 || v !== values[i - 1]);
   if (uniq.length === 1) return uniq[0] + (n > 1 ? `（${n} 回）` : "");
