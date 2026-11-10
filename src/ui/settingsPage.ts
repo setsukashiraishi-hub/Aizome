@@ -345,6 +345,7 @@ function sections(): Section[] {
         h("h2", { class: "set-group-title", "data-label": t("feat.group.editor") }, t("feat.group.editor")),
         row(t("feat.editor_zenkaku"), toggle("editor.zenkaku"), undefined, true),
         row(t("feat.editor_valueHover"), toggle("editor.valueHover"), undefined, true),
+        row(t("feat.editor_realValues"), toggle("editor.realValues"), t("feat.editor_realValues.help"), true),
         row(t("feat.gotoDefinition"), toggle("editor.gotoDefinition"), t("feat.gotoDefinition.help"), true),
         row(t("feat.indentFollow"), toggle("editor.indentFollow"), t("feat.indentFollow.help"), true),
         row(t("feat.clipHistory"), toggle("clip.history"), t("feat.clipHistory.help"), true),

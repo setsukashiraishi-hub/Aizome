@@ -331,7 +331,7 @@ export const ZENKAKU_FIX: Record<string, string> = {
 // ───────── 呼び出し（Python は 1 回だけ探して覚えておく）
 
 let program: Promise<{ program: string; args: string[] } | null> | null = null;
-function pythonProgram() {
+export function pythonProgram() {
   program ??= (async () => {
     try {
       const info = await runtimes.findPython();

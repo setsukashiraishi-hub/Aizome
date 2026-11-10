@@ -170,10 +170,11 @@ pub struct Captured {
     pub stderr: String,
 }
 
-/// 整形ツール（black・gofmt など）を、画面を出さずに動かして結果を受け取る。中身は標準入力で渡す
+/// 整形ツール（black・gofmt など）を、画面を出さずに動かして結果を受け取る。中身は標準入力で渡す。
+/// timeout_ms を過ぎたら、そのプログラムを止めて "timeout" を返す（省略すると 40 秒）
 #[tauri::command(async)]
-pub fn run_capture(program: String, args: Vec<String>, stdin: String, cwd: Option<String>) -> Result<Captured, String> {
-    use std::io::Write;
+pub fn run_capture(program: String, args: Vec<String>, stdin: String, cwd: Option<String>, timeout_ms: Option<u64>) -> Result<Captured, String> {
+    use std::io::{Read, Write};
     use std::process::{Command, Stdio};
     let mut cmd = Command::new(&program);
     cmd.args(&args).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped());
@@ -193,17 +194,39 @@ pub fn run_capture(program: String, args: Vec<String>, stdin: String, cwd: Optio
             let _ = si.write_all(&data);
         });
     }
-    let (tx, rx) = std::sync::mpsc::channel();
-    std::thread::spawn(move || {
-        let _ = tx.send(child.wait_with_output());
-    });
-    match rx.recv_timeout(std::time::Duration::from_secs(40)) {
-        Ok(Ok(out)) => Ok(Captured {
-            code: out.status.code(),
-            stdout: String::from_utf8_lossy(&out.stdout).into_owned(),
-            stderr: String::from_utf8_lossy(&out.stderr).into_owned(),
+    // 出力は別々に読む（読まずに待つと、出力が多いときに止まってしまう）
+    let read_all = |pipe: Option<Box<dyn Read + Send>>| {
+        std::thread::spawn(move || {
+            let mut buf = Vec::new();
+            if let Some(mut p) = pipe {
+                let _ = p.read_to_end(&mut buf);
+            }
+            buf
+        })
+    };
+    let out_reader = read_all(child.stdout.take().map(|p| Box::new(p) as Box<dyn Read + Send>));
+    let err_reader = read_all(child.stderr.take().map(|p| Box::new(p) as Box<dyn Read + Send>));
+    let deadline = std::time::Instant::now() + std::time::Duration::from_millis(timeout_ms.unwrap_or(40_000));
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(st)) => break Some(st),
+            Ok(None) if std::time::Instant::now() >= deadline => {
+                let _ = child.kill();
+                let _ = child.wait();
+                break None;
+            }
+            Ok(None) => std::thread::sleep(std::time::Duration::from_millis(10)),
+            Err(e) => return Err(e.to_string()),
+        }
+    };
+    let stdout = out_reader.join().unwrap_or_default();
+    let stderr = err_reader.join().unwrap_or_default();
+    match status {
+        Some(st) => Ok(Captured {
+            code: st.code(),
+            stdout: String::from_utf8_lossy(&stdout).into_owned(),
+            stderr: String::from_utf8_lossy(&stderr).into_owned(),
         }),
-        Ok(Err(e)) => Err(e.to_string()),
-        Err(_) => Err("timeout".into()),
+        None => Err("timeout".into()),
     }
 }

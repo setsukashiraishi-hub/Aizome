@@ -252,8 +252,8 @@ export const tools = {
   /** コンパイラなどを探す（winget で入れた直後でも見つかるように、最新の PATH とよくある場所も見る） */
   find: (names: string[]) => invoke<{ path: string; dir: string; inPath: boolean } | null>("find_tool", { names }),
   /** 画面を出さずに動かして、出力を受け取る（中身は標準入力で渡す） */
-  capture: (program: string, args: string[], stdin: string, cwd?: string) =>
-    invoke<{ code: number | null; stdout: string; stderr: string }>("run_capture", { program, args, stdin, cwd: cwd ?? null }),
+  capture: (program: string, args: string[], stdin: string, cwd?: string, timeoutMs?: number) =>
+    invoke<{ code: number | null; stdout: string; stderr: string }>("run_capture", { program, args, stdin, cwd: cwd ?? null, timeoutMs: timeoutMs ?? null }),
 };
 
 export const clipboardWatch = {

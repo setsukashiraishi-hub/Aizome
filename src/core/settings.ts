@@ -98,6 +98,8 @@ export interface Settings {
   "editor.buildLens": boolean;
   /** 変数にマウスを乗せたときの小窓（値・自動判定） */
   "editor.valueHover": boolean;
+  /** 自動判定で、Python を裏で安全に動かして本当の値を出す */
+  "editor.realValues": boolean;
   /** Shift+クリック・F12 で定義元へ飛ぶ */
   "editor.gotoDefinition": boolean;
   /** インデントを動かしたあと、Tab で下の行もまとめて動かす */
@@ -222,6 +224,7 @@ export const defaults: Settings = {
   "ai.inline": true,
   "editor.buildLens": true,
   "editor.valueHover": true,
+  "editor.realValues": true,
   "editor.gotoDefinition": true,
   "editor.indentFollow": true,
   "editor.liveCheck": true,
