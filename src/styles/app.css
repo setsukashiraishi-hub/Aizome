@@ -4529,3 +4529,93 @@ html.has-bg .pane-bar {
   font-size: 12px;
   color: var(--text);
 }
+
+/* ブロックでつくる（エディタとは別の画面） */
+.blocks-page {
+  position: fixed;
+  top: var(--top-h);
+  bottom: var(--status-h);
+  left: 48px;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--editor-bg);
+  border-top: 1px solid var(--border);
+}
+.blocks-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  flex-wrap: wrap;
+}
+.blocks-head h2 {
+  margin: 0 8px 0 0;
+  font-size: 15px;
+}
+.blocks-lang-label {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.blocks-spacer {
+  flex: 1;
+}
+.blocks-head .btn span:first-child {
+  display: inline-flex;
+  margin-right: 4px;
+  vertical-align: -2px;
+}
+.blocks-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.blocks-area {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+.blocks-resizer {
+  width: 5px;
+  cursor: col-resize;
+  background: var(--border);
+}
+.blocks-resizer:hover {
+  background: var(--accent);
+}
+.blocks-code {
+  width: 38%;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  background: var(--editor-bg);
+}
+.blocks-code-title {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.blocks-code-host {
+  flex: 1;
+  min-height: 0;
+}
+.blocks-code-host .cm-editor {
+  height: 100%;
+}
+/* Blockly のカテゴリの文字と、ドロップダウンを、アプリに合わせる */
+.blocks-page .blocklyToolboxCategoryLabel,
+.blocks-page .blocklyTreeLabel {
+  font-family: var(--font-ui);
+  font-size: 13px;
+}
+.blocks-page .blocklyToolbox {
+  border-right: 1px solid var(--border);
+}

@@ -95,6 +95,8 @@ export class App {
   private untitledSeq = 0;
   /** 各ファイルを今どの言語（ファイル名）として扱っているか */
   private appliedName = new Map<string, string>();
+  /** ブロックから開いた新しいタブの言語（.go など）。保存するまではこれで扱う */
+  private untitledExt = new Map<string, string>();
   private langTimer: number | undefined;
   /** 実行用のコピー → 元のファイル（エラーの場所をクリックしたとき元を開くため） */
   private runCopies = new Map<string, string>();
@@ -529,6 +531,7 @@ export class App {
     this.activityButtons.get("dict")?.classList.add("activity-dict");
     addActivity("ai", "spark", t("view.ai"));
     addActivity("extensions", "puzzle", t("view.extensions"));
+    activity.append(button("blocks", t("cmd.openBlocks"), () => void this.openBlocks(), "activity-btn activity-blocks"));
     activity.append(h("div", { class: "activity-spacer" }));
     activity.append(button("terminal", t("cmd.toggleTerminal"), () => this.terminal.toggle(), "activity-btn"));
     activity.append(button("gear", t("view.settings"), () => settingsPage.toggle(), "activity-btn"));
@@ -876,13 +879,36 @@ export class App {
     toast(t("file.notFound", { name: p }), "warn");
   }
 
-  newUntitled() {
+  /** ブロックでつくるモード（エディタとは別の画面。Blockly は大きいので、開くときに読み込む） */
+  async openBlocks() {
+    const { blocksPage } = await import("./blocks/blocksPage");
+    blocksPage.setDeps({
+      run: async (code, ext) => {
+        const dir = join(join(this.sys.home, ".aizome"), "run");
+        await fs.createDir(dir).catch(() => {});
+        // C# は dotnet run でそのまま動かすファイル、Go は go run できる名前
+        const path = join(dir, ext === ".cs" ? "Blocks.cs" : `blocks${ext}`);
+        try {
+          await fs.writeFile(path, code);
+        } catch (err) {
+          toast(t("file.saveFailed", { name: basename(path), err: String(err) }), "error");
+          return;
+        }
+        await this.runPath(path, undefined, undefined, undefined, { key: "blocks", name: t("blocks.tab") });
+      },
+      openInEditor: (code, ext) => this.newUntitled(code, ext),
+    });
+    blocksPage.toggle();
+  }
+
+  newUntitled(text = "", ext?: string) {
     const id = `untitled:${++this.untitledSeq}`;
     const doc: Doc = { id, path: null, name: t("file.untitled", { n: String(this.untitledSeq) }), dirty: false, ...defaultEncoding() };
     this.docs.push(doc);
-    const name = `untitled${settings.get("files.newFileLanguage") || ".py"}`;
+    const name = `untitled${ext ?? (settings.get("files.newFileLanguage") || ".py")}`;
     this.appliedName.set(id, name);
-    void this.editor.open(id, "", name).then(() => this.activate(id));
+    if (ext) this.untitledExt.set(id, ext);
+    void this.editor.open(id, text, name).then(() => this.activate(id));
   }
 
   /**
@@ -892,7 +918,7 @@ export class App {
   private effectiveName(doc: Doc): string {
     const head = this.editor.peek(doc.id, 4000);
     const directive = this.directiveOf(head.split("\n", 1)[0] ?? "");
-    const base = doc.path ? doc.name : `untitled${settings.get("files.newFileLanguage") || ".py"}`;
+    const base = doc.path ? doc.name : `untitled${this.untitledExt.get(doc.id) ?? (settings.get("files.newFileLanguage") || ".py")}`;
     if (directive) return stripExt(base) + directive.ext;
     if (!doc.path && settings.get("files.guessLanguage")) {
       const guessed = guessLanguage(head);
@@ -2826,6 +2852,7 @@ export class App {
 
     reg("file.openFolder", "cmd.openFolder", () => this.openFolder(), "Mod-O");
     reg("file.new", "cmd.newFile", () => this.newUntitled(), "Mod-N");
+    reg("blocks.open", "cmd.openBlocks", () => void this.openBlocks(), undefined, true);
     reg("file.save", "cmd.save", () => this.save(), "Mod-S");
     reg("file.saveAs", "cmd.saveAs", () => this.save(this.activeId, true), "Mod-Shift-S");
     reg("file.close", "cmd.closeTab", () => this.closeDoc(), "Mod-W");

@@ -54,6 +54,18 @@ Windows でビルドするときは、先に PowerShell で `./scripts/fetch-con
 
 裏で動かす部分は「自分のコードで、うっかりファイルを消したり書いたりしない」ためのものです。わざと抜けようとするコードを完全に止めるものではありません。
 
+## ブロックでつくる（src/blocks）
+
+| ファイル | 役目 |
+|---|---|
+| `defs.ts` | ブロックの定義（日本語）と、Python・JavaScript への変え方（Blockly の仕組みを使う） |
+| `types.ts` | Go・C++・C# のために、ブロックから型を決める（何回か見直して固める） |
+| `typedGen.ts` | Go・C++・C# のコードを書く（型・main の外の関数とクラス・使う道具の関数） |
+| `toolbox.ts` | 左のブロックの一覧 |
+| `blocksPage.ts` | 画面（Blockly は大きいので、開くときに読み込む） |
+
+ブロックを足したら、`defs.ts`（ブロックと Python・JavaScript）、`types.ts`（型）、`typedGen.ts`（Go・C++・C#）、`toolbox.ts`（一覧）の 4 か所に書きます。Blockly 13 では、関数の引数は `getVars()` ではなく `arguments_` で読みます。
+
 ## 変えたら確かめること
 
 ```bash
