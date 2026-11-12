@@ -143,7 +143,7 @@ class BlocksPage {
       h("div", { class: "blocks-brand" }, h("span", { class: "blocks-brand-mark", html: icon("blocks", 18) }), h("div", {}, h("div", { class: "blocks-brand-title" }, "ブロックでつくる"), h("div", { class: "blocks-brand-sub" }, "組み立てると、となりにプログラムが書かれます"))),
       langs,
       h("div", { class: "blocks-spacer" }),
-      h("div", { class: "blocks-tools" }, tool("files", "エディタで開く", "できたプログラムを、ふつうのエディタの新しいタブで開く", () => this.openInEditor()), tool("save", "保存", "ブロックをファイルに保存（.aizblocks）", () => void this.saveFile()), tool("folder", "開く", "保存したブロックを開く", () => void this.openFile()), tool("trash", "ぜんぶ消す", "組み立てたブロックをぜんぶ消す", () => void this.clearAll())),
+      h("div", { class: "blocks-tools" }, tool("copy", "全部コピー", "できたプログラムをまるごとコピー", () => void this.copy()), tool("files", "エディタで開く", "できたプログラムを、ふつうのエディタの新しいタブで開く", () => this.openInEditor()), tool("save", "保存", "ブロックをファイルに保存（.aizblocks）", () => void this.saveFile()), tool("folder", "開く", "保存したブロックを開く", () => void this.openFile()), tool("trash", "ぜんぶ消す", "組み立てたブロックをぜんぶ消す", () => void this.clearAll())),
       h("button", { class: "blocks-run", type: "button", title: "できたプログラムを動かす（下のターミナルに出ます）", onclick: () => void this.run() }, h("span", { html: icon("play", 15) }), h("span", {}, "実行")),
       h("button", { class: "blocks-close", type: "button", title: "閉じる（Esc）", "aria-label": "閉じる", html: icon("x", 17), onclick: () => this.close() }),
     );

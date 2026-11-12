@@ -1279,6 +1279,15 @@ export class App {
           ),
         );
       }
+      // 中身をまるごとコピー（選ばなくても 1 回で全部）
+      tools.append(
+        h(
+          "button",
+          { class: "run-btn secondary small", type: "button", title: t("pane.copyAll"), onclick: act(() => this.copyAll(doc.id)) },
+          h("span", { html: icon("copy", 13) }),
+          h("span", {}, t("top.copyAll")),
+        ),
+      );
       // 値を見るは、プログラムのファイルだけ（HTML・Markdown にはない）
       if (!this.previewKindOf(doc)) {
         tools.append(
@@ -1299,6 +1308,18 @@ export class App {
         ),
       );
       el.append(crumbs, tools);
+    }
+  }
+
+  /** ファイルの中身をまるごとクリップボードへ */
+  async copyAll(id = this.activeId) {
+    if (!id) return;
+    const text = this.editor.getText(id);
+    try {
+      await navigator.clipboard.writeText(text);
+      toast(t("copyAll.done", { n: String(text.split("\n").length) }), "success", 2500);
+    } catch {
+      toast(t("copyAll.failed"), "warn");
     }
   }
 
@@ -2336,6 +2357,7 @@ export class App {
     const items: CtxItem[] = [
       { label: t("cmd.cut"), hint: formatKey("Mod-X"), run: act("cut") },
       { label: t("cmd.copy"), hint: formatKey("Mod-C"), run: act("copy") },
+      { label: t("cmd.copyAll"), run: () => void this.copyAll() },
       { label: t("cmd.paste"), hint: formatKey("Mod-V"), run: act("paste") },
       { label: t("cmd.selectAll"), hint: formatKey("Mod-A"), run: act("selectAll") },
     ];
@@ -2626,6 +2648,7 @@ export class App {
           sep,
           c("edit.cut"),
           c("edit.copy"),
+          c("edit.copyAll"),
           c("edit.paste"),
           c("edit.pasteHistory"),
           c("edit.format"),
@@ -2883,6 +2906,7 @@ export class App {
       commands.register({ id, title: () => t(titleKey), key, inTerminal, source: "core", run });
 
     reg("file.openFolder", "cmd.openFolder", () => this.openFolder(), "Mod-O");
+    reg("edit.copyAll", "cmd.copyAll", () => this.copyAll());
     reg("file.new", "cmd.newFile", () => this.newUntitled(), "Mod-N");
     reg("blocks.open", "cmd.openBlocks", () => void this.openBlocks(), undefined, true);
     reg("file.save", "cmd.save", () => this.save(), "Mod-S");

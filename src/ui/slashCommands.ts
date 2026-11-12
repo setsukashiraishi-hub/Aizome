@@ -227,6 +227,7 @@ export function registerBuiltinSlash(d: SlashDeps) {
     cmd("run", ["実行", "じっこう", "jikkou", "jikko", "うごかす", "動かす", "F5"], "run.file", G.run, "play"),
     cmd("terminal", ["ターミナル", "たーみなる", "端末", "ta-minaru"], "terminal.toggle", G.run, "terminal"),
     cmd("newterm", ["新しいターミナル", "あたらしいたーみなる"], "terminal.new", G.run, "terminal"),
+    cmd("copyall", ["全部コピー", "ぜんぶこぴー", "まるごとコピー", "まるごとこぴー", "コピー", "こぴー", "copy"], "edit.copyAll", G.file, "copy", "開いているファイルの中身を、1 回でまるごとコピー"),
     cmd("blocks", ["ブロック", "ぶろっく", "スクラッチ", "すくらっち", "scratch", "burokku"], "blocks.open", G.run, "blocks", "日本語のブロックを組み立てて、Python・JavaScript・Go・C++・C# のプログラムを作る"),
     // 登録は OS の情報を読む前に動くので、d.os() ではなく userAgent で見る
     ...(navigator.userAgent.includes("Windows")
