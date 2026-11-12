@@ -41,6 +41,45 @@ function css(name: string, fallback: string): string {
   return v || fallback;
 }
 
+/** CSS の色（#fff・rgb() など何でも）を [r, g, b] にする */
+function rgbOf(color: string): [number, number, number] {
+  const probe = document.createElement("span");
+  probe.style.color = color;
+  document.body.appendChild(probe);
+  const m = getComputedStyle(probe).color.match(/\d+(\.\d+)?/g) ?? ["0", "0", "0"];
+  probe.remove();
+  return [Number(m[0]), Number(m[1]), Number(m[2])];
+}
+
+/** a に b を k の割合でまぜた色（#rrggbb） */
+function mix(a: [number, number, number], b: [number, number, number], k: number): string {
+  return "#" + a.map((v, i) => Math.round(v * (1 - k) + b[i] * k).toString(16).padStart(2, "0")).join("");
+}
+
+// ブロックは「色の縁取り」にする。中は背景に少しだけ色をまぜ、縁と入れる所の線をその色にする。
+// Blockly はすべてのブロックの色をここに通すので、1 か所で全部変わる
+let outlineBg: [number, number, number] = [15, 23, 36];
+let outlinePatched = false;
+function useOutlineBlocks(bg: string): void {
+  outlineBg = rgbOf(bg);
+  if (outlinePatched) return;
+  outlinePatched = true;
+  const proto = Blockly.blockRendering.ConstantProvider.prototype as unknown as {
+    validatedBlockStyle_(s: Partial<Blockly.Theme.BlockStyle>): Blockly.Theme.BlockStyle;
+  };
+  const orig = proto.validatedBlockStyle_;
+  proto.validatedBlockStyle_ = function (this: unknown, s) {
+    const v = orig.call(this, s);
+    const c = rgbOf(v.colourPrimary);
+    return {
+      ...v,
+      colourPrimary: mix(outlineBg, c, 0.14), // ブロックの中
+      colourSecondary: mix(outlineBg, c, 0.3), // 値を入れる所（数や文字のだ円）
+      colourTertiary: mix(c, [255, 255, 255], 0.08), // 縁取り
+    };
+  };
+}
+
 class BlocksPage {
   private el: HTMLElement | null = null;
   private ws: Blockly.WorkspaceSvg | null = null;
@@ -137,6 +176,7 @@ class BlocksPage {
     void this.loadLanguage();
 
     // 左：ブロック
+    useOutlineBlocks(css("--editor-bg", "#0f1724"));
     this.ws = Blockly.inject(area, {
       toolbox: toolbox() as unknown as Blockly.utils.toolbox.ToolboxDefinition,
       renderer: "zelos",

@@ -4833,7 +4833,27 @@ html.has-bg .pane-bar {
 
 /* ── ブロック（うすい影で浮かせる。入れる所は少し透ける白） */
 .blocks-page .blocklyPath {
-  filter: drop-shadow(0 1.5px 1.5px rgba(0, 0, 0, 0.28));
+  stroke-width: 1.6px;
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.18));
+}
+/* 空いている「値を入れる所」は、その色をうすく */
+.blocks-page .blocklyOutlinePath {
+  fill-opacity: 0.32;
+}
+/* 名前などを書きこむ所は、白で塗らずにうすい枠だけ */
+.blocks-page .blocklyFieldRect:not(.blocklyDropdownRect) {
+  fill: color-mix(in srgb, var(--text) 7%, transparent) !important;
+  stroke: color-mix(in srgb, var(--text) 28%, transparent) !important;
+  stroke-width: 1px;
+}
+/* 数だけのブロック（白い丸）も同じく、塗らずに縁だけ */
+.blocks-page .blocklyShadow > .blocklyPath[fill^="#fff"],
+.blocks-page .blocklyShadow > .blocklyPath[fill^="#FFF"] {
+  fill: color-mix(in srgb, var(--text) 7%, var(--editor-bg)) !important;
+}
+/* 中がうすい色になったので、ブロックの文字は画面の文字の色にする */
+.blocks-page .blocklyBlockCanvas .blocklyText {
+  fill: var(--text) !important;
 }
 .blocks-page .blocklySelected > .blocklyPath,
 .blocks-page .blocklySelected > .blocklyPathSelected {
