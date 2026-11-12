@@ -85,23 +85,29 @@ function patchNames() {
   };
 }
 
-// ───────── 色（Scratch に近い色）
+// ───────── 色（和色。明るさと鮮やかさをそろえて、白い文字が読みやすい濃さに）
 
 export const COLORS = {
-  io: "#9966FF",
-  variable: "#FF8C1A",
-  math: "#59C059",
-  text: "#4CB2C9",
-  logic: "#FFAB19",
-  loop: "#E6A100",
-  list: "#FF661A",
-  dict: "#C75CD6",
-  func: "#FF6680",
-  class: "#4C97FF",
-  import: "#0FBD8C",
-  error: "#E05A5A",
-  file: "#A0703C",
-  other: "#8C8C8C",
+  io: "#7F72CC", // 藤
+  variable: "#DD6B3D", // 柿
+  math: "#4E9F5E", // 若竹
+  text: "#2E98B0", // 浅葱
+  logic: "#D29A24", // 山吹
+  loop: "#C9792E", // 琥珀
+  list: "#E07362", // 珊瑚
+  dict: "#B35CAF", // 牡丹
+  func: "#D3618A", // 紅梅
+  class: "#4A6CC9", // 群青
+  import: "#3A9E8C", // 青磁
+  error: "#B5404F", // 茜
+  file: "#8F6E4E", // 胡桃
+  other: "#7A8496", // 銀鼠
+};
+
+/** 色の名前（ヘルプ・ツールチップ用） */
+export const COLOR_NAMES: Record<keyof typeof COLORS, string> = {
+  io: "藤", variable: "柿", math: "若竹", text: "浅葱", logic: "山吹", loop: "琥珀", list: "珊瑚",
+  dict: "牡丹", func: "紅梅", class: "群青", import: "青磁", error: "茜", file: "胡桃", other: "銀鼠",
 };
 
 // ───────── ブロック

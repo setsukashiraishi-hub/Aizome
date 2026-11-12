@@ -9,8 +9,23 @@ const txt = (s: string) => ({ shadow: { type: "text", fields: { TEXT: s } } });
 const blk = (type: string, extra: Item = {}): Item => ({ kind: "block", type, ...extra });
 const label = (text: string): Item => ({ kind: "label", text });
 
+/** 分類。行に「aiz-c-色の名前」のクラスを付けて、見た目は CSS で作る（blocksPage.ts） */
 function category(name: string, colour: string, contents: Item[], extra: Item = {}): Item {
-  return { kind: "category", name, colour, contents, ...extra };
+  const key = (Object.keys(COLORS) as (keyof typeof COLORS)[]).find((k) => COLORS[k] === colour) ?? "other";
+  return {
+    kind: "category",
+    name,
+    colour,
+    contents,
+    cssconfig: {
+      container: `blocklyToolboxCategoryContainer aiz-cat aiz-c-${key}`,
+      row: "blocklyToolboxCategory aiz-row",
+      label: "blocklyToolboxCategoryLabel aiz-label",
+      icon: "blocklyToolboxCategoryIcon aiz-icon",
+      selected: "blocklyToolboxSelected aiz-selected",
+    },
+    ...extra,
+  };
 }
 
 export function toolbox(): Item {

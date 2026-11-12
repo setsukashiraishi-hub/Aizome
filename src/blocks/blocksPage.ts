@@ -82,37 +82,47 @@ class BlocksPage {
     this.lang = saved.lang;
     setBlockLang(this.lang);
 
-    const langSelect = h(
-      "select",
-      { class: "select blocks-lang", "aria-label": "言語", title: "どの言語のプログラムにするか" },
-      ...BLOCK_LANGS.map((l) => h("option", { value: l.id, selected: l.id === this.lang }, l.label)),
-    ) as HTMLSelectElement;
-    langSelect.addEventListener("change", () => this.setLang(langSelect.value as BlockLang));
+    // 言語は横に並んだボタンで切りかえる
+    const langs = h(
+      "div",
+      { class: "blocks-langs", role: "tablist", "aria-label": "言語" },
+      ...BLOCK_LANGS.map((l) =>
+        h(
+          "button",
+          { class: "blocks-lang" + (l.id === this.lang ? " active" : ""), type: "button", role: "tab", "aria-selected": l.id === this.lang ? "true" : "false", "data-lang": l.id, onclick: () => this.setLang(l.id) },
+          l.label,
+        ),
+      ),
+    );
 
-    const btn = (iconName: string, text: string, title: string, onclick: () => void, extra = "") =>
-      h("button", { class: `btn small ${extra}`, type: "button", title, onclick }, h("span", { html: icon(iconName, 14) }), h("span", {}, text));
+    const tool = (iconName: string, text: string, title: string, onclick: () => void) =>
+      h("button", { class: "blocks-tool", type: "button", title, "aria-label": title, onclick }, h("span", { class: "blocks-tool-icon", html: icon(iconName, 15) }), h("span", { class: "blocks-tool-text" }, text));
 
     const head = h(
       "div",
       { class: "blocks-head" },
-      h("h2", {}, "ブロックでつくる"),
-      h("label", { class: "blocks-lang-label" }, "言語", langSelect),
+      h("div", { class: "blocks-brand" }, h("span", { class: "blocks-brand-mark", html: icon("blocks", 18) }), h("div", {}, h("div", { class: "blocks-brand-title" }, "ブロックでつくる"), h("div", { class: "blocks-brand-sub" }, "組み立てると、となりにプログラムが書かれます"))),
+      langs,
       h("div", { class: "blocks-spacer" }),
-      btn("play", "実行", "できたプログラムを動かす（下のターミナルに出ます）", () => void this.run(), "primary"),
-      btn("files", "エディタで開く", "できたプログラムを、ふつうのエディタの新しいタブで開く", () => this.openInEditor()),
-      btn("copy", "コピー", "できたプログラムをコピー", () => void this.copy()),
-      btn("save", "保存", "ブロックをファイルに保存（.aizblocks）", () => void this.saveFile()),
-      btn("folder", "開く", "保存したブロックを開く", () => void this.openFile()),
-      btn("trash", "ぜんぶ消す", "組み立てたブロックをぜんぶ消す", () => void this.clearAll()),
-      h("button", { class: "icon-btn", type: "button", title: "閉じる（Esc）", "aria-label": "閉じる", html: icon("x", 16), onclick: () => this.close() }),
+      h("div", { class: "blocks-tools" }, tool("files", "エディタで開く", "できたプログラムを、ふつうのエディタの新しいタブで開く", () => this.openInEditor()), tool("save", "保存", "ブロックをファイルに保存（.aizblocks）", () => void this.saveFile()), tool("folder", "開く", "保存したブロックを開く", () => void this.openFile()), tool("trash", "ぜんぶ消す", "組み立てたブロックをぜんぶ消す", () => void this.clearAll())),
+      h("button", { class: "blocks-run", type: "button", title: "できたプログラムを動かす（下のターミナルに出ます）", onclick: () => void this.run() }, h("span", { html: icon("play", 15) }), h("span", {}, "実行")),
+      h("button", { class: "blocks-close", type: "button", title: "閉じる（Esc）", "aria-label": "閉じる", html: icon("x", 17), onclick: () => this.close() }),
     );
     const area = h("div", { class: "blocks-area" });
     const codeHost = h("div", { class: "blocks-code-host" });
-    const codeTitle = h("div", { class: "blocks-code-title" }, this.codeTitle());
+    const codeTitle = h(
+      "div",
+      { class: "blocks-code-title" },
+      h("span", { class: "blocks-code-badge" }, BLOCK_LANGS.find((l) => l.id === this.lang)!.label),
+      h("span", { class: "blocks-code-label" }, "できたプログラム"),
+      h("button", { class: "blocks-code-copy", type: "button", title: "プログラムをコピー", "aria-label": "プログラムをコピー", html: icon("copy", 14), onclick: () => void this.copy() }),
+    );
     const resizer = h("div", { class: "blocks-resizer", title: "幅を変える" });
     const codePane = h("div", { class: "blocks-code" }, codeTitle, codeHost);
     const body = h("div", { class: "blocks-body" }, area, resizer, codePane);
-    this.el = h("div", { class: "blocks-page", role: "dialog", "aria-label": "ブロックでつくる" }, head, body);
+    // 分類ごとの色（左の一覧の丸と、選んだときのにじみ）
+    const catColors = h("style", {}, (Object.keys(COLORS) as (keyof typeof COLORS)[]).map((k) => `.blocks-page .aiz-c-${k}{--c:${COLORS[k]}}`).join("\n"));
+    this.el = h("div", { class: "blocks-page", role: "dialog", "aria-label": "ブロックでつくる" }, catColors, head, body);
     document.body.append(this.el);
     document.addEventListener("keydown", this.onKey, true);
 
@@ -131,7 +141,7 @@ class BlocksPage {
       toolbox: toolbox() as unknown as Blockly.utils.toolbox.ToolboxDefinition,
       renderer: "zelos",
       theme: this.theme(),
-      grid: { spacing: 24, length: 2, colour: css("--border", "#3a4152"), snap: true },
+      grid: { spacing: 22, length: 1.6, colour: css("--border", "#3a4152"), snap: true },
       zoom: { controls: true, wheel: true, startScale: 0.8, maxScale: 2, minScale: 0.4, scaleSpeed: 1.15 },
       trashcan: true,
       move: { scrollbars: true, drag: true, wheel: false },
@@ -279,23 +289,19 @@ class BlocksPage {
         toolboxForegroundColour: text,
         flyoutBackgroundColour: panel,
         flyoutForegroundColour: muted,
-        flyoutOpacity: 0.96,
+        flyoutOpacity: 0.98,
         scrollbarColour: muted,
         insertionMarkerColour: text,
         insertionMarkerOpacity: 0.3,
         cursorColour: text,
       },
-      fontStyle: { family: "'Noto Sans JP', 'Yu Gothic UI', 'Hiragino Sans', sans-serif", size: 11, weight: "bold" },
+      fontStyle: { family: "'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI', 'Segoe UI', sans-serif", size: 11.5, weight: "600" },
       startHats: false,
     });
   }
 
   private ext(): string {
     return BLOCK_LANGS.find((l) => l.id === this.lang)!.ext;
-  }
-
-  private codeTitle(): string {
-    return `${BLOCK_LANGS.find((l) => l.id === this.lang)!.label} のプログラム`;
   }
 
   private async loadLanguage() {
@@ -308,8 +314,13 @@ class BlocksPage {
   private setLang(lang: BlockLang) {
     this.lang = lang;
     setBlockLang(lang);
-    const title = this.el?.querySelector(".blocks-code-title");
-    if (title) title.textContent = this.codeTitle();
+    const badge = this.el?.querySelector(".blocks-code-badge");
+    if (badge) badge.textContent = BLOCK_LANGS.find((l) => l.id === lang)!.label;
+    this.el?.querySelectorAll<HTMLElement>(".blocks-lang").forEach((b) => {
+      const on = b.dataset.lang === lang;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+    });
     // 読み込みブロックの候補（言語ごと）を作り直すために、一覧を描き直す
     this.ws?.updateToolbox(toolbox() as unknown as Blockly.utils.toolbox.ToolboxDefinition);
     void this.loadLanguage();
@@ -386,12 +397,7 @@ class BlocksPage {
       const data = JSON.parse(await fs.readFile(path));
       this.ws.clear();
       Blockly.serialization.workspaces.load(data.state ?? data, this.ws);
-      if (data.lang && BLOCK_LANGS.some((l) => l.id === data.lang)) {
-        (this.el?.querySelector(".blocks-lang") as HTMLSelectElement | null)?.setAttribute("value", data.lang);
-        const sel = this.el?.querySelector(".blocks-lang") as HTMLSelectElement | null;
-        if (sel) sel.value = data.lang;
-        this.setLang(data.lang);
-      }
+      if (data.lang && BLOCK_LANGS.some((l) => l.id === data.lang)) this.setLang(data.lang);
       this.refresh();
     } catch (err) {
       toast(`開けませんでした：${String(err)}`, "error");
