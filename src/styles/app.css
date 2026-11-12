@@ -4530,6 +4530,30 @@ html.has-bg .pane-bar {
   color: var(--text);
 }
 
+/* 上の帯の「ブロック」ボタン */
+.top-blocks {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px 0 8px;
+  border: 1px solid color-mix(in srgb, #4a6cc9 45%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, #4a6cc9 12%, transparent);
+  color: var(--text);
+  font: 600 12px var(--font-ui);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.top-blocks:hover {
+  background: color-mix(in srgb, #4a6cc9 24%, transparent);
+}
+.top-blocks-icon {
+  display: inline-flex;
+  color: #7f9be6;
+}
+
 /* ブロックでつくる（エディタとは別の画面）。藍染の和色でまとめる */
 .blocks-page {
   --b-radius: 12px;

@@ -131,6 +131,7 @@ export class App {
   private sidebarActions!: HTMLElement;
   private views = new Map<ViewName, HTMLElement>();
   private activityButtons = new Map<ViewName, HTMLElement>();
+  private blocksPage: { isOpen: boolean; close(): void } | null = null;
   private currentView: ViewName = "explorer";
   private workspaceLabel!: HTMLElement;
   private aiPill!: HTMLElement;
@@ -508,6 +509,14 @@ export class App {
       h(
         "div",
         { class: "top-actions" },
+        // ブロックでつくる：左のバーの拡張機能のボタンとまちがえないよう、上に文字つきで置く
+        h(
+          "button",
+          { class: "top-blocks", type: "button", title: t("cmd.openBlocks"), onclick: () => void this.openBlocks() },
+          h("span", { class: "top-blocks-icon", html: icon("blocks", 15) }),
+          h("span", {}, t("blocks.button")),
+        ),
+        h("span", { class: "top-sep", "aria-hidden": "true" }),
         this.undoBtn,
         this.redoBtn,
         h("span", { class: "top-sep", "aria-hidden": "true" }),
@@ -520,7 +529,15 @@ export class App {
 
     const activity = h("nav", { class: "activity", "aria-label": t("activity.label") });
     const addActivity = (view: ViewName, name: string, label: string) => {
-      const b = button(name, label, () => this.toggleView(view), "activity-btn");
+      const b = button(
+        name,
+        label,
+        () => {
+          this.closeBlocks();
+          this.toggleView(view);
+        },
+        "activity-btn",
+      );
       this.activityButtons.set(view, b);
       activity.append(b);
     };
@@ -531,10 +548,19 @@ export class App {
     this.activityButtons.get("dict")?.classList.add("activity-dict");
     addActivity("ai", "spark", t("view.ai"));
     addActivity("extensions", "puzzle", t("view.extensions"));
-    activity.append(button("blocks", t("cmd.openBlocks"), () => void this.openBlocks(), "activity-btn activity-blocks"));
     activity.append(h("div", { class: "activity-spacer" }));
     activity.append(button("terminal", t("cmd.toggleTerminal"), () => this.terminal.toggle(), "activity-btn"));
-    activity.append(button("gear", t("view.settings"), () => settingsPage.toggle(), "activity-btn"));
+    activity.append(
+      button(
+        "gear",
+        t("view.settings"),
+        () => {
+          this.closeBlocks();
+          settingsPage.toggle();
+        },
+        "activity-btn",
+      ),
+    );
 
     this.sidebarTitle = h("h2", { class: "sidebar-title" });
     this.sidebarActions = h("div", { class: "sidebar-actions" });
@@ -898,7 +924,13 @@ export class App {
       },
       openInEditor: (code, ext) => this.newUntitled(code, ext),
     });
+    this.blocksPage = blocksPage;
     blocksPage.toggle();
+  }
+
+  /** ブロックでつくるの画面が開いていたら閉じる（左のバーの別のボタンを押したとき） */
+  private closeBlocks() {
+    if (this.blocksPage?.isOpen) this.blocksPage.close();
   }
 
   newUntitled(text = "", ext?: string) {
