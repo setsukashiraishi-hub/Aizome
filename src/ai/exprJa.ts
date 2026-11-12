@@ -1,5 +1,6 @@
 // 式（math.sin(i) や s.strip().split(",") など）が何を表すかを、日本語の短い文にする
 import { API, PY_BARE, PY_BARE_CONSTS, isOn, type ApiCtx, type ApiEntry, type ApiTable } from "./apiJa";
+import { typeLabel } from "./typeJa";
 
 export type ExprLang = "python" | "js" | "c" | "ruby";
 
@@ -308,7 +309,7 @@ function describeExprInner(expr: string, lang: ExprLang, depth: number): ExprMea
       if (r?.n) return { noun: tidy(r.n), verb: null };
     }
     const nm = NEW_NAMES[m[1].split(".").pop()!];
-    const gen = m[2] ? `（中身は ${m[2].trim()}）` : "";
+    const gen = m[2] ? `（中身は ${splitTop(m[2]).map((g) => typeLabel(g.trim(), lang === "python" ? "python" : "c")).join("・")}）` : "";
     const args = m[3].trim() ? `（${cut(m[3], 16)} から）` : "";
     return { noun: nm ? `新しい${nm}${gen}` : `新しい ${m[1]}${gen}${args}`, verb: null };
   }

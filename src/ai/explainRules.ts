@@ -2,6 +2,7 @@
 // 対応：Python、JavaScript / TypeScript、よく使う C・C++・Java・Rust・Go の表示
 
 import { asCondition, joinLambdas, describeExpr, describeStatement, importedMeaning, moduleMeaning, type ExprLang } from "./exprJa";
+import { typeLabel, typeMeaning } from "./typeJa";
 
 export type ExplainLang = "python" | "js" | "c" | "go" | "ruby" | "shell" | "other";
 
@@ -225,16 +226,16 @@ function pyDef(name: string, paramText: string, ret: string | undefined, isAsync
     const info: string[] = [];
     if (star === "*") info.push("いくつでも・タプルで受け取る");
     if (star === "**") info.push("名前つきでいくつでも・辞書で受け取る");
-    if (type) info.push(type.trim());
+    // 型は「a：int（整数）」の形で名前のすぐあとに書く
     if (def !== undefined) {
       info.push(`省略すると ${def.trim()}`);
       if (/^(\[\s*\]|\{\s*\}|list\(\)|dict\(\)|set\(\))$/.test(def.trim())) notes.push(`※ ${pn} の省略時の値 ${def.trim()} は呼ぶたびに同じものが使い回されます（None にして中で作るのが安全）`);
     }
-    parts.push(`${star}${pn}${info.length ? `（${info.join("、")}）` : ""}`);
+    parts.push(type ? `${star}${pn}：${typeLabel(type.trim(), "python")}${info.length ? `・${info.join("・")}` : ""}` : `${star}${pn}${info.length ? `（${info.join("、")}）` : ""}`);
   }
   const special = SPECIAL_DEFS[name];
   const kind = special ? `${special}（${name}）を` : `${isAsync ? "非同期の" : ""}関数 ${name} を`;
-  const extra = [parts.length ? `受け取るもの：${parts.join("、")}` : "", ret ? `返すもの：${ret.trim()}` : ""].filter(Boolean).join("／");
+  const extra = [parts.length ? `受け取るもの：${parts.join("、")}` : "", ret ? `返すもの：${typeLabel(ret.trim(), "python")}` : ""].filter(Boolean).join("／");
   let text = `${kind}定義します${extra ? `（${extra}）` : ""}`;
   if (notes.length) text += `　${notes.join("。")}`;
   if (inlineBody) text += `　中身：${python(inlineBody) ?? cut(inlineBody)}`;
@@ -361,14 +362,15 @@ function js(line: string): string | null {
   }
   if ((m = /^import\s+["'](.+)["']$/.exec(s))) return `${m[1]} を読み込みます`;
   if ((m = /^(?:const|let|var)\s+(\w+)\s*=\s*require\(["'](.+)["']\)$/.exec(s))) return `${m[2]} を ${m[1]} という名前で読み込みます`;
-  if ((m = /^(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s*\*?\s*(\w*)\s*\(([^)]*)\)/.exec(s))) {
-    const params = splitArgs(m[2]).map((p) => p.split(/[:=]/)[0].trim()).filter(Boolean);
+  if ((m = /^(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s*\*?\s*(\w*)\s*\(([^)]*)\)\s*(?::\s*([^{]+?))?\s*\{?$/.exec(s))) {
+    const params = splitArgs(m[2]).map(tsParam).filter(Boolean);
     const name = m[1] ? `関数 ${m[1]} を` : "名前のない関数を";
-    return params.length ? `${name}定義します（受け取るもの：${cut(params.join("、"), 30)}）` : `${name}定義します`;
+    const extra = [params.length ? `受け取るもの：${params.join("、")}` : "", m[3] && m[3].trim() !== "void" ? `返すもの：${typeLabel(m[3], "js")}` : ""].filter(Boolean).join("／");
+    return `${name}定義します${extra ? `（${extra}）` : ""}`;
   }
   if ((m = /^(?:export\s+)?(?:const|let|var)\s+(\w+)\s*=\s*(?:async\s*)?\(?([^)=]*)\)?\s*=>/.exec(s))) {
-    const params = splitArgs(m[2]).map((p) => p.split(/[:=]/)[0].trim()).filter(Boolean);
-    return params.length ? `関数 ${m[1]} を定義します（受け取るもの：${cut(params.join("、"), 30)}）` : `関数 ${m[1]} を定義します`;
+    const params = splitArgs(m[2]).map(tsParam).filter(Boolean);
+    return params.length ? `関数 ${m[1]} を定義します（受け取るもの：${params.join("、")}）` : `関数 ${m[1]} を定義します`;
   }
   if ((m = /^(?:export\s+)?(?:default\s+)?class\s+(\w+)(?:\s+extends\s+(\w+))?/.exec(s))) return m[2] ? `${m[2]} をもとにしたクラス ${m[1]} を定義します` : `クラス ${m[1]} を定義します`;
   if ((m = /^for\s*\(\s*(?:let|var)?\s*(\w+)\s*=\s*(\S+?)\s*;\s*\1\s*(<=?)\s*(.+?)\s*;\s*\1(\+\+|\s*\+=\s*1)\s*\)/.exec(s))) {
@@ -450,12 +452,21 @@ function cLike(line: string): string | null {
     if (m[2] === "ScriptableObject") return `Unity のデータ用の入れ物（ScriptableObject）としてクラス ${m[1]} を定義します`;
     return m[2] ? `${m[2]} をもとにしたクラス ${m[1]} を定義します` : `クラス ${m[1]} を定義します`;
   }
-  if ((m = /^(?:(?:public|private|protected|internal|static|override|virtual|async|abstract|final|sealed|synchronized|inline|extern)\s+)*(?:[\w.]+(?:<[^()]*>)?(?:\[\])*\??\*?\s+)(\w+)\s*\(([^)]*)\)\s*(?:const\s*)?(?:throws\s+[\w,\s]+)?\{?$/.exec(s)) && !/^(return|new|else|if|while|for|switch|catch|using|await|throw|yield|case|delete|goto)\b/.test(s)) {
-    const life = UNITY_EVENTS[m[1]];
-    if (life) return `${life}（${m[1]}）を定義します`;
-    if (m[1] === "main" || m[1] === "Main") return "プログラムの入口（最初に動く関数）を定義します";
-    const params = splitArgs(m[2]).map((p) => p.trim().split(/\s+/).pop()!.replace(/[=].*$/, "")).filter(Boolean);
-    return params.length ? `関数 ${m[1]} を定義します（受け取るもの：${cut(params.join("、"), 30)}）` : `関数 ${m[1]} を定義します`;
+  if ((m = /^(?:(?:public|private|protected|internal|static|override|virtual|async|abstract|final|sealed|synchronized|inline|extern)\s+)*([\w.:]+(?:<[^()]*>)?(?:\[\])*\??\*?)\s+(\w+)\s*\(([^)]*)\)\s*(?:const\s*)?(?:throws\s+[\w,\s]+)?\{?$/.exec(s)) && !/^(return|new|else|if|while|for|switch|catch|using|await|throw|yield|case|delete|goto)\b/.test(s)) {
+    const [, ret, fname, rawParams] = m;
+    const life = UNITY_EVENTS[fname];
+    if (life) return `${life}（${fname}）を定義します`;
+    if (fname === "main" || fname === "Main") return "プログラムの入口（最初に動く関数）を定義します";
+    // 引数：int a → a：int（整数）
+    const params = splitArgs(rawParams)
+      .map((p) => {
+        const q = p.trim().replace(/\s*=.*$/, "").replace(/^(ref|out|in|params|final|const)\s+/, "");
+        const pm = /^(.+?)\s*\b(\w+)$/.exec(q);
+        return pm && pm[1].trim() ? `${pm[2]}：${typeLabel(pm[1].trim().replace(/\s*([<[*?&])/g, "$1"), "c")}` : q;
+      })
+      .filter(Boolean);
+    const extra = [params.length ? `受け取るもの：${params.join("、")}` : "", ret !== "void" ? `返すもの：${typeLabel(ret, "c")}` : ""].filter(Boolean).join("／");
+    return `関数 ${fname} を定義します${extra ? `（${extra}）` : ""}`;
   }
   if ((m = /^for\s*\(\s*(?:int|let|var|auto|size_t)?\s*(\w+)\s*=\s*(\S+?)\s*;\s*\1\s*(<=?)\s*(.+?)\s*;\s*(?:\1\+\+|\+\+\1)\s*\)/.exec(s))) {
     const end = m[3] === "<=" ? m[4] : /^\d+$/.test(m[4]) ? String(Number(m[4]) - 1) : `${m[4]}−1`;
@@ -617,6 +628,9 @@ function explainLineRaw(line: string, lang: ExplainLang): string | null {
   if (isTrivial(line)) return null;
   // 行末のコメントは取り除いてから見る
   const code = line.replace(/\s+(#|\/\/)\s.*$/, "");
+  // 型を書いて変数を作る行：「string（文字列）の変数 a を作り、文字「hello」を入れます」
+  const typed = typedDecl(code, lang);
+  if (typed) return typed;
   if (lang === "python") return python(code);
   if (lang === "js") return js(code);
   if (lang === "c") return cLike(code);
@@ -624,6 +638,87 @@ function explainLineRaw(line: string, lang: ExplainLang): string | null {
   if (lang === "ruby") return ruby(code);
   if (lang === "shell") return shell(code);
   return null;
+}
+
+/** TypeScript の引数：a: number → a：number（数）、型がなければ名前だけ */
+function tsParam(p: string): string {
+  const m = /^\s*(\.\.\.)?([\w$]+)\??\s*(?::\s*([^=]+?))?\s*(?:=.*)?$/.exec(p);
+  if (!m) return p.trim();
+  return m[3] ? `${m[1] ? "いくつでも：" : ""}${m[2]}：${typeLabel(m[3], "js")}` : `${m[1] ? "いくつでも：" : ""}${m[2]}`;
+}
+
+// ───────── 型を書いて変数を作る行（どの言語でも）
+
+const NOT_TYPE = /^(return|new|else|case|goto|throw|delete|yield|await|using|namespace|import|package|typedef|print|echo|puts|raise|del|assert|not|and|or|in|is|if|elif|while|for|from|global|nonlocal|lambda|pass|break|continue|var|let|const|auto|val|def|class|struct|enum|func|fn|type|go|defer|select|default|static|public|private|protected|internal|final|readonly|volatile|unsigned|signed|extern|register|inline|virtual|override|abstract|sealed|async|ref|out|params|in)$/;
+const MODIFIERS = /^(public|private|protected|internal|static|readonly|final|const|volatile|unsigned|signed|extern|register|mutable|constexpr|transient|override|new|required|unsafe|fixed|lateinit)$/;
+
+/** 値の説明「a に 〇〇 を入れます」から「〇〇」を取り出す */
+function valuePart(text: string | null, name: string): string | null {
+  if (!text) return null;
+  const esc = name.replace(/[$]/g, "\\$");
+  const m = new RegExp(`^${esc}\\s*に\\s*(.+?)\\s*を入れます$`).exec(text) ?? new RegExp(`^(.+?)\\s*${esc}\\s*を作ります$`).exec(text);
+  return m ? m[1] : null;
+}
+
+/** 「文字「a」」+「を」→「文字「a」を」、「5」+「を」→「5 を」 */
+const wo = (v: string) => (/[\u3040-\u30ff\u4e00-\u9fff」）]$/.test(v) ? `${v}を` : `${v} を`);
+
+/** 「int（整数）の変数 x を作り、5 を入れます」のような説明 */
+function declText(type: string, names: string[], valueText: string | null, lang: ExplainLang, constant: boolean): string {
+  const what = `${typeLabel(type, lang)}の${constant ? "定数（あとで変えられない）" : "変数"} ${names.join("・")} を作`;
+  if (valueText === null) return `${what}ります`;
+  const v = valuePart(valueText, names[0]);
+  return v !== null ? `${what}り、${wo(v)}入れます` : `${what}ります（${valueText.replace(/。$/, "")}）`;
+}
+
+/** 型を書いて変数を作る行なら、その説明。そうでなければ null（ほかの説明にまかせる） */
+function typedDecl(code: string, lang: ExplainLang): string | null {
+  const s = code.trim().replace(/;\s*$/, "");
+  let m: RegExpExecArray | null;
+  if (lang === "python") {
+    // a: str = "hello" / n: int
+    if ((m = /^([A-Za-z_]\w*)\s*:\s*([^=]+?)\s*(?:=\s*(.+))?$/.exec(s)) && !/^(if|elif|else|for|while|def|class|with|try|except|finally|lambda|case|match)\b/.test(s)) {
+      if (!/^[\w.[\], |]+$/.test(m[2])) return null;
+      return declText(m[2], [m[1]], m[3] !== undefined ? python(`${m[1]} = ${m[3]}`) : null, lang, false);
+    }
+    return null;
+  }
+  if (lang === "js") {
+    // let a: string = "x" / const n: number = 5（型を書いたときだけ）
+    if ((m = /^(let|const|var)\s+([A-Za-z_$][\w$]*)\s*:\s*([^=]+?)\s*(?:=\s*(.+))?$/.exec(s))) {
+      return declText(m[3], [m[2]], m[4] !== undefined ? js(`${m[1]} ${m[2]} = ${m[4]}`) : null, lang, m[1] === "const");
+    }
+    return null;
+  }
+  if (lang === "go") {
+    // var a string / var n int = 5
+    if ((m = /^var\s+([\w\s,]+?)\s+((?:\[\d*\]|\*|map\[[^\]]+\]|chan\s+)*[\w.]+(?:\{\})?)\s*(?:=\s*(.+))?$/.exec(s))) {
+      const names = m[1].split(",").map((x) => x.trim());
+      if (m[3] === undefined) return `${declText(m[2], names, null, lang, false)}（最初は ${goZero(m[2])}）`;
+      return declText(m[2], names, goAssign(m[1], m[3]), lang, false);
+    }
+    return null;
+  }
+  if (lang !== "c") return null;
+  // int x; / string a = "hello"; / static List<int> xs = new(); / int *p = &x; / int a, b;
+  m = /^((?:[A-Za-z_]\w*\s+)*?)((?:[A-Za-z_][\w.:]*)(?:\s*<[^=;()]*>)?(?:\s*\[\s*\])*\s*\??\s*\**)\s*\b([A-Za-z_]\w*(?:\s*,\s*\*?[A-Za-z_]\w*)*)\s*(?:=\s*(.+))?$/.exec(s);
+  if (!m) return null;
+  const mods = m[1].trim() ? m[1].trim().split(/\s+/) : [];
+  if (!mods.every((x) => MODIFIERS.test(x))) return null;
+  let type = m[2].trim().replace(/\s*([<[*?])/g, "$1");
+  const names = m[3].split(",").map((x) => x.trim().replace(/^\*/, ""));
+  if (/^\*/.test(m[3].trim())) type += "*";
+  if (mods.includes("unsigned") && /^(int|long|short|char)$/.test(type)) type = `unsigned ${type}`;
+  // 型ではないもの（return x; など）や、型だけ書いて名前がないもの
+  if (NOT_TYPE.test(type) || names.some((n) => NOT_TYPE.test(n))) return null;
+  // 値の部分に別の = があるもの（a == b など）は、ここでは扱わない
+  if (m[4] !== undefined && /^=/.test(m[4])) return null;
+  // 型を表に持っていなくて、大文字で始まらない名前（foo bar; のような書きかけ）は扱わない
+  if (!typeMeaning(type, "c") && !/^[A-Z]/.test(type)) return null;
+  const constant = mods.some((x) => /^(const|final|readonly|constexpr)$/.test(x));
+  if (m[4] === undefined) return declText(type, names, null, lang, constant);
+  if (names.length > 1) return null;
+  return declText(type, names, cLike(`${names[0]} = ${m[4]}`), lang, constant);
 }
 
 // ───────── Go（書式の %d・%T、var・const・type・チャネル・defer など）
@@ -713,7 +808,17 @@ function goType(t: string): string {
   if ((m = /^map\[(.+?)\](.+)$/.exec(s))) return `${goType(m[1])} をキー・${goType(m[2])} を値にするマップ`;
   if ((m = /^chan\s+(.+)$/.exec(s))) return `${goType(m[1])} を送り合うチャネル`;
   if ((m = /^\*(.+)$/.exec(s))) return `${goType(m[1])} の場所（ポインタ）`;
-  return s;
+  return typeMeaning(s, "go") ? typeLabel(s, "go") : s;
+}
+
+/** Go の返すもの：int → int（整数）、(int, error) → int（整数）・error（エラー） */
+function goResults(res: string): string {
+  return splitArgs(res)
+    .map((r) => {
+      const m = /^(\w+)\s+(.+)$/.exec(r.trim());
+      return m ? `${m[1]}：${typeLabel(m[2], "go")}` : typeLabel(r.trim(), "go");
+    })
+    .join("・");
 }
 
 function goParams(p: string): string {
@@ -724,9 +829,9 @@ function goParams(p: string): string {
   for (const x of parts) {
     const m = /^([A-Za-z_]\w*)\s+(.+)$/.exec(x.trim());
     if (m) {
-      for (const n of pending) out.push(`${n}（${m[2]}）`);
+      for (const n of pending) out.push(`${n}：${typeLabel(m[2], "go")}`);
       pending = [];
-      out.push(`${m[1]}（${m[2].replace(/^\.\.\./, "いくつでも：")}）`);
+      out.push(/^\.\.\./.test(m[2]) ? `${m[1]}：いくつでも ${typeLabel(m[2].slice(3), "go")}` : `${m[1]}：${typeLabel(m[2], "go")}`);
     } else if (/^[A-Za-z_]\w*$/.test(x.trim())) pending.push(x.trim());
     else out.push(x.trim());
   }
@@ -776,21 +881,21 @@ function goLine(line: string): string | null {
   if ((m = /^(\w+)(?:\s+\w+)?\s*=\s*iota(.*)$/.exec(s))) return `${m[1]} から順に、0・1・2…と 1 ずつ増える番号（iota）${m[2].trim() ? `を ${m[2].trim()} した値` : ""}にします`;
   if ((m = /^var\s+([\w\s,]+?)\s+([\w.*[\]]+(?:\[[^\]]*\][\w.*]+)?|map\[.+?\][\w.*[\]]+|chan\s+\w+|func\(.*\).*)$/.exec(s)) && !s.includes("=")) {
     const names = m[1].split(",").map((x) => x.trim());
-    return `${goType(m[2])} 型の変数 ${names.join("・")} を作ります（最初は ${goZero(m[2])}）`;
+    return `${typeLabel(m[2], "go")}の変数 ${names.join("・")} を作ります（最初は ${goZero(m[2])}）`;
   }
   if ((m = /^var\s+([\w\s,]+?)(?:\s+([\w.*[\]]+))?\s*=\s*(.+)$/.exec(s))) return goAssign(m[1], m[3], m[2]);
   if ((m = /^const\s+(\w+)(?:\s+\w+)?\s*=\s*(.+)$/.exec(s))) return `変えられない値（定数）${m[1]} を ${cut(m[2], 20)} にします`;
   // ── 関数・メソッド
   if ((m = /^func\s+\((\w+)\s+(\*?)(\w+)(?:\[[^\]]*\])?\)\s+(\w+)\s*\((.*?)\)\s*(.*?)\s*\{?$/.exec(s))) {
     const res = m[6].trim().replace(/^\(|\)$/g, "");
-    const extra = [m[5].trim() ? `受け取るもの：${goParams(m[5])}` : "", res ? `返すもの：${res}` : ""].filter(Boolean).join("／");
-    return `${m[3]} 型のメソッド ${m[4]} を定義します（${m[1]} で自分を使う${m[2] ? "・* なので中身を書きかえられる" : ""}${extra ? "／" + extra : ""}）`;
+    const extra = [m[5].trim() ? `受け取るもの：${goParams(m[5])}` : "", res ? `返すもの：${goResults(res)}` : ""].filter(Boolean).join("／");
+    return `${typeLabel(m[3], "go")}のメソッド ${m[4]} を定義します（${m[1]} で自分を使う${m[2] ? "・* なので中身を書きかえられる" : ""}${extra ? "／" + extra : ""}）`;
   }
   if ((m = /^func\s+(\w+)(\[[^\]]+\])?\s*\((.*?)\)\s*(.*?)\s*\{?$/.exec(s))) {
     if (m[1] === "main") return "プログラムの入口（最初に動く関数）を定義します";
     if (m[1] === "init") return "main より先に、自動で 1 回だけ動く関数（init）を定義します";
     const res = m[4].trim().replace(/^\(|\)$/g, "");
-    const extra = [m[3].trim() ? `受け取るもの：${goParams(m[3])}` : "", res ? `返すもの：${res}` : ""].filter(Boolean).join("／");
+    const extra = [m[3].trim() ? `受け取るもの：${goParams(m[3])}` : "", res ? `返すもの：${goResults(res)}` : ""].filter(Boolean).join("／");
     return `${m[2] ? `型 ${m[2].slice(1, -1)} を使える` : ""}関数 ${m[1]} を定義します${extra ? `（${extra}）` : ""}`;
   }
   if ((m = /^(\w+)\s*:?=\s*func\s*\((.*?)\)\s*(.*?)\s*\{$/.exec(s))) {
@@ -821,14 +926,14 @@ function goLine(line: string): string | null {
     const vals = splitArgs(m[1]);
     if (vals.length === 1 && /[<>=!]=?|&&|\|\|/.test(vals[0])) return `もし ${condIf(vals[0], "go")}のとき`;
     if (vals.every((v) => /^(\*?[\w.]+|\[\]\w+|map\[\w+\]\w+|nil)$/.test(v) && /^(int\d*|uint\d*|float\d+|string|bool|byte|rune|error|nil|\*?[A-Z]\w*(\.\w+)?|\[\]\w+|map\[\w+\]\w+)$/.test(v) && !/^[A-Z_]+$/.test(v)))
-      return `${vals.join("・")} 型のとき`;
+      return `${vals.map((v) => typeLabel(v, "go")).join("・")} のとき`;
     return `${vals.map((v) => cut(v, 12)).join("・")} のとき`;
   }
   // ── if（エラーの確認など）
   if (/^if\s+err\s*!=\s*nil\s*\{$/.test(s)) return "もしエラーがあったら（err が nil でなければ）";
   if (/^if\s+err\s*==\s*nil\s*\{$/.test(s)) return "もしエラーがなければ";
   if ((m = /^if\s+(\w+)\s*,\s*(\w+)\s*:=\s*(\w+)\[(.+)\]\s*;\s*!?\s*\2\s*\{$/.exec(s))) return s.includes("!" + m[2]) ? `もしマップ ${m[3]} に ${m[4]} がなければ` : `もしマップ ${m[3]} に ${m[4]} があれば（値は ${m[1]}）`;
-  if ((m = /^if\s+(\w+)\s*,\s*(\w+)\s*:=\s*(.+)\.\((.+)\)\s*;\s*\2\s*\{$/.exec(s))) return `もし ${m[3]} が ${m[4]} 型なら（中身は ${m[1]}）`;
+  if ((m = /^if\s+(\w+)\s*,\s*(\w+)\s*:=\s*(.+)\.\((.+)\)\s*;\s*\2\s*\{$/.exec(s))) return `もし ${m[3]} が ${typeLabel(m[4], "go")}なら（中身は ${m[1]}）`;
   if ((m = /^if\s+(.+?)\s*:=\s*(.+?)\s*;\s*(.+?)\s*\{$/.exec(s))) {
     const what = nounOf(m[2], "go");
     if (m[3].trim() === "err != nil") return `${what ?? cut(m[2], 20)}をしてみて、エラーがあったら`;
@@ -891,12 +996,12 @@ function goAssign(targets: string, rhs: string, type?: string): string {
   }
   if ((m = /^(\[\d*\][\w.*]+|map\[.+?\][\w.*[\]]+)\{(.*)\}$/.exec(r))) return into(`${goType(m[1].replace(/^\[\d+\]/, (x) => (x === "[]" ? x : x)))}${m[2].trim() ? ` {${cut(m[2], 18)}}` : "（空）"}`);
   if ((m = /^&(\w+(?:\.\w+)?)\{(.*)\}$/.exec(r))) return into(`${m[1]} を作って、その場所（ポインタ）`);
-  if ((m = /^([A-Z]\w*(?:\.[A-Z]\w*)?)\{(.*)\}$/.exec(r))) return into(`${m[1]} 型の値${m[2].trim() ? ` {${cut(m[2], 18)}}` : "（中身は 0 や空）"}`);
+  if ((m = /^([A-Z]\w*(?:\.[A-Z]\w*)?)\{(.*)\}$/.exec(r))) return into(`${typeLabel(m[1], "go")}の値${m[2].trim() ? ` {${cut(m[2], 18)}}` : "（中身は 0 や空）"}`);
   if ((m = /^&(\w+)$/.exec(r))) return into(`${m[1]} の場所（ポインタ）`);
   if ((m = /^\*(\w+)$/.exec(r))) return into(`${m[1]} が指している先の値`);
   if ((m = /^<-\s*([\w.]+)$/.exec(r))) return names.length === 2 ? `チャネル ${m[1]} から受け取った値を ${names[0]} に、受け取れたかどうか（閉じられていたら false）を ${names[1]} に入れます` : into(`チャネル ${m[1]} から受け取った値`);
   if ((m = /^(\w+)\[(.+)\]$/.exec(r)) && names.length === 2) return `${m[1]} の ${cut(m[2], 12)} の値を ${names[0]} に、あったかどうか（true/false）を ${names[1]} に入れます`;
-  if ((m = /^(.+)\.\(([\w.*[\]]+)\)$/.exec(r))) return names.length === 2 ? `${cut(m[1], 12)} を ${m[2]} 型として取り出した値を ${names[0]} に、取り出せたかどうかを ${names[1]} に入れます` : into(`${cut(m[1], 12)} を ${m[2]} 型として取り出した値（ちがう型なら panic）`);
+  if ((m = /^(.+)\.\(([\w.*[\]]+)\)$/.exec(r))) return names.length === 2 ? `${cut(m[1], 12)} を ${typeLabel(m[2], "go")}として取り出した値を ${names[0]} に、取り出せたかどうかを ${names[1]} に入れます` : into(`${cut(m[1], 12)} を ${typeLabel(m[2], "go")}として取り出した値（ちがう型なら panic）`);
   if ((m = /^(\w+)\[(.*?):(.*?)\]$/.exec(r))) return into(`${m[1]} の ${m[2] || "最初"} 番目から ${m[3] ? `${m[3]} 番目の手前` : "最後"}まで`);
   if ((m = /^bufio\.NewScanner\(\s*os\.Stdin\s*\)$/.exec(r))) return into("キーボードの入力を 1 行ずつ読む道具（Scanner）");
   if ((m = /^bufio\.NewReader\(\s*os\.Stdin\s*\)$/.exec(r))) return into("キーボードの入力を読む道具（Reader）");
@@ -910,7 +1015,7 @@ function goAssign(targets: string, rhs: string, type?: string): string {
   // a, err := 〜：結果とエラー
   if (names.length === 2 && /^err$/.test(names[1]) && noun) return `${names[0] === "_" ? "" : `${names[0]} に `}${noun.replace(/（とエラー）$/, "")}${names[0] === "_" ? "は使わず、" : "を、"}エラー（なければ nil）を err に入れます`;
   if (noun) return into(noun);
-  if (type) return into(`${goType(type)} 型の ${cut(r, 16)}`);
+  if (type) return into(`${typeLabel(type, "go")}の ${cut(r, 16)}`);
   if (names.length > 1) return `${names.join("・")} にそれぞれ（順に分けて）${cut(r, 18)} の結果を入れます`;
   // 数や文字そのもの・計算などは、ふだんの代入の説明に任せる
   return assignment(`${names[0]} = ${r}`, "go") ?? `${names[0]} に ${cut(r, 18)} の結果を入れます`;
