@@ -7,5 +7,5 @@
 - 変えたら `npm run typecheck` と（できれば）`cd src-tauri && cargo check` を通す
 - 版を上げるときは version を 3 か所（package.json・src-tauri/tauri.conf.json・src-tauri/Cargo.toml）そろえ、README の版ごとの説明のいちばん上に追記し、コミットを `0.x.0: 要約` の形にする
 - リリースの添付ファイルの名前（`Aizome_<版>_x64-setup.exe` など）はアプリ内の更新が探す名前なので変えない
-- リリースしたことをユーザーに伝えるときは、インストーラー（.exe）の直リンクではなく、web のページのリンクを貼る：ダウンロードページ https://setsukashiraishi-hub.github.io/Aizome/ と、その版のリリースのページ `https://github.com/setsukashiraishi-hub/Aizome/releases/tag/v<版>`
+- リリースしたことをユーザーに伝えるときは、Windows 版のダウンロードのリンク `https://github.com/setsukashiraishi-hub/Aizome/releases/download/v<版>/Aizome_<版>_x64-setup.exe` を貼る
 - `debug/ghost` に push すると `debug/ghost-out` が上書きされる
