@@ -1,0 +1,342 @@
+;; Java の追加分
+
+@ 基本
+## 書式つきで表示 | printf format 書式 %d %s
+System.out.printf("%s は %d 点%n", ⟨name⟩, ⟨score⟩);
+
+## 文字列を作る（String.format） | String.format 書式 文字列
+String ⟨s⟩ = String.format("%.2f", ⟨x⟩);
+
+## 1 行まるごと入力 | Scanner nextLine 1行 入力
+Scanner ⟨sc⟩ = new Scanner(System.in);
+String ⟨line⟩ = ⟨sc⟩.nextLine();
+
+## 小数・文字列を入力 | Scanner nextDouble next 入力
+double ⟨x⟩ = ⟨sc⟩.nextDouble();
+String ⟨word⟩ = ⟨sc⟩.next();
+
+## 速く入力を読む（BufferedReader） | BufferedReader 高速 入力 readLine
+BufferedReader ⟨br⟩ = new BufferedReader(new InputStreamReader(System.in));
+String ⟨line⟩ = ⟨br⟩.readLine();
+
+## 型を自動で決める（var） | var 型推論 変数
+var ⟨list⟩ = new ArrayList<String>();
+
+## 定数 | final static 定数
+static final int ⟨MAX⟩ = ⟨100⟩;
+
+## 条件のあいだくり返す | while ループ 条件
+while (⟨条件⟩) {
+    ⟨⟩
+}
+
+## 値によって分ける（switch） | switch case 場合分け
+switch (⟨x⟩) {
+    case ⟨1⟩ -> ⟨System.out.println("一")⟩;
+    case ⟨2⟩ -> System.out.println("二");
+    default -> System.out.println("その他");
+}
+
+## switch 式（値を決める） | switch 式 yield 新しい
+String ⟨label⟩ = switch (⟨rank⟩) {
+    case 1 -> "金";
+    case 2 -> "銀";
+    default -> "なし";
+};
+
+## 1 行で条件分岐（三項演算子） | 三項 ? : 条件
+int ⟨max⟩ = ⟨a⟩ > ⟨b⟩ ? ⟨a⟩ : ⟨b⟩;
+
+## 型を変換する | キャスト 変換 int double
+int ⟨i⟩ = (int) ⟨3.7⟩;
+double ⟨d⟩ = ⟨i⟩;
+
+## 選択肢を名前で決める（enum） | enum 列挙 定数
+enum ⟨Color⟩ { ⟨RED⟩, ⟨GREEN⟩, ⟨BLUE⟩ }
+
+## 配列を作る | 配列 array new
+int[] ⟨nums⟩ = {⟨1, 2, 3⟩};
+String[] ⟨names⟩ = new String[⟨5⟩];
+
+## 2 次元配列 | 二次元 配列 表
+int[][] ⟨grid⟩ = new int[⟨3⟩][⟨4⟩];
+
+## 配列を並べ替え・表示 | Arrays sort toString 並べ替え
+Arrays.sort(⟨nums⟩);
+System.out.println(Arrays.toString(⟨nums⟩));
+
+## 配列を同じ値で埋める | Arrays fill 初期化
+Arrays.fill(⟨nums⟩, ⟨0⟩);
+
+## 拡張 for（配列を順に） | 拡張for 配列 順に
+for (int ⟨x⟩ : ⟨nums⟩) {
+    System.out.println(⟨x⟩);
+}
+
+@ 文字列
+## 文字列の長さ・一部 | length substring 部分
+int ⟨len⟩ = ⟨s⟩.length();
+String ⟨part⟩ = ⟨s⟩.substring(⟨0⟩, ⟨3⟩);
+
+## 文字列が同じか（equals を使う） | equals 比較 同じ ==
+if (⟨s⟩.equals("⟨abc⟩")) {
+    ⟨⟩
+}
+
+## 区切って分ける・つなげる | split join 分割 結合
+String[] ⟨parts⟩ = ⟨s⟩.split("⟨,⟩");
+String ⟨joined⟩ = String.join("⟨-⟩", ⟨parts⟩);
+
+## 置き換える・含むか | replace contains 置換 含む
+⟨s⟩ = ⟨s⟩.replace("⟨古い⟩", "⟨新しい⟩");
+boolean ⟨has⟩ = ⟨s⟩.contains("⟨word⟩");
+
+## 前後の空白を取る・大文字に | trim strip toUpperCase
+⟨s⟩ = ⟨s⟩.strip().toUpperCase();
+
+## n 番目の文字 | charAt 文字 番目
+char ⟨c⟩ = ⟨s⟩.charAt(⟨0⟩);
+
+## 数と文字列の変換 | parseInt valueOf 変換
+int ⟨n⟩ = Integer.parseInt(⟨s⟩);
+String ⟨t⟩ = String.valueOf(⟨n⟩);
+
+## たくさんつなげる（StringBuilder） | StringBuilder 連結 逆順
+StringBuilder ⟨sb⟩ = new StringBuilder();
+⟨sb⟩.append("⟨abc⟩");
+String ⟨rev⟩ = ⟨sb⟩.reverse().toString();
+
+## 文字列をくり返す | repeat くり返し 線
+"⟨-⟩".repeat(⟨20⟩);
+
+## 複数行の文字列（テキストブロック） | テキストブロック """ 複数行
+String ⟨text⟩ = """
+    ⟨1 行目⟩
+    2 行目
+    """;
+
+## 〜で始まる・空か | startsWith isEmpty isBlank
+if (⟨s⟩.startsWith("⟨abc⟩") && !⟨s⟩.isBlank()) {
+    ⟨⟩
+}
+
+## 正規表現に合うか | matches 正規表現 判定
+if (⟨s⟩.matches("⟨\\d+⟩")) {
+    ⟨⟩
+}
+
+@ データ
+## リストをまとめて作る | List.of 不変 リスト 作る
+List<String> ⟨names⟩ = List.of("⟨a⟩", "⟨b⟩", "⟨c⟩");
+
+## リストの操作（取り出す・削除・大きさ） | get remove size contains
+String ⟨x⟩ = ⟨list⟩.get(⟨0⟩);
+⟨list⟩.remove(⟨0⟩);
+int ⟨n⟩ = ⟨list⟩.size();
+boolean ⟨has⟩ = ⟨list⟩.contains(⟨x⟩);
+
+## 大きい順に並べ替え | sort reverseOrder 降順 Collections
+⟨list⟩.sort(Comparator.reverseOrder());
+
+## 条件で並べ替え | Comparator comparing 並べ替え キー
+⟨people⟩.sort(Comparator.comparing(⟨Person⟩::⟨getAge⟩));
+
+## 最大・最小・シャッフル | Collections max min shuffle
+Collections.max(⟨list⟩);
+Collections.min(⟨list⟩);
+Collections.shuffle(⟨list⟩);
+
+## マップを順に取り出す | Map entrySet 順に
+for (var ⟨e⟩ : ⟨map⟩.entrySet()) {
+    System.out.println(⟨e⟩.getKey() + ": " + ⟨e⟩.getValue());
+}
+
+## なければ既定値・数を数える | getOrDefault merge 数える
+⟨count⟩.merge(⟨word⟩, 1, Integer::sum);
+int ⟨n⟩ = ⟨count⟩.getOrDefault("⟨a⟩", 0);
+
+## キーの順に並ぶマップ（TreeMap） | TreeMap 順番 並べ替え 辞書
+Map<String, Integer> ⟨map⟩ = new TreeMap<>();
+
+## 重複しない集まり（HashSet） | HashSet Set 集合 重複
+Set<String> ⟨set⟩ = new HashSet<>();
+⟨set⟩.add("⟨a⟩");
+
+## キュー（ArrayDeque） | Queue ArrayDeque offer poll
+Deque<Integer> ⟨q⟩ = new ArrayDeque<>();
+⟨q⟩.offer(⟨1⟩);
+int ⟨x⟩ = ⟨q⟩.poll();
+
+## 小さい順に取り出せる箱（PriorityQueue） | PriorityQueue 優先度 キュー
+PriorityQueue<Integer> ⟨pq⟩ = new PriorityQueue<>();
+⟨pq⟩.add(⟨3⟩);
+int ⟨min⟩ = ⟨pq⟩.poll();
+
+## 条件で絞って変換（Stream） | stream filter map collect
+List<Integer> ⟨evens⟩ = ⟨nums⟩.stream()
+    .filter(n -> n % 2 == 0)
+    .map(n -> n * 10)
+    .toList();
+
+## 合計・平均（Stream） | stream sum average mapToInt
+int ⟨sum⟩ = ⟨nums⟩.stream().mapToInt(Integer::intValue).sum();
+double ⟨avg⟩ = ⟨nums⟩.stream().mapToInt(Integer::intValue).average().orElse(0);
+
+## グループに分ける（Stream） | groupingBy グループ 集計
+Map<String, List<⟨Person⟩>> ⟨groups⟩ = ⟨people⟩.stream()
+    .collect(Collectors.groupingBy(⟨Person⟩::⟨getTeam⟩));
+
+## 1 から n まで（IntStream） | IntStream range 連番
+IntStream.rangeClosed(1, ⟨n⟩).forEach(System.out::println);
+
+@ クラス
+## コンストラクタとゲッター | コンストラクタ getter this
+public class ⟨Person⟩ {
+    private final String ⟨name⟩;
+    private int ⟨age⟩;
+
+    public ⟨Person⟩(String ⟨name⟩, int ⟨age⟩) {
+        this.⟨name⟩ = ⟨name⟩;
+        this.⟨age⟩ = ⟨age⟩;
+    }
+
+    public String getName() {
+        return ⟨name⟩;
+    }
+}
+
+## データだけのクラス（record） | record データ 不変
+public record ⟨Point⟩(int ⟨x⟩, int ⟨y⟩) {}
+
+## 継承 | 継承 extends super override
+public class ⟨Dog⟩ extends ⟨Animal⟩ {
+    @Override
+    public String ⟨speak⟩() {
+        return "ワン";
+    }
+}
+
+## インターフェース | interface implements 約束
+public interface ⟨Shape⟩ {
+    double ⟨area⟩();
+}
+
+## 抽象クラス | abstract 抽象 クラス
+public abstract class ⟨Shape⟩ {
+    public abstract double ⟨area⟩();
+}
+
+## 文字列での見え方を決める（toString） | toString 表示 override
+@Override
+public String toString() {
+    return "⟨Person[name=" + name + "]⟩";
+}
+
+## 比べられるようにする（Comparable） | Comparable compareTo 並べ替え
+public class ⟨Score⟩ implements Comparable<⟨Score⟩> {
+    int ⟨value⟩;
+
+    @Override
+    public int compareTo(⟨Score⟩ o) {
+        return Integer.compare(⟨value⟩, o.⟨value⟩);
+    }
+}
+
+## static なメソッド | static 静的 メソッド
+public static int ⟨twice⟩(int x) {
+    return x * 2;
+}
+
+## ラムダ式 | ラムダ -> 関数 Function
+Function<Integer, Integer> ⟨square⟩ = x -> x * x;
+⟨square⟩.apply(⟨5⟩);
+
+## ないかもしれない値（Optional） | Optional null 値なし
+Optional<String> ⟨found⟩ = ⟨list⟩.stream().filter(s -> s.startsWith("⟨a⟩")).findFirst();
+⟨found⟩.ifPresent(System.out::println);
+
+## どんな型でも使える（ジェネリクス） | ジェネリクス <T> generics
+public static <T> T ⟨first⟩(List<T> ⟨items⟩) {
+    return ⟨items⟩.get(0);
+}
+
+@ 便利
+## ファイルを読む（全部・行ごと） | Files readString readAllLines ファイル
+String ⟨text⟩ = Files.readString(Path.of("⟨data.txt⟩"));
+List<String> ⟨lines⟩ = Files.readAllLines(Path.of("⟨data.txt⟩"));
+
+## ファイルに書く | Files writeString 書く 保存
+Files.writeString(Path.of("⟨out.txt⟩"), ⟨text⟩);
+
+## ファイルがあるか | Files exists 存在
+if (Files.exists(Path.of("⟨data.txt⟩"))) {
+    ⟨⟩
+}
+
+## 必ず閉じる（try-with-resources） | try-with-resources 閉じる close
+try (var ⟨br⟩ = Files.newBufferedReader(Path.of("⟨data.txt⟩"))) {
+    String ⟨line⟩;
+    while ((⟨line⟩ = ⟨br⟩.readLine()) != null) {
+        System.out.println(⟨line⟩);
+    }
+}
+
+## 自分でエラーを起こす | throw 例外 Exception
+throw new IllegalArgumentException("⟨まちがった値です⟩");
+
+## 数でない入力を受け止める | NumberFormatException 例外 入力
+try {
+    int ⟨n⟩ = Integer.parseInt(⟨s⟩);
+} catch (NumberFormatException e) {
+    System.out.println("数を入れてください");
+}
+
+## 数学の関数 | Math sqrt pow abs 数学
+Math.sqrt(⟨x⟩);
+Math.pow(⟨x⟩, 2);
+Math.abs(⟨x⟩);
+
+## 四捨五入・切り上げ・切り捨て | round ceil floor 四捨五入
+Math.round(⟨x⟩);
+Math.ceil(⟨x⟩);
+Math.floor(⟨x⟩);
+
+## 範囲のランダムな整数（新しい書き方） | ThreadLocalRandom 乱数 範囲
+int ⟨n⟩ = ThreadLocalRandom.current().nextInt(⟨1⟩, ⟨7⟩);  // 1〜6
+
+## 今の日時 | LocalDateTime now 日付 時刻 書式
+LocalDateTime ⟨now⟩ = LocalDateTime.now();
+System.out.println(⟨now⟩.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")));
+
+## 2 つの日付の差 | ChronoUnit DAYS between 日数
+long ⟨days⟩ = ChronoUnit.DAYS.between(⟨d1⟩, ⟨d2⟩);
+
+## 少し待つ | Thread sleep 待つ
+Thread.sleep(⟨1000⟩);
+
+## かかった時間を計る | nanoTime currentTimeMillis 計測
+long ⟨start⟩ = System.nanoTime();
+⟨⟩
+System.out.println((System.nanoTime() - ⟨start⟩) / 1_000_000 + " ms");
+
+## 同時に動かす（スレッド） | Thread スレッド 並行 start
+Thread ⟨t⟩ = new Thread(() -> {
+    ⟨⟩
+});
+⟨t⟩.start();
+⟨t⟩.join();
+
+## とても大きな整数（BigInteger） | BigInteger 大きい数 多倍長
+BigInteger ⟨big⟩ = BigInteger.valueOf(2).pow(⟨100⟩);
+
+## お金の計算（BigDecimal） | BigDecimal 誤差 お金 小数
+BigDecimal ⟨a⟩ = new BigDecimal("0.1").add(new BigDecimal("0.2"));
+
+## プログラムを終わらせる | exit 終了 System
+System.exit(⟨0⟩);
+
+## よく使う import | import java.util 読み込み
+import java.util.*;
+import java.util.stream.*;
+import java.io.*;
+import java.nio.file.*;

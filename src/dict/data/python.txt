@@ -1,0 +1,1468 @@
+;; Python の追加分。書き方は src/dict/parse.ts を見てください
+
+@ 入出力
+## 複数の値を 1 行で入力（2 つ） | input split map 二つ 二個 a b | 「3 5」のように空白で区切って入れる
+⟨a⟩, ⟨b⟩ = map(int, input().split())
+
+## 小数を入力 | input float 小数 にゅうりょく
+⟨x⟩ = float(input("⟨数を入力：⟩"))
+
+## 何行も入力を読む（行数が先に来る） | 複数行 n行 競プロ input
+⟨n⟩ = int(input())
+⟨lines⟩ = [input() for _ in range(⟨n⟩)]
+
+## 入力が終わるまで全部読む | sys.stdin 全部 EOF 読み込み
+import sys
+
+⟨lines⟩ = sys.stdin.read().splitlines()
+
+## 速く入力を読む（たくさんのデータ） | sys.stdin.readline 高速 競プロ
+import sys
+input = sys.stdin.readline
+
+## 3 けたごとにカンマを入れて表示 | カンマ 区切り 桁 金額 1,000
+print(f"{⟨x⟩:,}")
+
+## パーセントで表示 | % 割合 パーセント 百分率
+print(f"{⟨0.256⟩:.1%}")
+
+## 右寄せ・左寄せ・中央寄せで表示 | 寄せ 幅 そろえる 揃え rjust ljust center
+print(f"{⟨x⟩:>10}")  # 左寄せは :<10、中央は :^10
+
+## 表のように並べて表示 | 表 桁 そろえる 一覧 整形
+for ⟨name⟩, ⟨score⟩ in ⟨rows⟩:
+    print(f"{name:<10}{score:>5}")
+
+## 色つきの文字を表示（ターミナル） | 色 カラー エスケープ ANSI 赤
+print("\033[31m⟨赤い文字⟩\033[0m")  # 32 緑、33 黄、34 青
+
+## 同じ行を書き換えて表示（進み具合） | 進捗 プログレス \r 上書き
+import time
+
+for ⟨i⟩ in range(⟨101⟩):
+    print(f"\r{i}%", end="", flush=True)
+    time.sleep(0.05)
+print()
+
+## 変数の名前と中身を一緒に表示（デバッグ） | debug デバッグ f-string = 確認
+print(f"{⟨x⟩=}")
+
+## リストを見やすく表示 | pprint 整形 きれいに 表示
+from pprint import pprint
+
+pprint(⟨data⟩)
+
+## 画面をきれいにする（ターミナル） | クリア cls clear 画面 消す
+import os
+
+os.system("cls" if os.name == "nt" else "clear")
+
+## パスワードを見えないように入力 | getpass パスワード 隠す 非表示
+from getpass import getpass
+
+⟨pw⟩ = getpass("⟨パスワード：⟩")
+
+## はい・いいえで答えてもらう | yes no 確認 y/n
+⟨ans⟩ = input("⟨続けますか？⟩ (y/n): ").strip().lower()
+if ⟨ans⟩ == "y":
+    ⟨⟩
+
+@ 条件・繰り返し
+## 2 つの条件がどちらも成り立つ（and） | and かつ 両方 条件
+if ⟨a⟩ and ⟨b⟩:
+    ⟨⟩
+
+## どちらかの条件が成り立つ（or） | or または どちらか 条件
+if ⟨a⟩ or ⟨b⟩:
+    ⟨⟩
+
+## 範囲に入っているか | 範囲 以上 以下 あいだ 比較 連続
+if ⟨0⟩ <= ⟨x⟩ <= ⟨100⟩:
+    ⟨⟩
+
+## 何もしない（pass） | pass 空 なにもしない
+pass
+
+## 逆の順にくり返す | reversed 逆順 さかさま カウントダウン
+for ⟨i⟩ in range(⟨10⟩, 0, -1):
+    print(i)
+
+## 2 つずつ飛ばしてくり返す | step 飛ばす 間隔 range
+for ⟨i⟩ in range(⟨0⟩, ⟨10⟩, ⟨2⟩):
+    print(i)
+
+## 二重ループ（九九の表など） | 二重 ネスト 入れ子 九九 ループ
+for ⟨i⟩ in range(1, 10):
+    for ⟨j⟩ in range(1, 10):
+        print(i * j, end=" ")
+    print()
+
+## 二重ループを一気に抜ける | break 二重 抜ける フラグ
+⟨found⟩ = False
+for ⟨i⟩ in ⟨rows⟩:
+    for ⟨j⟩ in ⟨i⟩:
+        if ⟨条件⟩:
+            ⟨found⟩ = True
+            break
+    if ⟨found⟩:
+        break
+
+## 最後まで抜けなかったとき（for-else） | for else break 見つからない
+for ⟨item⟩ in ⟨items⟩:
+    if ⟨条件⟩:
+        print("見つかった")
+        break
+else:
+    print("見つからなかった")
+
+## 全部が条件に合うか（all） | all 全部 すべて 条件
+if all(⟨x⟩ > 0 for ⟨x⟩ in ⟨items⟩):
+    ⟨⟩
+
+## どれか 1 つでも条件に合うか（any） | any どれか ひとつでも 条件
+if any(⟨x⟩ < 0 for ⟨x⟩ in ⟨items⟩):
+    ⟨⟩
+
+## 正しい入力が来るまでくり返す | 入力 やり直し 正しい ループ
+while True:
+    ⟨s⟩ = input("⟨1〜3 を入力：⟩")
+    if ⟨s⟩ in ("1", "2", "3"):
+        break
+    print("もう一度入れてください")
+
+## 代入しながら条件を調べる（セイウチ演算子） | := walrus 代入式
+while (⟨line⟩ := input()) != "⟨end⟩":
+    print(⟨line⟩)
+
+## 決まった回数だけ（番号を使わない） | _ 回数 くり返す アンダースコア
+for _ in range(⟨3⟩):
+    ⟨⟩
+
+## None かどうか調べる | None is 空 ない
+if ⟨x⟩ is None:
+    ⟨⟩
+
+## 空かどうか調べる（リスト・文字列） | 空 からっぽ empty not
+if not ⟨items⟩:
+    print("空です")
+
+@ 文字列
+## 文字列を 1 文字ずつ取り出す | 一文字 ずつ for 文字
+for ⟨ch⟩ in ⟨s⟩:
+    print(ch)
+
+## 文字を数字のコードに・コードを文字に | ord chr 文字コード ASCII Unicode
+ord("⟨A⟩")  # 65
+chr(⟨65⟩)   # "A"
+
+## 数字だけでできているか | isdigit isnumeric 数字 判定
+if ⟨s⟩.isdigit():
+    ⟨⟩
+
+## アルファベットだけでできているか | isalpha 英字 判定
+if ⟨s⟩.isalpha():
+    ⟨⟩
+
+## 文字列が何回出てくるか数える | count 回数 数える 出現
+⟨s⟩.count("⟨a⟩")
+
+## 文字列の位置を探す | find index 位置 探す 何文字目
+⟨i⟩ = ⟨s⟩.find("⟨word⟩")  # 見つからないと -1
+
+## 行ごとに分ける | splitlines 改行 行 分割
+⟨lines⟩ = ⟨s⟩.splitlines()
+
+## 最初の 1 か所だけで分ける | split maxsplit partition 1 回
+⟨key⟩, ⟨value⟩ = ⟨s⟩.split("⟨=⟩", 1)
+
+## 先頭の文字だけ大文字に | capitalize title 頭文字
+⟨s⟩.capitalize()  # 単語ごとなら .title()
+
+## 左右を指定した文字で埋める | ljust rjust center 埋める 幅
+⟨s⟩.rjust(⟨10⟩, "⟨*⟩")
+
+## 文字列をくり返す | * くり返し 線 区切り線
+print("⟨-⟩" * ⟨20⟩)
+
+## 改行をふくむ文字列を 1 行で書く | \n 改行 エスケープ
+⟨s⟩ = "⟨1 行目⟩\n⟨2 行目⟩"
+
+## 文字列の中の { } をそのまま出す（f 文字列） | 波かっこ エスケープ {{ }}
+print(f"{{⟨x⟩}} は {⟨x⟩}")
+
+## 文字列を 1 文字ずつのリストに | list 文字 分解 バラバラ
+⟨chars⟩ = list(⟨s⟩)
+
+## 全角を半角に（英数字） | 全角 半角 変換 unicodedata NFKC
+import unicodedata
+
+⟨s⟩ = unicodedata.normalize("NFKC", ⟨s⟩)
+
+## ひらがなをカタカナに | ひらがな カタカナ 変換 かな
+⟨kata⟩ = "".join(chr(ord(c) + 0x60) if "ぁ" <= c <= "ゖ" else c for c in ⟨s⟩)
+
+## 回文か調べる | 回文 さかさま 同じ
+if ⟨s⟩ == ⟨s⟩[::-1]:
+    print("回文です")
+
+## 文字列が同じか（大文字小文字を無視） | 比較 大文字 小文字 無視 casefold
+if ⟨a⟩.lower() == ⟨b⟩.lower():
+    ⟨⟩
+
+## 長い文字列を決まった幅で折り返す | textwrap 折り返し 幅
+import textwrap
+
+print(textwrap.fill(⟨s⟩, width=⟨40⟩))
+
+## 数字を 2 進数・16 進数の文字列に | bin hex 2進数 16進数 基数
+bin(⟨10⟩)  # '0b1010'
+hex(⟨255⟩)  # '0xff'
+format(⟨10⟩, "b")  # '1010'
+
+## 2 進数・16 進数の文字列を数に | int 基数 2進数 16進数 変換
+int("⟨1010⟩", 2)
+int("⟨ff⟩", 16)
+
+## ランダムな文字列（パスワード）を作る | ランダム パスワード secrets 文字列 生成
+import secrets
+import string
+
+⟨pw⟩ = "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(⟨12⟩))
+
+## 英字・数字の一覧 | string ascii_letters digits アルファベット 一覧
+import string
+
+string.ascii_lowercase  # abcdefghijklmnopqrstuvwxyz
+string.digits  # 0123456789
+
+## 前後の決まった文字を取る | removeprefix removesuffix 先頭 末尾 取る
+⟨s⟩.removeprefix("⟨abc⟩")  # 後ろなら .removesuffix()
+
+## 文字列の中に変数を入れる（format） | format 書式 埋め込み
+"⟨{} は {} です⟩".format(⟨name⟩, ⟨n⟩)
+
+@ リスト
+## 同じ値で n 個のリストを作る | 初期化 * n 個 同じ
+⟨items⟩ = [⟨0⟩] * ⟨n⟩
+
+## 1 から n までのリスト | range list 連番
+⟨nums⟩ = list(range(1, ⟨n⟩ + 1))
+
+## 内包表記でリストを作る | 内包表記 comprehension for 一行
+⟨squares⟩ = [⟨x⟩ * ⟨x⟩ for ⟨x⟩ in range(⟨10⟩)]
+
+## 内包表記で条件に合うものだけ | 内包表記 if 絞り込み
+⟨evens⟩ = [⟨x⟩ for ⟨x⟩ in ⟨nums⟩ if ⟨x⟩ % 2 == 0]
+
+## 最初・最後の要素 | 先頭 末尾 最後 [-1] [0]
+⟨items⟩[0]   # 最初
+⟨items⟩[-1]  # 最後
+
+## 後ろから n 個・前から n 個 | スライス 先頭 末尾 n個
+⟨items⟩[:⟨3⟩]   # 前から 3 個
+⟨items⟩[-⟨3⟩:]  # 後ろから 3 個
+
+## 逆順にする（リスト） | reverse 逆順 反転
+⟨items⟩.reverse()  # 新しいリストにするなら items[::-1]
+
+## 2 つのリストをつなげる | 結合 + extend つなげる
+⟨all_items⟩ = ⟨a⟩ + ⟨b⟩  # a を直接ふやすなら a.extend(b)
+
+## 位置を指定して削除 | del pop 削除 番号
+del ⟨items⟩[⟨0⟩]
+
+## 全部消す | clear 空にする 全削除
+⟨items⟩.clear()
+
+## 条件に合うものを全部削除 | 削除 条件 フィルタ 取り除く
+⟨items⟩ = [⟨x⟩ for ⟨x⟩ in ⟨items⟩ if not (⟨条件⟩)]
+
+## 要素を入れ替える | 入れ替え swap 交換
+⟨items⟩[⟨i⟩], ⟨items⟩[⟨j⟩] = ⟨items⟩[⟨j⟩], ⟨items⟩[⟨i⟩]
+
+## 最大の値が何番目か | 最大 位置 index max argmax
+⟨i⟩ = ⟨items⟩.index(max(⟨items⟩))
+
+## 平たくする（2 次元を 1 次元に） | flatten 平坦 1次元 二次元
+⟨flat⟩ = [⟨x⟩ for ⟨row⟩ in ⟨table⟩ for ⟨x⟩ in ⟨row⟩]
+
+## 2 次元のリストの行と列を入れ替える | 転置 行列 zip 縦横
+⟨t⟩ = [list(⟨row⟩) for ⟨row⟩ in zip(*⟨table⟩)]
+
+## 2 次元のリストを表のように表示 | 二次元 表示 表 行列
+for ⟨row⟩ in ⟨table⟩:
+    print(*⟨row⟩)
+
+## n 個ずつに分ける | 分割 チャンク n個ずつ グループ
+⟨chunks⟩ = [⟨items⟩[i:i + ⟨3⟩] for i in range(0, len(⟨items⟩), ⟨3⟩)]
+
+## 順番を保ったまま重複を取り除く | 重複 順番 dict.fromkeys ユニーク
+⟨items⟩ = list(dict.fromkeys(⟨items⟩))
+
+## 2 つのリストから辞書を作る | zip dict 辞書 対応
+⟨d⟩ = dict(zip(⟨keys⟩, ⟨values⟩))
+
+## 一番多く出てくる値 | 最頻値 most_common Counter 多い
+from collections import Counter
+
+⟨value⟩, ⟨count⟩ = Counter(⟨items⟩).most_common(1)[0]
+
+## 大きいほうから n 個 | 上位 ランキング nlargest top
+import heapq
+
+heapq.nlargest(⟨3⟩, ⟨items⟩)
+
+## 複数の条件で並べ替え | 並べ替え 複数 キー タプル sort
+⟨items⟩.sort(key=lambda ⟨x⟩: (⟨x⟩[⟨1⟩], ⟨x⟩[⟨0⟩]))
+
+## 辞書のリストを並べ替え | 並べ替え 辞書 キー sort lambda
+⟨people⟩.sort(key=lambda ⟨p⟩: ⟨p⟩["⟨age⟩"])
+
+## 文字列の長さで並べ替え | 並べ替え 長さ len sort
+⟨words⟩.sort(key=len)
+
+## 並べ替えたリストを新しく作る（元はそのまま） | sorted 並べ替え 新しい コピー
+⟨new_items⟩ = sorted(⟨items⟩)
+
+## リストの中にリストがあるか・同じか比べる | 比較 == 同じ リスト
+if ⟨a⟩ == ⟨b⟩:
+    print("同じ")
+
+## 2 つのリストに共通するもの | 共通 積集合 & intersection 両方
+⟨common⟩ = list(set(⟨a⟩) & set(⟨b⟩))
+
+## 片方にだけあるもの | 差集合 - 違い difference
+⟨only_a⟩ = list(set(⟨a⟩) - set(⟨b⟩))
+
+## 番号と値の組を作る | enumerate list 番号 組
+list(enumerate(⟨items⟩, start=1))
+
+## 累積和（前から足していく） | 累積 和 accumulate 足し算
+from itertools import accumulate
+
+⟨sums⟩ = list(accumulate(⟨nums⟩))
+
+## 全部かけ算する | 積 掛け算 prod math
+import math
+
+math.prod(⟨nums⟩)
+
+## 並べ方を全部つくる（順列） | 順列 permutations 並べ方 全部
+from itertools import permutations
+
+for ⟨p⟩ in permutations(⟨items⟩):
+    print(p)
+
+## 選び方を全部つくる（組み合わせ） | 組み合わせ combinations 選び方
+from itertools import combinations
+
+for ⟨c⟩ in combinations(⟨items⟩, ⟨2⟩):
+    print(c)
+
+## 全部の組を作る（直積） | 直積 product 組み合わせ 総当たり
+from itertools import product
+
+for ⟨a⟩, ⟨b⟩ in product(⟨list1⟩, ⟨list2⟩):
+    print(a, b)
+
+## 二分探索（並んだリストから探す） | 二分探索 bisect 速く探す
+import bisect
+
+⟨i⟩ = bisect.bisect_left(⟨sorted_items⟩, ⟨x⟩)
+
+## 2 次元のリストを正しくコピー | deepcopy コピー 2次元 深い
+import copy
+
+⟨b⟩ = copy.deepcopy(⟨a⟩)
+
+## リストの中身をかけ算で 1 つずつ（map） | map 全部 変換 関数
+⟨nums⟩ = list(map(int, ⟨strs⟩))
+
+@ 集合・タプル
+## 集合（set）を作る | set 集合 重複なし
+⟨s⟩ = {⟨1, 2, 3⟩}
+
+## 集合に追加・削除 | add discard remove 集合
+⟨s⟩.add(⟨4⟩)
+⟨s⟩.discard(⟨1⟩)  # なくてもエラーにならない
+
+## 和集合・積集合・差集合 | 集合 演算 union 和 積 差
+⟨a⟩ | ⟨b⟩  # どちらか
+⟨a⟩ & ⟨b⟩  # 両方
+⟨a⟩ - ⟨b⟩  # a だけ
+
+## タプルを作る | tuple タプル 変えられない
+⟨point⟩ = (⟨3⟩, ⟨4⟩)
+
+## タプルを分けて受け取る（アンパック） | アンパック 分解 受け取る
+⟨x⟩, ⟨y⟩ = ⟨point⟩
+
+## 残りをまとめて受け取る | * アンパック 残り 先頭
+⟨first⟩, *⟨rest⟩ = ⟨items⟩
+
+## 名前つきタプル | namedtuple 名前 タプル
+from collections import namedtuple
+
+⟨Point⟩ = namedtuple("⟨Point⟩", ["⟨x⟩", "⟨y⟩"])
+⟨p⟩ = ⟨Point⟩(3, 4)
+
+## 両はしから出し入れできる列（deque） | deque キュー 両端 popleft
+from collections import deque
+
+⟨q⟩ = deque()
+⟨q⟩.append(⟨1⟩)
+⟨x⟩ = ⟨q⟩.popleft()
+
+## 小さい順に取り出せる箱（優先度つきキュー） | heapq 優先度 キュー 最小
+import heapq
+
+⟨h⟩ = []
+heapq.heappush(⟨h⟩, ⟨3⟩)
+⟨smallest⟩ = heapq.heappop(⟨h⟩)
+
+@ 辞書
+## キーで値を変える・足す | 更新 代入 辞書 加算
+⟨d⟩["⟨key⟩"] = ⟨d⟩.get("⟨key⟩", 0) + ⟨1⟩
+
+## キーの一覧・値の一覧 | keys values 一覧 辞書
+list(⟨d⟩.keys())
+list(⟨d⟩.values())
+
+## 値で並べ替え | 並べ替え 値 sorted items ランキング
+for ⟨k⟩, ⟨v⟩ in sorted(⟨d⟩.items(), key=lambda kv: kv[1], reverse=True):
+    print(k, v)
+
+## キーで並べ替えて順に | 並べ替え キー sorted 辞書
+for ⟨k⟩ in sorted(⟨d⟩):
+    print(k, ⟨d⟩[k])
+
+## 2 つの辞書をまとめる | 結合 マージ update 辞書 合体
+⟨merged⟩ = ⟨a⟩ | ⟨b⟩  # a を直接ふやすなら a.update(b)
+
+## 内包表記で辞書を作る | 内包表記 辞書 comprehension
+⟨d⟩ = {⟨x⟩: ⟨x⟩ * ⟨x⟩ for ⟨x⟩ in range(⟨5⟩)}
+
+## キーと値を入れ替える | 逆 入れ替え 反転 辞書
+⟨inv⟩ = {v: k for k, v in ⟨d⟩.items()}
+
+## 最初から値の入れ物がある辞書（defaultdict） | defaultdict 既定値 グループ
+from collections import defaultdict
+
+⟨groups⟩ = defaultdict(list)
+⟨groups⟩[⟨key⟩].append(⟨value⟩)
+
+## 値がいちばん大きいキー | 最大 キー max 辞書
+⟨best⟩ = max(⟨d⟩, key=⟨d⟩.get)
+
+## 辞書の中に辞書（入れ子） | 入れ子 ネスト 二重 辞書
+⟨data⟩ = {"⟨taro⟩": {"⟨age⟩": ⟨15⟩, "⟨score⟩": ⟨80⟩}}
+print(⟨data⟩["⟨taro⟩"]["⟨age⟩"])
+
+## なければ入れる（setdefault） | setdefault なければ 追加
+⟨d⟩.setdefault("⟨key⟩", []).append(⟨value⟩)
+
+## 辞書のリストから 1 列だけ取り出す | 列 取り出す 辞書 リスト
+⟨names⟩ = [⟨p⟩["⟨name⟩"] for ⟨p⟩ in ⟨people⟩]
+
+@ 関数・クラス
+## 値をいくつも返す | return 複数 タプル 戻り値
+def ⟨min_max⟩(⟨items⟩):
+    return min(⟨items⟩), max(⟨items⟩)
+
+⟨lo⟩, ⟨hi⟩ = ⟨min_max⟩(⟨data⟩)
+
+## 名前を指定して引数を渡す | キーワード引数 名前 引数
+⟨func⟩(⟨name⟩="⟨たろう⟩", ⟨age⟩=⟨15⟩)
+
+## いくつでも引数を受け取る | *args 可変長 引数 いくつでも
+def ⟨total⟩(*⟨nums⟩):
+    return sum(⟨nums⟩)
+
+## 名前つきの引数をいくつでも受け取る | **kwargs キーワード 可変長
+def ⟨show⟩(**⟨info⟩):
+    for k, v in ⟨info⟩.items():
+        print(k, v)
+
+## 関数の説明を書く（docstring） | docstring 説明 コメント ドキュメント
+def ⟨func⟩(⟨x⟩):
+    """⟨x を 2 倍にして返す⟩"""
+    return ⟨x⟩ * 2
+
+## 自分自身を呼ぶ関数（再帰） | 再帰 階乗 フィボナッチ recursion
+def ⟨fact⟩(⟨n⟩):
+    if ⟨n⟩ <= 1:
+        return 1
+    return ⟨n⟩ * ⟨fact⟩(⟨n⟩ - 1)
+
+## 計算結果を覚えて速くする（メモ化） | メモ化 cache lru_cache 速く
+from functools import cache
+
+@cache
+def ⟨fib⟩(⟨n⟩):
+    return ⟨n⟩ if ⟨n⟩ < 2 else ⟨fib⟩(⟨n⟩ - 1) + ⟨fib⟩(⟨n⟩ - 2)
+
+## 再帰の深さの上限を上げる | 再帰 上限 recursionlimit RecursionError
+import sys
+
+sys.setrecursionlimit(⟨10000⟩)
+
+## 関数の外の変数を書き換える（global） | global 外 変数 書き換え
+⟨count⟩ = 0
+
+def ⟨add⟩():
+    global ⟨count⟩
+    ⟨count⟩ += 1
+
+## 関数の中の関数 | 入れ子 関数 内部 nonlocal
+def ⟨outer⟩():
+    ⟨n⟩ = 0
+    def ⟨inner⟩():
+        nonlocal ⟨n⟩
+        ⟨n⟩ += 1
+    ⟨inner⟩()
+    return ⟨n⟩
+
+## 関数に前後の処理を足す（デコレーター） | デコレーター decorator @ wraps
+from functools import wraps
+
+def ⟨log⟩(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print("呼ぶ:", func.__name__)
+        return func(*args, **kwargs)
+    return wrapper
+
+## 1 つずつ値を返す関数（ジェネレーター） | yield ジェネレーター generator
+def ⟨count_up⟩(⟨n⟩):
+    for ⟨i⟩ in range(⟨n⟩):
+        yield ⟨i⟩
+
+## クラスを受け継ぐ（継承） | 継承 inheritance super 親 子
+class ⟨Dog⟩(⟨Animal⟩):
+    def __init__(self, ⟨name⟩):
+        super().__init__(⟨name⟩)
+
+    def ⟨speak⟩(self):
+        return "ワン"
+
+## print したときの見え方を決める | __str__ __repr__ 表示 文字列
+def __str__(self):
+    return f"⟨{self.name}⟩"
+
+## 比べられるようにする | __eq__ __lt__ 比較 並べ替え
+def __lt__(self, other):
+    return self.⟨score⟩ < other.⟨score⟩
+
+## クラス全体で共有する変数 | クラス変数 共有 static
+class ⟨Counter⟩:
+    ⟨count⟩ = 0
+
+    def __init__(self):
+        ⟨Counter⟩.⟨count⟩ += 1
+
+## インスタンスを作らずに呼べるメソッド | staticmethod classmethod 静的
+class ⟨MathUtil⟩:
+    @staticmethod
+    def ⟨add⟩(a, b):
+        return a + b
+
+## 値を読むだけの属性（property） | property getter 読み取り専用
+class ⟨Circle⟩:
+    def __init__(self, ⟨r⟩):
+        self.⟨r⟩ = ⟨r⟩
+
+    @property
+    def ⟨area⟩(self):
+        return 3.14 * self.⟨r⟩ ** 2
+
+## 中身を書かない約束だけの型（抽象クラス） | 抽象 abc abstractmethod インターフェース
+from abc import ABC, abstractmethod
+
+class ⟨Shape⟩(ABC):
+    @abstractmethod
+    def ⟨area⟩(self):
+        ...
+
+## 選択肢を名前で決める（Enum） | enum 列挙 定数 選択肢
+from enum import Enum
+
+class ⟨Color⟩(Enum):
+    ⟨RED⟩ = 1
+    ⟨GREEN⟩ = 2
+
+## 型を調べる（isinstance） | isinstance type 型 判定
+if isinstance(⟨x⟩, ⟨int⟩):
+    ⟨⟩
+
+## 属性があるか調べる・取り出す | hasattr getattr 属性
+if hasattr(⟨obj⟩, "⟨name⟩"):
+    print(getattr(⟨obj⟩, "⟨name⟩"))
+
+## 部分的に引数を決めた関数（partial） | partial 引数 固定
+from functools import partial
+
+⟨double⟩ = partial(⟨mul⟩, ⟨2⟩)
+
+@ ファイル
+## ファイルを全部読んで行のリストに | readlines 行 リスト 読む
+with open("⟨data.txt⟩", encoding="utf-8") as f:
+    ⟨lines⟩ = f.read().splitlines()
+
+## 行のリストをファイルに書く | writelines 行 書く 改行
+with open("⟨out.txt⟩", "w", encoding="utf-8") as f:
+    f.write("\n".join(⟨lines⟩))
+
+## CSV を辞書として読む（見出しつき） | DictReader CSV 見出し ヘッダー
+import csv
+
+with open("⟨data.csv⟩", encoding="utf-8", newline="") as f:
+    for ⟨row⟩ in csv.DictReader(f):
+        print(⟨row⟩["⟨名前⟩"])
+
+## CSV の見出しを飛ばして読む | CSV ヘッダー 飛ばす next
+import csv
+
+with open("⟨data.csv⟩", encoding="utf-8", newline="") as f:
+    ⟨reader⟩ = csv.reader(f)
+    ⟨header⟩ = next(⟨reader⟩)
+    for ⟨row⟩ in ⟨reader⟩:
+        print(⟨row⟩)
+
+## Excel で開ける CSV に書く（文字化けしない） | utf-8-sig Excel CSV 文字化け BOM
+import csv
+
+with open("⟨out.csv⟩", "w", encoding="utf-8-sig", newline="") as f:
+    csv.writer(f).writerows(⟨rows⟩)
+
+## パスをつなげる（pathlib） | pathlib Path パス 結合 /
+from pathlib import Path
+
+⟨p⟩ = Path("⟨folder⟩") / "⟨file.txt⟩"
+
+## pathlib でファイルを読む・書く | pathlib read_text write_text
+from pathlib import Path
+
+⟨text⟩ = Path("⟨data.txt⟩").read_text(encoding="utf-8")
+Path("⟨out.txt⟩").write_text(⟨text⟩, encoding="utf-8")
+
+## このプログラムのあるフォルダ | __file__ 場所 フォルダ パス 自分
+from pathlib import Path
+
+⟨here⟩ = Path(__file__).parent
+
+## 拡張子でファイルを探す（下のフォルダも） | glob rglob 拡張子 探す 再帰
+from pathlib import Path
+
+for ⟨p⟩ in Path("⟨.⟩").rglob("⟨*.txt⟩"):
+    print(⟨p⟩)
+
+## ファイル名・拡張子・フォルダ名を取り出す | name suffix stem parent 拡張子
+from pathlib import Path
+
+⟨p⟩ = Path("⟨folder/data.txt⟩")
+⟨p⟩.name    # data.txt
+⟨p⟩.stem    # data
+⟨p⟩.suffix  # .txt
+
+## ファイルをコピー・移動・削除 | shutil copy move remove 削除 コピー
+import shutil
+from pathlib import Path
+
+shutil.copy("⟨a.txt⟩", "⟨b.txt⟩")
+shutil.move("⟨a.txt⟩", "⟨folder/⟩")
+Path("⟨b.txt⟩").unlink()
+
+## フォルダを中身ごと削除 | rmtree フォルダ 削除 中身ごと
+import shutil
+
+shutil.rmtree("⟨folder⟩")
+
+## ファイルの大きさ・更新日時 | サイズ stat 更新日時 大きさ
+from pathlib import Path
+
+⟨info⟩ = Path("⟨data.txt⟩").stat()
+print(⟨info⟩.st_size, ⟨info⟩.st_mtime)
+
+## 画像などをそのまま読む・書く（バイナリ） | バイナリ rb wb bytes
+with open("⟨in.png⟩", "rb") as f:
+    ⟨data⟩ = f.read()
+with open("⟨out.png⟩", "wb") as f:
+    f.write(⟨data⟩)
+
+## Python のデータを丸ごと保存（pickle） | pickle 保存 読み込み オブジェクト
+import pickle
+
+with open("⟨data.pkl⟩", "wb") as f:
+    pickle.dump(⟨obj⟩, f)
+with open("⟨data.pkl⟩", "rb") as f:
+    ⟨obj⟩ = pickle.load(f)
+
+## 設定ファイル（ini）を読む | configparser ini 設定
+import configparser
+
+⟨config⟩ = configparser.ConfigParser()
+⟨config⟩.read("⟨config.ini⟩", encoding="utf-8")
+print(⟨config⟩["⟨section⟩"]["⟨key⟩"])
+
+## 一時ファイル・一時フォルダを作る | tempfile 一時 テンポラリ
+import tempfile
+
+with tempfile.TemporaryDirectory() as ⟨tmp⟩:
+    print(⟨tmp⟩)
+
+## ZIP にまとめる・ZIP を開く | zip 圧縮 展開 解凍 zipfile
+import shutil
+
+shutil.make_archive("⟨archive⟩", "zip", "⟨folder⟩")
+shutil.unpack_archive("⟨archive.zip⟩", "⟨out⟩")
+
+## Excel ファイルを読む（openpyxl） | Excel xlsx openpyxl 読む
+from openpyxl import load_workbook
+
+⟨wb⟩ = load_workbook("⟨data.xlsx⟩")
+⟨ws⟩ = ⟨wb⟩.active
+for ⟨row⟩ in ⟨ws⟩.iter_rows(values_only=True):
+    print(⟨row⟩)
+
+## Excel ファイルに書く（openpyxl） | Excel xlsx openpyxl 書く 保存
+from openpyxl import Workbook
+
+⟨wb⟩ = Workbook()
+⟨ws⟩ = ⟨wb⟩.active
+⟨ws⟩.append(["⟨名前⟩", "⟨点数⟩"])
+⟨wb⟩.save("⟨out.xlsx⟩")
+
+@ 日付・時刻
+## 今日の日付 | date today 今日 日付
+from datetime import date
+
+⟨today⟩ = date.today()
+
+## 日付を好きな形で表示 | strftime 書式 年月日 表示
+from datetime import datetime
+
+print(datetime.now().strftime("%Y年%m月%d日 %H:%M"))
+
+## 文字列から日付に | strptime 文字列 日付 変換
+from datetime import datetime
+
+⟨d⟩ = datetime.strptime("⟨2025-04-01⟩", "%Y-%m-%d")
+
+## 2 つの日付の差（何日あるか） | 差 日数 引き算 timedelta 何日
+from datetime import date
+
+⟨days⟩ = (date(⟨2025⟩, ⟨12⟩, ⟨25⟩) - date.today()).days
+
+## 曜日を調べる | 曜日 weekday 何曜日
+from datetime import date
+
+"月火水木金土日"[date.today().weekday()]
+
+## 年・月・日・時・分を取り出す | year month day hour 取り出す
+from datetime import datetime
+
+⟨now⟩ = datetime.now()
+print(⟨now⟩.year, ⟨now⟩.month, ⟨now⟩.day, ⟨now⟩.hour)
+
+## うるう年か調べる | うるう年 閏年 calendar isleap
+import calendar
+
+calendar.isleap(⟨2024⟩)
+
+## カレンダーを表示 | カレンダー 月 表示 calendar
+import calendar
+
+print(calendar.month(⟨2025⟩, ⟨4⟩))
+
+## UNIX 時間（秒）と日時の変換 | timestamp UNIX 秒 エポック
+from datetime import datetime
+
+⟨ts⟩ = datetime.now().timestamp()
+⟨dt⟩ = datetime.fromtimestamp(⟨ts⟩)
+
+## 日本時間で今の日時 | タイムゾーン 日本時間 JST zoneinfo
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+⟨now⟩ = datetime.now(ZoneInfo("Asia/Tokyo"))
+
+## 決まった時刻まで待つ・タイマー | タイマー カウントダウン 秒
+import time
+
+for ⟨s⟩ in range(⟨10⟩, 0, -1):
+    print(s)
+    time.sleep(1)
+print("時間です！")
+
+## 年齢を計算する | 年齢 誕生日 計算
+from datetime import date
+
+def ⟨age⟩(⟨birthday⟩):
+    t = date.today()
+    return t.year - ⟨birthday⟩.year - ((t.month, t.day) < (⟨birthday⟩.month, ⟨birthday⟩.day))
+
+@ 数学・乱数
+## 絶対値 | abs 絶対値 プラス
+abs(⟨x⟩)
+
+## 最大公約数・最小公倍数 | gcd lcm 公約数 公倍数
+import math
+
+math.gcd(⟨12⟩, ⟨18⟩)
+math.lcm(⟨4⟩, ⟨6⟩)
+
+## 素数か調べる | 素数 prime 判定
+def ⟨is_prime⟩(⟨n⟩):
+    if ⟨n⟩ < 2:
+        return False
+    for i in range(2, int(⟨n⟩ ** 0.5) + 1):
+        if ⟨n⟩ % i == 0:
+            return False
+    return True
+
+## n までの素数を全部（エラトステネスのふるい） | 素数 ふるい エラトステネス 一覧
+def ⟨primes⟩(⟨n⟩):
+    is_p = [True] * (⟨n⟩ + 1)
+    is_p[0:2] = [False, False]
+    for i in range(2, int(⟨n⟩ ** 0.5) + 1):
+        if is_p[i]:
+            for j in range(i * i, ⟨n⟩ + 1, i):
+                is_p[j] = False
+    return [i for i, p in enumerate(is_p) if p]
+
+## 約数を全部 | 約数 divisors 割り切れる
+⟨divs⟩ = [d for d in range(1, ⟨n⟩ + 1) if ⟨n⟩ % d == 0]
+
+## 階乗 | 階乗 factorial !
+import math
+
+math.factorial(⟨5⟩)
+
+## 組み合わせの数・順列の数 | nCr nPr comb perm 場合の数
+import math
+
+math.comb(⟨5⟩, ⟨2⟩)  # 5C2
+math.perm(⟨5⟩, ⟨2⟩)  # 5P2
+
+## 三角関数（度で計算） | sin cos tan 三角関数 度 radians
+import math
+
+math.sin(math.radians(⟨30⟩))
+
+## 2 点の距離 | 距離 hypot ピタゴラス 三平方
+import math
+
+⟨d⟩ = math.hypot(⟨x2⟩ - ⟨x1⟩, ⟨y2⟩ - ⟨y1⟩)
+
+## 対数 | log 対数 log10 log2
+import math
+
+math.log10(⟨1000⟩)
+math.log2(⟨8⟩)
+
+## 範囲におさめる（はみ出さないように） | clamp 範囲 おさめる 制限
+⟨x⟩ = max(⟨lo⟩, min(⟨x⟩, ⟨hi⟩))
+
+## 0 から 1 のランダムな小数 | random 小数 乱数
+import random
+
+random.random()
+
+## 範囲のランダムな小数 | uniform 乱数 小数 範囲
+import random
+
+random.uniform(⟨1.0⟩, ⟨5.0⟩)
+
+## リストからランダムに n 個（重ならない） | sample 抽選 重複なし 乱数
+import random
+
+random.sample(⟨items⟩, ⟨3⟩)
+
+## 重みをつけてランダムに選ぶ（ガチャ） | choices 重み 確率 ガチャ
+import random
+
+random.choices(["⟨大当たり⟩", "⟨当たり⟩", "⟨はずれ⟩"], weights=[⟨1⟩, ⟨10⟩, ⟨89⟩])[0]
+
+## 毎回同じ乱数にする | seed 乱数 再現 固定
+import random
+
+random.seed(⟨0⟩)
+
+## サイコロを振る | サイコロ dice 1から6 乱数
+import random
+
+⟨dice⟩ = random.randint(1, 6)
+
+## じゃんけん | じゃんけん ゲーム 乱数 グー チョキ パー
+import random
+
+⟨hands⟩ = ["グー", "チョキ", "パー"]
+⟨me⟩ = int(input("0:グー 1:チョキ 2:パー > "))
+⟨cpu⟩ = random.randint(0, 2)
+print("相手は", ⟨hands⟩[⟨cpu⟩])
+⟨r⟩ = (⟨me⟩ - ⟨cpu⟩) % 3
+print(["あいこ", "まけ", "かち"][⟨r⟩])
+
+## 数当てゲーム | 数当て ゲーム 乱数 ヒント
+import random
+
+⟨answer⟩ = random.randint(1, 100)
+while True:
+    ⟨n⟩ = int(input("1〜100 の数："))
+    if ⟨n⟩ < ⟨answer⟩:
+        print("もっと大きい")
+    elif ⟨n⟩ > ⟨answer⟩:
+        print("もっと小さい")
+    else:
+        print("正解！")
+        break
+
+## 分散・標準偏差・中央値 | statistics 分散 標準偏差 中央値 median
+import statistics
+
+statistics.mean(⟨data⟩)
+statistics.median(⟨data⟩)
+statistics.pstdev(⟨data⟩)
+
+## 分数で計算する | 分数 Fraction 誤差なし
+from fractions import Fraction
+
+Fraction(1, 3) + Fraction(1, 6)  # 1/2
+
+## 小数の誤差をなくす（お金の計算） | Decimal 誤差 お金 正確
+from decimal import Decimal
+
+Decimal("0.1") + Decimal("0.2")  # 0.3
+
+## 小数をきちんと四捨五入（Decimal） | 四捨五入 ROUND_HALF_UP Decimal
+from decimal import Decimal, ROUND_HALF_UP
+
+Decimal(str(⟨2.5⟩)).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
+
+## 小数がほぼ同じか比べる | isclose 誤差 比較 小数
+import math
+
+math.isclose(⟨0.1 + 0.2⟩, ⟨0.3⟩)
+
+## 無限大 | inf 無限 最大 初期値
+⟨best⟩ = float("inf")
+
+## 整数の割り算（切り捨て） | // 切り捨て 割り算 整数
+⟨q⟩ = ⟨a⟩ // ⟨b⟩
+
+## 2 進数で 1 がいくつ（ビット） | ビット bit_count 2進数 ビット演算
+bin(⟨n⟩).count("1")
+
+@ エラー処理
+## エラーの種類ごとに分ける | except 種類 複数 ValueError ZeroDivisionError
+try:
+    ⟨⟩
+except ValueError:
+    print("数ではありません")
+except ZeroDivisionError:
+    print("0 では割れません")
+
+## エラーの内容を表示 | except as e メッセージ 内容
+try:
+    ⟨⟩
+except Exception as e:
+    print("エラー:", e)
+
+## エラーがなかったとき・必ず最後にやること | else finally 後片付け
+try:
+    ⟨⟩
+except Exception as e:
+    print(e)
+else:
+    print("うまくいった")
+finally:
+    print("おわり")
+
+## ファイルがないときのエラー | FileNotFoundError ファイル ない エラー
+try:
+    with open("⟨data.txt⟩", encoding="utf-8") as f:
+        ⟨text⟩ = f.read()
+except FileNotFoundError:
+    print("ファイルがありません")
+
+## 自分用のエラーの種類を作る | 例外 クラス 自作 Exception
+class ⟨MyError⟩(Exception):
+    pass
+
+raise ⟨MyError⟩("⟨まちがった値です⟩")
+
+## 条件が正しいか確かめる（assert） | assert 確認 テスト チェック
+assert ⟨x⟩ > 0, "⟨x は正の数のはず⟩"
+
+## エラーの詳しい場所を表示 | traceback 詳細 スタック
+import traceback
+
+try:
+    ⟨⟩
+except Exception:
+    traceback.print_exc()
+
+## 警告を出す | warnings 警告 注意
+import warnings
+
+warnings.warn("⟨この書き方は古いです⟩")
+
+## ログを出す（logging） | logging ログ 記録 デバッグ
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.info("⟨はじめます⟩")
+
+@ 正規表現・JSON
+## 正規表現で置き換える | re.sub 置換 正規表現 置き換え
+import re
+
+⟨s⟩ = re.sub(r"⟨\d+⟩", "⟨#⟩", ⟨s⟩)
+
+## 正規表現で分ける | re.split 分割 正規表現 複数の区切り
+import re
+
+⟨parts⟩ = re.split(r"⟨[,、\s]+⟩", ⟨s⟩)
+
+## 全体が形に合うか（メールアドレスなど） | fullmatch 判定 メール 形式 チェック
+import re
+
+if re.fullmatch(r"⟨[\w.+-]+@[\w-]+\.[\w.]+⟩", ⟨s⟩):
+    print("OK")
+
+## かっこの部分を取り出す（グループ） | group グループ 取り出す 正規表現
+import re
+
+⟨m⟩ = re.search(r"⟨(\d+)年(\d+)月⟩", ⟨s⟩)
+if ⟨m⟩:
+    print(⟨m⟩.group(1), ⟨m⟩.group(2))
+
+## 文字列から数字だけ取り出す | 数字 抜き出す 正規表現 findall
+import re
+
+⟨nums⟩ = [int(x) for x in re.findall(r"\d+", ⟨s⟩)]
+
+## JSON の文字列を Python のデータに | json.loads 文字列 変換
+import json
+
+⟨data⟩ = json.loads(⟨text⟩)
+
+## Python のデータを JSON の文字列に（日本語そのまま） | json.dumps ensure_ascii indent 日本語
+import json
+
+⟨text⟩ = json.dumps(⟨data⟩, ensure_ascii=False, indent=2)
+
+## データを POST で送る（requests） | requests post 送信 API
+import requests
+
+⟨r⟩ = requests.post("⟨https://example.com/api⟩", json={"⟨name⟩": "⟨value⟩"}, timeout=10)
+print(⟨r⟩.status_code)
+
+## Web ページから文字を取り出す（BeautifulSoup） | スクレイピング BeautifulSoup bs4 HTML
+import requests
+from bs4 import BeautifulSoup
+
+⟨html⟩ = requests.get("⟨https://example.com⟩", timeout=10).text
+⟨soup⟩ = BeautifulSoup(⟨html⟩, "html.parser")
+for ⟨a⟩ in ⟨soup⟩.select("⟨a⟩"):
+    print(⟨a⟩.get_text(), ⟨a⟩.get("href"))
+
+## 標準ライブラリだけで Web からデータを取る | urllib urlopen 標準 取得
+from urllib.request import urlopen
+
+with urlopen("⟨https://example.com⟩") as r:
+    ⟨text⟩ = r.read().decode("utf-8")
+
+## URL の ? のあとを作る・読む | urlencode クエリ パラメータ URL
+from urllib.parse import urlencode, parse_qs, urlparse
+
+urlencode({"⟨q⟩": "⟨検索⟩"})
+parse_qs(urlparse("⟨https://a.com/?q=1⟩").query)
+
+## 画像をダウンロードして保存 | ダウンロード 画像 保存 requests
+import requests
+
+⟨r⟩ = requests.get("⟨https://example.com/a.png⟩", timeout=10)
+with open("⟨a.png⟩", "wb") as f:
+    f.write(⟨r⟩.content)
+
+@ 便利
+## 好きな秒数で止める（Ctrl+C でも止まる） | KeyboardInterrupt Ctrl+C 止める
+try:
+    while True:
+        ⟨⟩
+except KeyboardInterrupt:
+    print("止めました")
+
+## コマンドラインの引数を読む | sys.argv 引数 コマンドライン
+import sys
+
+⟨args⟩ = sys.argv[1:]
+
+## コマンドの引数をきちんと読む（argparse） | argparse オプション 引数
+import argparse
+
+⟨parser⟩ = argparse.ArgumentParser()
+⟨parser⟩.add_argument("⟨name⟩")
+⟨parser⟩.add_argument("--⟨count⟩", type=int, default=1)
+⟨args⟩ = ⟨parser⟩.parse_args()
+
+## 環境変数を読む | 環境変数 os.environ getenv
+import os
+
+⟨key⟩ = os.environ.get("⟨API_KEY⟩", "")
+
+## Python の版・OS を調べる | version platform バージョン OS
+import platform
+import sys
+
+print(sys.version)
+print(platform.system())
+
+## コマンドを実行して結果を受け取る | subprocess 結果 出力 run
+import subprocess
+
+⟨r⟩ = subprocess.run(["⟨python⟩", "--version"], capture_output=True, text=True)
+print(⟨r⟩.stdout)
+
+## ブラウザで Web ページを開く | webbrowser ブラウザ 開く URL
+import webbrowser
+
+webbrowser.open("⟨https://example.com⟩")
+
+## 音を鳴らす（Windows） | winsound ビープ 音 Windows
+import winsound
+
+winsound.Beep(⟨440⟩, ⟨500⟩)  # 高さ(Hz), 長さ(ミリ秒)
+
+## 文字を読み上げる（pyttsx3） | 読み上げ 音声 pyttsx3 しゃべる
+import pyttsx3
+
+⟨engine⟩ = pyttsx3.init()
+⟨engine⟩.say("⟨こんにちは⟩")
+⟨engine⟩.runAndWait()
+
+## かかった時間を正確に計る | perf_counter 時間 計測 速さ
+import time
+
+⟨start⟩ = time.perf_counter()
+⟨⟩
+print(f"{time.perf_counter() - ⟨start⟩:.3f} 秒")
+
+## 同じ処理を何度も計って速さを比べる | timeit 速さ 比較 ベンチマーク
+import timeit
+
+print(timeit.timeit("⟨sum(range(1000))⟩", number=⟨1000⟩))
+
+## 使い終わったら必ず片付ける（with を自作） | contextmanager with 後片付け
+from contextlib import contextmanager
+
+@contextmanager
+def ⟨opened⟩():
+    print("はじめ")
+    yield
+    print("おわり")
+
+## 重い処理を同時に動かす（スレッド） | thread スレッド 同時 並行
+import threading
+
+def ⟨work⟩():
+    ⟨⟩
+
+⟨t⟩ = threading.Thread(target=⟨work⟩)
+⟨t⟩.start()
+⟨t⟩.join()
+
+## たくさんの仕事を同時に（ThreadPoolExecutor） | 並列 並行 プール ダウンロード
+from concurrent.futures import ThreadPoolExecutor
+
+with ThreadPoolExecutor() as ex:
+    ⟨results⟩ = list(ex.map(⟨func⟩, ⟨items⟩))
+
+## 非同期で待つ（asyncio） | async await asyncio 非同期
+import asyncio
+
+async def ⟨main⟩():
+    await asyncio.sleep(⟨1⟩)
+    print("1 秒たった")
+
+asyncio.run(⟨main⟩())
+
+## 一意な ID を作る | uuid ID 一意 ユニーク
+import uuid
+
+⟨id⟩ = str(uuid.uuid4())
+
+## 文字列のハッシュ（SHA-256） | ハッシュ sha256 hashlib
+import hashlib
+
+hashlib.sha256("⟨text⟩".encode()).hexdigest()
+
+## データを Base64 にする・戻す | base64 エンコード デコード
+import base64
+
+⟨b⟩ = base64.b64encode("⟨text⟩".encode()).decode()
+base64.b64decode(⟨b⟩).decode()
+
+## クリップボードにコピー（pyperclip） | クリップボード コピー pyperclip
+import pyperclip
+
+pyperclip.copy("⟨text⟩")
+
+## メモリを使わずに大きなファイルを 1 行ずつ処理 | 大きい ファイル 1行ずつ メモリ
+with open("⟨big.txt⟩", encoding="utf-8") as f:
+    for ⟨line⟩ in f:
+        ⟨line⟩ = ⟨line⟩.rstrip("\n")
+
+## 型ヒントでリスト・辞書の中身を書く | 型ヒント list dict Optional
+def ⟨f⟩(⟨items⟩: list[int], ⟨names⟩: dict[str, int] | None = None) -> int:
+    return sum(⟨items⟩)
+
+## テストを書く（unittest） | unittest テスト assertEqual
+import unittest
+
+class ⟨TestMath⟩(unittest.TestCase):
+    def test_⟨add⟩(self):
+        self.assertEqual(⟨1 + 1⟩, ⟨2⟩)
+
+if __name__ == "__main__":
+    unittest.main()
+
+## テストを書く（pytest） | pytest テスト assert
+def test_⟨add⟩():
+    assert ⟨1 + 1⟩ == ⟨2⟩
+
+## 途中で止めて中を調べる（breakpoint） | breakpoint デバッグ pdb 止める
+breakpoint()
+
+@ 画面（tkinter）
+## ボタンを押したら動かす | tkinter ボタン Button command
+import tkinter as tk
+
+⟨root⟩ = tk.Tk()
+
+def ⟨on_click⟩():
+    print("押された")
+
+tk.Button(⟨root⟩, text="⟨押す⟩", command=⟨on_click⟩).pack()
+⟨root⟩.mainloop()
+
+## 文字を出す（ラベル） | Label 文字 表示 tkinter
+⟨label⟩ = tk.Label(⟨root⟩, text="⟨こんにちは⟩", font=("", ⟨20⟩))
+⟨label⟩.pack()
+
+## ラベルの文字を変える | config 文字 変更 ラベル
+⟨label⟩.config(text="⟨新しい文字⟩")
+
+## 入力欄から文字を受け取る | Entry 入力欄 get tkinter
+⟨entry⟩ = tk.Entry(⟨root⟩)
+⟨entry⟩.pack()
+⟨text⟩ = ⟨entry⟩.get()
+
+## 複数行の入力欄 | Text 複数行 テキスト tkinter
+⟨box⟩ = tk.Text(⟨root⟩, width=⟨40⟩, height=⟨10⟩)
+⟨box⟩.pack()
+⟨text⟩ = ⟨box⟩.get("1.0", "end")
+
+## 格子状に並べる（grid） | grid 配置 行 列 tkinter
+tk.Label(⟨root⟩, text="名前").grid(row=0, column=0)
+tk.Entry(⟨root⟩).grid(row=0, column=1)
+
+## ウィンドウの大きさとタイトル | geometry title 大きさ ウィンドウ
+⟨root⟩.title("⟨アプリ⟩")
+⟨root⟩.geometry("⟨400x300⟩")
+
+## メッセージの小窓を出す | messagebox 小窓 ダイアログ お知らせ
+from tkinter import messagebox
+
+messagebox.showinfo("⟨お知らせ⟩", "⟨保存しました⟩")
+
+## はい・いいえを聞く小窓 | askyesno 確認 ダイアログ
+from tkinter import messagebox
+
+if messagebox.askyesno("⟨確認⟩", "⟨消しますか？⟩"):
+    ⟨⟩
+
+## ファイルを選ぶ小窓 | filedialog ファイル 選択 開く
+from tkinter import filedialog
+
+⟨path⟩ = filedialog.askopenfilename()
+
+## 絵を描く（Canvas） | Canvas 図形 描く 四角 丸
+⟨canvas⟩ = tk.Canvas(⟨root⟩, width=⟨400⟩, height=⟨300⟩, bg="white")
+⟨canvas⟩.pack()
+⟨canvas⟩.create_rectangle(⟨10, 10, 100, 60⟩, fill="⟨skyblue⟩")
+⟨canvas⟩.create_oval(⟨150, 10, 220, 80⟩, fill="⟨pink⟩")
+
+## 一定時間ごとに動かす（after） | after タイマー くり返し アニメーション
+def ⟨tick⟩():
+    ⟨⟩
+    ⟨root⟩.after(⟨1000⟩, ⟨tick⟩)
+
+⟨tick⟩()
+
+## キーが押されたら動かす | bind キー 押す イベント
+def ⟨on_key⟩(e):
+    print(e.keysym)
+
+⟨root⟩.bind("<Key>", ⟨on_key⟩)
+
+## チェックボックス | Checkbutton チェック BooleanVar
+⟨var⟩ = tk.BooleanVar()
+tk.Checkbutton(⟨root⟩, text="⟨同意する⟩", variable=⟨var⟩).pack()
+
+## 選択肢（ラジオボタン） | Radiobutton 選択 StringVar
+⟨choice⟩ = tk.StringVar(value="⟨A⟩")
+for ⟨v⟩ in ["⟨A⟩", "⟨B⟩"]:
+    tk.Radiobutton(⟨root⟩, text=⟨v⟩, value=⟨v⟩, variable=⟨choice⟩).pack()
+
+## プルダウン（Combobox） | Combobox プルダウン ttk 選択
+from tkinter import ttk
+
+⟨combo⟩ = ttk.Combobox(⟨root⟩, values=["⟨りんご⟩", "⟨みかん⟩"])
+⟨combo⟩.pack()
+
+## タートルで絵を描く | turtle タートル 亀 描く
+import turtle
+
+⟨t⟩ = turtle.Turtle()
+for _ in range(⟨4⟩):
+    ⟨t⟩.forward(⟨100⟩)
+    ⟨t⟩.left(⟨90⟩)
+turtle.done()
+
+@ ゲーム（pygame）
+## pygame のひな形 | pygame ゲーム ひな形 ループ
+import pygame
+
+pygame.init()
+⟨screen⟩ = pygame.display.set_mode((⟨640⟩, ⟨480⟩))
+⟨clock⟩ = pygame.time.Clock()
+⟨running⟩ = True
+while ⟨running⟩:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            ⟨running⟩ = False
+    ⟨screen⟩.fill((⟨0, 0, 0⟩))
+    ⟨⟩
+    pygame.display.flip()
+    ⟨clock⟩.tick(⟨60⟩)
+pygame.quit()
+
+## 押されているキーで動かす | pygame キー 移動 get_pressed
+⟨keys⟩ = pygame.key.get_pressed()
+if ⟨keys⟩[pygame.K_LEFT]:
+    ⟨x⟩ -= ⟨5⟩
+if ⟨keys⟩[pygame.K_RIGHT]:
+    ⟨x⟩ += ⟨5⟩
+
+## 四角・丸を描く | pygame draw rect circle 図形
+pygame.draw.rect(⟨screen⟩, (⟨255, 0, 0⟩), (⟨x⟩, ⟨y⟩, ⟨50⟩, ⟨50⟩))
+pygame.draw.circle(⟨screen⟩, (⟨0, 0, 255⟩), (⟨x⟩, ⟨y⟩), ⟨20⟩)
+
+## 画像を出す | pygame 画像 image load blit
+⟨img⟩ = pygame.image.load("⟨player.png⟩")
+⟨screen⟩.blit(⟨img⟩, (⟨x⟩, ⟨y⟩))
+
+## 文字を出す | pygame 文字 font render
+⟨font⟩ = pygame.font.SysFont(None, ⟨48⟩)
+⟨screen⟩.blit(⟨font⟩.render(f"⟨SCORE: {score}⟩", True, (255, 255, 255)), (⟨10⟩, ⟨10⟩))
+
+## ぶつかったか調べる | pygame 当たり判定 colliderect 衝突
+if ⟨rect1⟩.colliderect(⟨rect2⟩):
+    ⟨⟩
+
+## 音を鳴らす | pygame 音 sound mixer 効果音
+⟨se⟩ = pygame.mixer.Sound("⟨hit.wav⟩")
+⟨se⟩.play()
+
+## マウスの位置・クリック | pygame マウス クリック 位置
+if event.type == pygame.MOUSEBUTTONDOWN:
+    ⟨mx⟩, ⟨my⟩ = event.pos
+
+@ データ分析・グラフ
+## 棒グラフ | 棒グラフ bar matplotlib グラフ
+import matplotlib.pyplot as plt
+
+plt.bar(⟨["A", "B", "C"]⟩, ⟨[3, 5, 2]⟩)
+plt.show()
+
+## 円グラフ | 円グラフ pie matplotlib 割合
+import matplotlib.pyplot as plt
+
+plt.pie(⟨[30, 50, 20]⟩, labels=⟨["A", "B", "C"]⟩, autopct="%1.1f%%")
+plt.show()
+
+## 散布図 | 散布図 scatter matplotlib 点
+import matplotlib.pyplot as plt
+
+plt.scatter(⟨xs⟩, ⟨ys⟩)
+plt.show()
+
+## ヒストグラム | ヒストグラム hist 度数分布 matplotlib
+import matplotlib.pyplot as plt
+
+plt.hist(⟨data⟩, bins=⟨10⟩)
+plt.show()
+
+## グラフに日本語・タイトル・軸の名前 | 日本語 タイトル ラベル 文字化け matplotlib
+import matplotlib.pyplot as plt
+
+plt.rcParams["font.family"] = "Meiryo"  # Mac は "Hiragino Sans"
+plt.title("⟨タイトル⟩")
+plt.xlabel("⟨横軸⟩")
+plt.ylabel("⟨縦軸⟩")
+
+## グラフを画像に保存 | savefig 保存 画像 png
+plt.savefig("⟨graph.png⟩", dpi=⟨150⟩)
+
+## 2 つのグラフを並べる | subplots 複数 並べる グラフ
+import matplotlib.pyplot as plt
+
+⟨fig⟩, (⟨ax1⟩, ⟨ax2⟩) = plt.subplots(1, 2)
+⟨ax1⟩.plot(⟨xs⟩, ⟨ys⟩)
+⟨ax2⟩.bar(⟨xs⟩, ⟨ys⟩)
+plt.show()
+
+## 表の上のほうを見る（pandas） | head pandas 確認 先頭
+⟨df⟩.head()
+
+## 列を取り出す・条件で絞る（pandas） | pandas 列 条件 絞り込み
+⟨df⟩["⟨点数⟩"]
+⟨df⟩[⟨df⟩["⟨点数⟩"] >= ⟨80⟩]
+
+## グループごとに平均（pandas） | groupby 集計 平均 pandas
+⟨df⟩.groupby("⟨クラス⟩")["⟨点数⟩"].mean()
+
+## 並べ替え（pandas） | sort_values pandas 並べ替え
+⟨df⟩.sort_values("⟨点数⟩", ascending=False)
+
+## 平均・最大などをまとめて（pandas） | describe 統計 pandas まとめ
+⟨df⟩.describe()
+
+## 表を CSV・Excel に保存（pandas） | to_csv to_excel 保存 pandas
+⟨df⟩.to_csv("⟨out.csv⟩", index=False, encoding="utf-8-sig")
+⟨df⟩.to_excel("⟨out.xlsx⟩", index=False)
+
+## 新しい列を作る（pandas） | 列 追加 計算 pandas
+⟨df⟩["⟨合計⟩"] = ⟨df⟩["⟨国語⟩"] + ⟨df⟩["⟨数学⟩"]
+
+## 空の値を埋める・消す（pandas） | 欠損値 NaN fillna dropna pandas
+⟨df⟩ = ⟨df⟩.fillna(0)  # 消すなら df.dropna()
+
+## 配列で計算（numpy） | numpy 配列 計算 array
+import numpy as np
+
+⟨a⟩ = np.array(⟨[1, 2, 3]⟩)
+print(⟨a⟩ * 2, ⟨a⟩.mean())
+
+## 等間隔の数を作る（numpy） | linspace arange numpy 等間隔
+import numpy as np
+
+⟨xs⟩ = np.linspace(⟨0⟩, ⟨10⟩, ⟨100⟩)
+
+## 画像を開いて大きさを変える（Pillow） | Pillow PIL 画像 リサイズ
+from PIL import Image
+
+⟨img⟩ = Image.open("⟨in.jpg⟩")
+⟨img⟩.resize((⟨200⟩, ⟨200⟩)).save("⟨out.jpg⟩")

@@ -1,0 +1,195 @@
+;; SQL（データベース）。SQLite・MySQL・PostgreSQL で共通に使える書き方を中心に
+
+@ 取り出す（SELECT）
+## 全部の列を取り出す | select 全部 * 取得 表示
+SELECT * FROM ⟨users⟩;
+
+## 列を選んで取り出す | select 列 選ぶ
+SELECT ⟨name⟩, ⟨age⟩ FROM ⟨users⟩;
+
+## 条件で絞る（WHERE） | where 条件 絞り込み
+SELECT * FROM ⟨users⟩ WHERE ⟨age⟩ >= ⟨20⟩;
+
+## 2 つの条件（AND・OR） | and or 条件 複数
+SELECT * FROM ⟨users⟩ WHERE ⟨age⟩ >= 20 AND ⟨city⟩ = '⟨東京⟩';
+
+## 範囲で絞る（BETWEEN） | between 範囲 あいだ
+SELECT * FROM ⟨users⟩ WHERE ⟨age⟩ BETWEEN ⟨10⟩ AND ⟨19⟩;
+
+## どれかに当てはまる（IN） | in どれか 一覧
+SELECT * FROM ⟨users⟩ WHERE ⟨city⟩ IN ('⟨東京⟩', '⟨大阪⟩');
+
+## 文字をふくむ（LIKE） | like あいまい 含む 部分一致 %
+SELECT * FROM ⟨users⟩ WHERE ⟨name⟩ LIKE '%⟨田⟩%';
+
+## 空（NULL）かどうか | null is null 空 ない
+SELECT * FROM ⟨users⟩ WHERE ⟨email⟩ IS NULL;
+
+## 並べ替え（ORDER BY） | order by 並べ替え 降順 昇順
+SELECT * FROM ⟨users⟩ ORDER BY ⟨age⟩ DESC;
+
+## 上から n 件だけ（LIMIT） | limit 件数 上位 ページ
+SELECT * FROM ⟨users⟩ ORDER BY ⟨score⟩ DESC LIMIT ⟨10⟩;
+
+## 飛ばして n 件（ページ分け） | limit offset ページ
+SELECT * FROM ⟨users⟩ LIMIT ⟨10⟩ OFFSET ⟨20⟩;
+
+## 重複をなくす（DISTINCT） | distinct 重複 ユニーク
+SELECT DISTINCT ⟨city⟩ FROM ⟨users⟩;
+
+## 列に別の名前をつける（AS） | as 別名 名前
+SELECT ⟨name⟩ AS 名前, ⟨age⟩ AS 年齢 FROM ⟨users⟩;
+
+## 計算した列 | 計算 列 掛け算
+SELECT ⟨name⟩, ⟨price⟩ * ⟨qty⟩ AS ⟨total⟩ FROM ⟨orders⟩;
+
+## 場合分けした列（CASE） | case when 場合分け 条件
+SELECT ⟨name⟩,
+    CASE
+        WHEN ⟨score⟩ >= 80 THEN 'A'
+        WHEN ⟨score⟩ >= 60 THEN 'B'
+        ELSE 'C'
+    END AS ⟨rank⟩
+FROM ⟨students⟩;
+
+@ 集計
+## 件数を数える（COUNT） | count 件数 数える
+SELECT COUNT(*) FROM ⟨users⟩;
+
+## 合計・平均・最大・最小 | sum avg max min 合計 平均
+SELECT SUM(⟨price⟩), AVG(⟨price⟩), MAX(⟨price⟩), MIN(⟨price⟩) FROM ⟨items⟩;
+
+## グループごとに集計（GROUP BY） | group by グループ 集計
+SELECT ⟨city⟩, COUNT(*) AS ⟨n⟩ FROM ⟨users⟩ GROUP BY ⟨city⟩;
+
+## 集計したあとで絞る（HAVING） | having 集計 条件
+SELECT ⟨city⟩, COUNT(*) AS ⟨n⟩ FROM ⟨users⟩ GROUP BY ⟨city⟩ HAVING COUNT(*) >= ⟨10⟩;
+
+## 小数を丸める | round 四捨五入 平均
+SELECT ROUND(AVG(⟨score⟩), ⟨1⟩) FROM ⟨students⟩;
+
+@ 表をつなぐ（JOIN）
+## 2 つの表をつなぐ（INNER JOIN） | join inner 結合 つなぐ
+SELECT ⟨o⟩.⟨id⟩, ⟨u⟩.⟨name⟩
+FROM ⟨orders⟩ AS ⟨o⟩
+JOIN ⟨users⟩ AS ⟨u⟩ ON ⟨o⟩.⟨user_id⟩ = ⟨u⟩.⟨id⟩;
+
+## 片方になくても残す（LEFT JOIN） | left join 外部結合 残す
+SELECT ⟨u⟩.⟨name⟩, ⟨o⟩.⟨id⟩
+FROM ⟨users⟩ AS ⟨u⟩
+LEFT JOIN ⟨orders⟩ AS ⟨o⟩ ON ⟨o⟩.⟨user_id⟩ = ⟨u⟩.⟨id⟩;
+
+## 一度もないものを探す | left join is null ない 未
+SELECT ⟨u⟩.*
+FROM ⟨users⟩ AS ⟨u⟩
+LEFT JOIN ⟨orders⟩ AS ⟨o⟩ ON ⟨o⟩.⟨user_id⟩ = ⟨u⟩.⟨id⟩
+WHERE ⟨o⟩.⟨id⟩ IS NULL;
+
+## SELECT の中に SELECT（サブクエリ） | サブクエリ 副問い合わせ 入れ子
+SELECT * FROM ⟨items⟩ WHERE ⟨price⟩ > (SELECT AVG(⟨price⟩) FROM ⟨items⟩);
+
+## 2 つの結果を縦につなぐ（UNION） | union 結合 縦
+SELECT ⟨name⟩ FROM ⟨students⟩
+UNION
+SELECT ⟨name⟩ FROM ⟨teachers⟩;
+
+## 名前をつけた一時的な表（WITH） | with CTE 一時 表
+WITH ⟨top⟩ AS (
+    SELECT * FROM ⟨students⟩ ORDER BY ⟨score⟩ DESC LIMIT 10
+)
+SELECT * FROM ⟨top⟩ WHERE ⟨class⟩ = '⟨A⟩';
+
+@ 追加・変更・削除
+## 1 行追加（INSERT） | insert 追加 登録
+INSERT INTO ⟨users⟩ (⟨name⟩, ⟨age⟩) VALUES ('⟨たろう⟩', ⟨15⟩);
+
+## まとめて何行も追加 | insert 複数 まとめて
+INSERT INTO ⟨users⟩ (⟨name⟩, ⟨age⟩) VALUES
+    ('⟨たろう⟩', 15),
+    ('⟨はなこ⟩', 14);
+
+## 変更する（UPDATE） | update 変更 書き換え 更新
+UPDATE ⟨users⟩ SET ⟨age⟩ = ⟨16⟩ WHERE ⟨id⟩ = ⟨1⟩;
+
+## 削除する（DELETE） | delete 削除 消す
+DELETE FROM ⟨users⟩ WHERE ⟨id⟩ = ⟨1⟩;
+
+## まとめて取り消せるようにする（トランザクション） | transaction begin commit rollback
+BEGIN;
+⟨UPDATE accounts SET balance = balance - 100 WHERE id = 1;⟩
+COMMIT;  -- やめるなら ROLLBACK;
+
+@ 表を作る
+## 表を作る（CREATE TABLE） | create table 作成 テーブル
+CREATE TABLE ⟨users⟩ (
+    ⟨id⟩ INTEGER PRIMARY KEY,
+    ⟨name⟩ TEXT NOT NULL,
+    ⟨age⟩ INTEGER,
+    ⟨created_at⟩ TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+## なければ表を作る | if not exists 作成
+CREATE TABLE IF NOT EXISTS ⟨users⟩ (
+    ⟨id⟩ INTEGER PRIMARY KEY,
+    ⟨name⟩ TEXT
+);
+
+## 番号を自動でふる | autoincrement 自動 連番 id
+⟨id⟩ INTEGER PRIMARY KEY AUTOINCREMENT  -- MySQL は AUTO_INCREMENT、PostgreSQL は SERIAL
+
+## ほかの表とつなぐ（外部キー） | foreign key 外部キー references
+CREATE TABLE ⟨orders⟩ (
+    ⟨id⟩ INTEGER PRIMARY KEY,
+    ⟨user_id⟩ INTEGER REFERENCES ⟨users⟩(⟨id⟩)
+);
+
+## 同じ値を入れられないようにする | unique 重複 禁止 制約
+⟨email⟩ TEXT UNIQUE
+
+## 列を追加する | alter table add column 列 追加
+ALTER TABLE ⟨users⟩ ADD COLUMN ⟨email⟩ TEXT;
+
+## 表を消す | drop table 削除 テーブル
+DROP TABLE IF EXISTS ⟨users⟩;
+
+## 探すのを速くする（インデックス） | index インデックス 高速
+CREATE INDEX ⟨idx_users_name⟩ ON ⟨users⟩(⟨name⟩);
+
+## 保存した SELECT（ビュー） | view ビュー 保存
+CREATE VIEW ⟨adults⟩ AS SELECT * FROM ⟨users⟩ WHERE ⟨age⟩ >= 20;
+
+@ 便利
+## 文字をつなげる | 連結 || concat 文字
+SELECT ⟨last_name⟩ || ' ' || ⟨first_name⟩ AS ⟨full_name⟩ FROM ⟨users⟩;  -- MySQL は CONCAT()
+
+## 文字の長さ・一部 | length substr 文字
+SELECT LENGTH(⟨name⟩), SUBSTR(⟨name⟩, 1, ⟨2⟩) FROM ⟨users⟩;
+
+## 大文字・小文字 | upper lower 大文字
+SELECT UPPER(⟨name⟩) FROM ⟨users⟩;
+
+## 空なら別の値 | coalesce null 既定値
+SELECT COALESCE(⟨nickname⟩, ⟨name⟩) FROM ⟨users⟩;
+
+## 今の日時 | 日付 時刻 now current_timestamp
+SELECT CURRENT_TIMESTAMP;
+
+## 日付で絞る | 日付 期間 where
+SELECT * FROM ⟨orders⟩ WHERE ⟨created_at⟩ >= '⟨2025-04-01⟩';
+
+## 表の一覧・形を見る（SQLite） | sqlite テーブル 一覧 schema
+.tables
+.schema ⟨users⟩
+
+## コメント | コメント -- メモ
+-- ⟨メモ⟩
+
+## Python から SQLite を使う | sqlite3 Python 接続
+;; これは Python のコード
+import sqlite3
+
+⟨con⟩ = sqlite3.connect("⟨app.db⟩")
+⟨cur⟩ = ⟨con⟩.execute("SELECT * FROM ⟨users⟩ WHERE ⟨age⟩ >= ?", (⟨20⟩,))
+for ⟨row⟩ in ⟨cur⟩:
+    print(⟨row⟩)
+⟨con⟩.close()

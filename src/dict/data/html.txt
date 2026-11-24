@@ -1,0 +1,235 @@
+;; HTML の追加分
+
+@ 基本
+## CSS ファイルを読み込む | link stylesheet CSS 読み込み
+<link rel="stylesheet" href="⟨style.css⟩">
+
+## JavaScript ファイルを読み込む | script src JavaScript 読み込み defer
+<script src="⟨main.js⟩" defer></script>
+
+## ページの中に JavaScript を書く | script JavaScript 書く
+<script>
+    ⟨console.log("こんにちは");⟩
+</script>
+
+## ページの中に CSS を書く | style CSS 書く
+<style>
+    ⟨body { font-family: sans-serif; }⟩
+</style>
+
+## スマホで正しい大きさに表示 | viewport スマホ meta
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+## ページの説明（検索結果に出る） | description meta 説明 SEO
+<meta name="description" content="⟨このページの説明⟩">
+
+## タブのアイコン（ファビコン） | favicon アイコン タブ
+<link rel="icon" href="⟨favicon.ico⟩">
+
+## 番号つきの箇条書き | ol 番号 リスト
+<ol>
+    <li>⟨1 つ目⟩</li>
+    <li>2 つ目</li>
+</ol>
+
+## 改行・横線 | br hr 改行 線
+⟨1 行目⟩<br>
+2 行目
+<hr>
+
+## 太字・強調・小さい文字 | strong em small 太字 強調
+<strong>⟨大事⟩</strong> <em>強調</em> <small>注意書き</small>
+
+## 文字に印をつける（マーカー） | mark マーカー 強調
+<mark>⟨ここが大事⟩</mark>
+
+## 引用 | blockquote 引用 q
+<blockquote>
+    ⟨引用した文章⟩
+</blockquote>
+
+## コードを表示 | code pre ソースコード 表示
+<pre><code>⟨print("こんにちは")⟩</code></pre>
+
+## 別のタブでリンクを開く | target _blank リンク 新しいタブ
+<a href="⟨https://example.com⟩" target="_blank" rel="noopener">⟨リンク⟩</a>
+
+## ページの中の場所へ飛ぶ | アンカー id # ページ内リンク
+<a href="#⟨section2⟩">⟨第 2 章へ⟩</a>
+<h2 id="⟨section2⟩">第 2 章</h2>
+
+## メールを送るリンク | mailto メール リンク
+<a href="mailto:⟨info@example.com⟩">⟨メールする⟩</a>
+
+## 画像をリンクにする | 画像 リンク a img
+<a href="⟨page.html⟩"><img src="⟨image.png⟩" alt="⟨説明⟩"></a>
+
+## 画像に説明をつける（figure） | figure figcaption 画像 説明
+<figure>
+    <img src="⟨photo.jpg⟩" alt="⟨写真⟩">
+    <figcaption>⟨写真の説明⟩</figcaption>
+</figure>
+
+## 囲むだけの箱（div・span） | div span 箱 囲む
+<div class="⟨box⟩">
+    ⟨中身⟩ <span class="⟨note⟩">一部</span>
+</div>
+
+## 用語と説明のリスト | dl dt dd 用語 説明
+<dl>
+    <dt>⟨HTML⟩</dt>
+    <dd>⟨ページの骨組みを書く言葉⟩</dd>
+</dl>
+
+## コメント | コメント メモ 非表示
+<!-- ⟨メモ⟩ -->
+
+## 特別な記号を書く | &lt; &gt; &amp; &nbsp; 記号 エスケープ
+&lt; &gt; &amp; &copy; &nbsp;
+
+@ ページの構成
+## ページの大きな区切り（header・main・footer） | header main footer セマンティック 構成
+<header>
+    <h1>⟨サイト名⟩</h1>
+</header>
+<main>
+    ⟨⟩
+</main>
+<footer>
+    <small>&copy; ⟨2025 なまえ⟩</small>
+</footer>
+
+## メニュー（nav） | nav メニュー ナビゲーション
+<nav>
+    <ul>
+        <li><a href="⟨index.html⟩">⟨ホーム⟩</a></li>
+        <li><a href="⟨about.html⟩">紹介</a></li>
+    </ul>
+</nav>
+
+## 記事・まとまり（article・section） | article section 記事 まとまり
+<article>
+    <h2>⟨記事のタイトル⟩</h2>
+    <p>⟨本文⟩</p>
+</article>
+
+## 横に出す補足（aside） | aside サイドバー 補足
+<aside>
+    ⟨関連リンクなど⟩
+</aside>
+
+## 開いたり閉じたりする部分 | details summary 折りたたみ アコーディオン
+<details>
+    <summary>⟨くわしく見る⟩</summary>
+    ⟨中身⟩
+</details>
+
+## ダイアログ（小窓） | dialog モーダル 小窓
+<dialog id="⟨dlg⟩">
+    <p>⟨お知らせ⟩</p>
+    <form method="dialog"><button>閉じる</button></form>
+</dialog>
+<button onclick="document.getElementById('⟨dlg⟩').showModal()">開く</button>
+
+## 表の見出し行・まとまり | thead tbody th 表 見出し
+<table>
+    <thead>
+        <tr><th>⟨名前⟩</th><th>⟨点数⟩</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>⟨たろう⟩</td><td>⟨80⟩</td></tr>
+    </tbody>
+</table>
+
+## 表のセルをつなげる | colspan rowspan 結合 表
+<td colspan="⟨2⟩">⟨2 列ぶん⟩</td>
+<td rowspan="⟨2⟩">⟨2 行ぶん⟩</td>
+
+## 別のページを埋め込む（iframe） | iframe 埋め込み 地図
+<iframe src="⟨https://example.com⟩" width="⟨600⟩" height="⟨400⟩" loading="lazy"></iframe>
+
+@ フォーム
+## 送信するフォーム | form action method 送信
+<form action="⟨/send⟩" method="post">
+    ⟨⟩
+    <button type="submit">送信</button>
+</form>
+
+## 名前つきの入力欄（label） | label for 入力欄 名前
+<label for="⟨name⟩">⟨お名前⟩</label>
+<input id="⟨name⟩" name="⟨name⟩" type="text">
+
+## 入力しないといけない欄・ヒント | required placeholder 必須
+<input type="text" name="⟨name⟩" placeholder="⟨例：山田太郎⟩" required>
+
+## いろいろな入力欄 | email number date password 入力
+<input type="email" name="⟨email⟩">
+<input type="number" name="⟨age⟩" min="⟨0⟩" max="⟨120⟩">
+<input type="date" name="⟨day⟩">
+<input type="password" name="⟨pw⟩">
+
+## 色・範囲（スライダー）の入力 | color range スライダー 入力
+<input type="color" name="⟨color⟩" value="⟨#3366ff⟩">
+<input type="range" name="⟨volume⟩" min="0" max="100" value="⟨50⟩">
+
+## ファイルを選ぶ | file 選択 アップロード accept
+<input type="file" name="⟨file⟩" accept="⟨image/*⟩">
+
+## 複数行の入力欄 | textarea 複数行 入力
+<textarea name="⟨message⟩" rows="⟨5⟩" cols="⟨40⟩"></textarea>
+
+## ラジオボタン（1 つだけ選ぶ） | radio 選択 ひとつ
+<label><input type="radio" name="⟨size⟩" value="⟨S⟩" checked> S</label>
+<label><input type="radio" name="⟨size⟩" value="⟨M⟩"> M</label>
+
+## 候補が出る入力欄 | datalist 候補 オートコンプリート
+<input list="⟨fruits⟩" name="⟨fruit⟩">
+<datalist id="⟨fruits⟩">
+    <option value="⟨りんご⟩">
+    <option value="⟨みかん⟩">
+</datalist>
+
+## 入力欄をまとめて囲む | fieldset legend まとめる
+<fieldset>
+    <legend>⟨連絡先⟩</legend>
+    ⟨⟩
+</fieldset>
+
+## 押すだけのボタン | button onclick ボタン
+<button type="button" onclick="⟨hello()⟩">⟨押す⟩</button>
+
+@ 便利
+## 音を埋め込む | audio 音 再生 controls
+<audio src="⟨music.mp3⟩" controls></audio>
+
+## YouTube を埋め込む | YouTube 埋め込み 動画 iframe
+<iframe width="560" height="315" src="https://www.youtube.com/embed/⟨動画ID⟩" allowfullscreen></iframe>
+
+## 絵を描く場所（canvas） | canvas 描く ゲーム
+<canvas id="⟨canvas⟩" width="⟨640⟩" height="⟨480⟩"></canvas>
+
+## 進み具合のバー | progress 進捗 バー meter
+<progress value="⟨70⟩" max="100"></progress>
+
+## 何秒後に別のページへ移る | refresh 移動 リダイレクト meta
+<meta http-equiv="refresh" content="⟨3⟩;url=⟨next.html⟩">
+
+## 画面の大きさで画像を変える（picture） | picture source レスポンシブ 画像
+<picture>
+    <source media="(max-width: 600px)" srcset="⟨small.jpg⟩">
+    <img src="⟨large.jpg⟩" alt="⟨写真⟩">
+</picture>
+
+## 画像を見えたときに読み込む | loading lazy 画像 遅延
+<img src="⟨photo.jpg⟩" alt="⟨写真⟩" loading="lazy">
+
+## SNS で共有したときの見え方（OGP） | OGP og:title SNS 共有
+<meta property="og:title" content="⟨ページのタイトル⟩">
+<meta property="og:description" content="⟨説明⟩">
+<meta property="og:image" content="⟨https://example.com/ogp.png⟩">
+
+## データを要素に持たせる（data-*） | data 属性 JavaScript
+<div data-⟨id⟩="⟨42⟩">⟨⟩</div>
+
+## 吹き出しの説明（title） | title ツールチップ 説明
+<abbr title="⟨HyperText Markup Language⟩">⟨HTML⟩</abbr>

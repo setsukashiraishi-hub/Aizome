@@ -66,6 +66,25 @@ Windows でビルドするときは、先に PowerShell で `./scripts/fetch-con
 
 ブロックを足したら、`defs.ts`（ブロックと Python・JavaScript）、`types.ts`（型）、`typedGen.ts`（Go・C++・C#）、`toolbox.ts`（一覧）の 4 か所に書きます。Blockly 13 では、関数の引数は `getVars()` ではなく `arguments_` で読みます。
 
+## コード辞書（src/dict）
+
+| ファイル | 役目 |
+|---|---|
+| `python.ts`・`javascript.ts`・`csharp.ts`・`others.ts` | はじめからある項目（TypeScript の配列） |
+| `data/*.txt` | 追加分。ふつうの文字のファイルで、項目をどんどん足せる |
+| `parse.ts` | `data/*.txt` を読む。見出しが同じものは、先に書いたほうを残す |
+| `index.ts` | 言語の一覧・探し方。`data/*.txt` は `?raw` で読み込む |
+
+`data/*.txt` の書き方：
+
+```
+@ 分類
+## 見出し | 探すための言葉（空白区切り） | ひとこと説明（なくてもよい）
+コード（字下げはスペース 4 つ。⟨名前⟩ は Tab で順に書き換えられる場所、⟨⟩ は最後にカーソルが来る場所）
+```
+
+「;; 」で始まる行はメモで、辞書には入りません。新しい言語を足すときは、`index.ts` の `DICT_LANGUAGES` に足します。
+
 ## 変えたら確かめること
 
 ```bash

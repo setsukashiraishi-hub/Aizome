@@ -1,0 +1,419 @@
+;; C++ の追加分
+
+@ 基本
+## 入出力を速くする（競プロ） | 高速 cin cout sync_with_stdio 競プロ
+std::ios::sync_with_stdio(false);
+std::cin.tie(nullptr);
+
+## 1 行まるごと入力 | getline 1行 入力 文字列
+std::string ⟨line⟩;
+std::getline(std::cin, ⟨line⟩);
+
+## 入力がなくなるまで読む | cin EOF 全部 while
+int ⟨x⟩;
+while (std::cin >> ⟨x⟩) {
+    ⟨⟩
+}
+
+## n 個の数を読んで vector に | 入力 vector n個 配列
+int ⟨n⟩;
+std::cin >> ⟨n⟩;
+std::vector<int> ⟨a⟩(⟨n⟩);
+for (auto& x : ⟨a⟩) std::cin >> x;
+
+## 小数の桁をそろえて表示 | fixed setprecision 小数 桁
+#include <iomanip>
+
+std::cout << std::fixed << std::setprecision(⟨2⟩) << ⟨x⟩ << "\n";
+
+## 幅をそろえて表示 | setw 幅 右寄せ 表
+std::cout << std::setw(⟨5⟩) << ⟨n⟩ << "\n";
+
+## 書式つきで表示（std::format） | format 書式 C++20
+#include <format>
+
+std::cout << std::format("{} は {} 点\n", ⟨name⟩, ⟨score⟩);
+
+## 型を自動で決める（auto） | auto 型推論
+auto ⟨x⟩ = ⟨10⟩;
+
+## 定数 | const constexpr 定数
+constexpr int ⟨MAX⟩ = ⟨100⟩;
+
+## もし〜なら | if else 条件
+if (⟨条件⟩) {
+    ⟨⟩
+} else {
+
+}
+
+## 決まった回数くり返す | for 回数 ループ
+for (int ⟨i⟩ = 0; ⟨i⟩ < ⟨n⟩; ⟨i⟩++) {
+    ⟨⟩
+}
+
+## 条件のあいだくり返す | while ループ
+while (⟨条件⟩) {
+    ⟨⟩
+}
+
+## 値によって分ける | switch case
+switch (⟨x⟩) {
+case ⟨1⟩:
+    ⟨⟩
+    break;
+default:
+    break;
+}
+
+## 型を変換する | static_cast 変換 キャスト
+double ⟨d⟩ = static_cast<double>(⟨n⟩);
+
+## 選択肢を名前で決める（enum class） | enum class 列挙
+enum class ⟨Color⟩ { ⟨Red⟩, ⟨Green⟩, ⟨Blue⟩ };
+
+## 名前空間を省く | using namespace std 名前空間
+using namespace std;
+
+@ データ
+## 同じ値で n 個の vector | vector 初期化 n個
+std::vector<int> ⟨a⟩(⟨n⟩, ⟨0⟩);
+
+## 2 次元の vector | 二次元 vector 表 行列
+std::vector<std::vector<int>> ⟨grid⟩(⟨h⟩, std::vector<int>(⟨w⟩, 0));
+
+## vector の操作（追加・削除・大きさ） | push_back pop_back size erase
+⟨a⟩.push_back(⟨x⟩);
+⟨a⟩.pop_back();
+⟨a⟩.erase(⟨a⟩.begin() + ⟨i⟩);
+⟨a⟩.size();
+
+## 大きい順に並べ替え | sort greater 降順
+std::sort(⟨a⟩.begin(), ⟨a⟩.end(), std::greater<>());
+
+## 条件で並べ替え | sort ラムダ 比較 並べ替え
+std::sort(⟨people⟩.begin(), ⟨people⟩.end(), [](const auto& x, const auto& y) {
+    return x.⟨age⟩ < y.⟨age⟩;
+});
+
+## 合計・最大・最小 | accumulate max_element min_element 合計
+#include <numeric>
+
+long long ⟨sum⟩ = std::accumulate(⟨a⟩.begin(), ⟨a⟩.end(), 0LL);
+int ⟨mx⟩ = *std::max_element(⟨a⟩.begin(), ⟨a⟩.end());
+int ⟨mn⟩ = *std::min_element(⟨a⟩.begin(), ⟨a⟩.end());
+
+## 逆順にする | reverse 逆順 反転
+std::reverse(⟨a⟩.begin(), ⟨a⟩.end());
+
+## 値を探す・数える | find count 探す 数える
+auto ⟨it⟩ = std::find(⟨a⟩.begin(), ⟨a⟩.end(), ⟨x⟩);
+bool ⟨found⟩ = ⟨it⟩ != ⟨a⟩.end();
+int ⟨c⟩ = std::count(⟨a⟩.begin(), ⟨a⟩.end(), ⟨x⟩);
+
+## 重複を取り除く | unique erase 重複 ソート
+std::sort(⟨a⟩.begin(), ⟨a⟩.end());
+⟨a⟩.erase(std::unique(⟨a⟩.begin(), ⟨a⟩.end()), ⟨a⟩.end());
+
+## 二分探索 | lower_bound upper_bound 二分探索
+auto ⟨it⟩ = std::lower_bound(⟨a⟩.begin(), ⟨a⟩.end(), ⟨x⟩);
+int ⟨idx⟩ = ⟨it⟩ - ⟨a⟩.begin();
+
+## 順列を全部 | next_permutation 順列 並べ方
+std::sort(⟨a⟩.begin(), ⟨a⟩.end());
+do {
+    ⟨⟩
+} while (std::next_permutation(⟨a⟩.begin(), ⟨a⟩.end()));
+
+## 0, 1, 2… で埋める | iota 連番 numeric
+std::iota(⟨a⟩.begin(), ⟨a⟩.end(), 0);
+
+## 2 つの値の組（pair） | pair 組 make_pair first second
+std::pair<int, std::string> ⟨p⟩ = {⟨1⟩, "⟨a⟩"};
+auto [⟨num⟩, ⟨str⟩] = ⟨p⟩;
+
+## 3 つ以上の値の組（tuple） | tuple 組 複数
+auto ⟨t⟩ = std::make_tuple(⟨1⟩, ⟨2.0⟩, "⟨a⟩");
+auto [⟨x⟩, ⟨y⟩, ⟨z⟩] = ⟨t⟩;
+
+## map を順に取り出す | map 順に キー 値
+for (const auto& [⟨key⟩, ⟨value⟩] : ⟨m⟩) {
+    std::cout << ⟨key⟩ << ": " << ⟨value⟩ << "\n";
+}
+
+## map にキーがあるか | map contains count find キー
+if (⟨m⟩.contains("⟨key⟩")) {
+    ⟨⟩
+}
+
+## 速い辞書（unordered_map） | unordered_map ハッシュ 辞書
+#include <unordered_map>
+
+std::unordered_map<std::string, int> ⟨count⟩;
+⟨count⟩["⟨a⟩"]++;
+
+## 重複しない集まり（set） | set 集合 重複なし insert
+#include <set>
+
+std::set<int> ⟨s⟩;
+⟨s⟩.insert(⟨1⟩);
+bool ⟨has⟩ = ⟨s⟩.contains(⟨1⟩);
+
+## 先に入れた順に取り出す（queue） | queue キュー push pop front
+#include <queue>
+
+std::queue<int> ⟨q⟩;
+⟨q⟩.push(⟨1⟩);
+int ⟨x⟩ = ⟨q⟩.front();
+⟨q⟩.pop();
+
+## 後に入れたものから（stack） | stack スタック push pop top
+#include <stack>
+
+std::stack<int> ⟨st⟩;
+⟨st⟩.push(⟨1⟩);
+int ⟨x⟩ = ⟨st⟩.top();
+⟨st⟩.pop();
+
+## 大きい順に取り出せる箱（priority_queue） | priority_queue 優先度 キュー
+#include <queue>
+
+std::priority_queue<int> ⟨pq⟩;  // 小さい順なら std::priority_queue<int, std::vector<int>, std::greater<int>>
+⟨pq⟩.push(⟨3⟩);
+int ⟨top⟩ = ⟨pq⟩.top();
+⟨pq⟩.pop();
+
+## 両はしから出し入れ（deque） | deque 両端 push_front
+#include <deque>
+
+std::deque<int> ⟨d⟩;
+⟨d⟩.push_front(⟨1⟩);
+⟨d⟩.push_back(⟨2⟩);
+
+## 決まった大きさの配列（array） | array 固定 配列
+#include <array>
+
+std::array<int, ⟨5⟩> ⟨a⟩{};
+
+@ 文字列
+## 文字列の一部・探す | substr find 部分 探す
+std::string ⟨part⟩ = ⟨s⟩.substr(⟨0⟩, ⟨3⟩);
+if (⟨s⟩.find("⟨word⟩") != std::string::npos) {
+    ⟨⟩
+}
+
+## 数と文字列の変換 | stoi to_string 変換
+int ⟨n⟩ = std::stoi(⟨s⟩);
+std::string ⟨t⟩ = std::to_string(⟨n⟩);
+
+## 区切って分ける | split 分割 stringstream getline
+#include <sstream>
+
+std::vector<std::string> ⟨parts⟩;
+std::stringstream ⟨ss⟩(⟨s⟩);
+std::string ⟨item⟩;
+while (std::getline(⟨ss⟩, ⟨item⟩, '⟨,⟩')) ⟨parts⟩.push_back(⟨item⟩);
+
+## 1 文字ずつ | 文字 char for 範囲
+for (char ⟨c⟩ : ⟨s⟩) {
+    std::cout << ⟨c⟩ << "\n";
+}
+
+## 大文字にする | toupper transform 大文字
+std::transform(⟨s⟩.begin(), ⟨s⟩.end(), ⟨s⟩.begin(), ::toupper);
+
+## 文字列を逆順にする | 逆順 reverse 文字列
+std::reverse(⟨s⟩.begin(), ⟨s⟩.end());
+
+## 置き換える | replace 置換 find
+size_t ⟨pos⟩ = ⟨s⟩.find("⟨古い⟩");
+if (⟨pos⟩ != std::string::npos) ⟨s⟩.replace(⟨pos⟩, ⟨2⟩, "⟨新しい⟩");
+
+## 〜で始まる・終わる | starts_with ends_with C++20
+if (⟨s⟩.starts_with("⟨abc⟩")) {
+    ⟨⟩
+}
+
+@ 関数・クラス
+## 関数を作る | 関数 戻り値 引数
+int ⟨add⟩(int a, int b) {
+    return a + b;
+}
+
+## 参照で受け取る（コピーしない・書き換える） | 参照 & const 引数
+void ⟨addOne⟩(std::vector<int>& ⟨a⟩) {
+    for (auto& x : ⟨a⟩) x++;
+}
+
+## ラムダ式（その場で作る関数） | ラムダ lambda [] 無名関数
+auto ⟨square⟩ = [](int x) { return x * x; };
+
+## 外の変数を使うラムダ | キャプチャ [&] [=] ラムダ
+int ⟨total⟩ = 0;
+std::for_each(⟨a⟩.begin(), ⟨a⟩.end(), [&](int x) { ⟨total⟩ += x; });
+
+## 関数を変数に入れる（std::function） | function 関数 コールバック
+#include <functional>
+
+std::function<int(int, int)> ⟨op⟩ = [](int a, int b) { return a + b; };
+
+## 再帰する関数 | 再帰 階乗 フィボナッチ
+long long ⟨fact⟩(int ⟨n⟩) {
+    return ⟨n⟩ <= 1 ? 1 : ⟨n⟩ * ⟨fact⟩(⟨n⟩ - 1);
+}
+
+## 継承 | 継承 virtual override
+class ⟨Animal⟩ {
+public:
+    virtual ~⟨Animal⟩() = default;
+    virtual std::string ⟨speak⟩() const = 0;
+};
+
+class ⟨Dog⟩ : public ⟨Animal⟩ {
+public:
+    std::string ⟨speak⟩() const override { return "ワン"; }
+};
+
+## 構造体 | struct 構造体 データ
+struct ⟨Point⟩ {
+    int ⟨x⟩ = 0;
+    int ⟨y⟩ = 0;
+};
+
+## 比べられるようにする（演算子） | operator < 比較 並べ替え
+bool operator<(const ⟨Point⟩& a, const ⟨Point⟩& b) {
+    return a.⟨x⟩ < b.⟨x⟩;
+}
+
+## cout で表示できるようにする | operator<< 表示 ostream
+std::ostream& operator<<(std::ostream& os, const ⟨Point⟩& p) {
+    return os << "(" << p.⟨x⟩ << ", " << p.⟨y⟩ << ")";
+}
+
+## どんな型でも使える関数（テンプレート） | template テンプレート ジェネリック
+template <typename T>
+T ⟨maxOf⟩(T a, T b) {
+    return a > b ? a : b;
+}
+
+## 自動で消える入れ物（スマートポインタ） | unique_ptr make_unique スマートポインタ
+#include <memory>
+
+auto ⟨p⟩ = std::make_unique<⟨Dog⟩>();
+⟨p⟩->⟨speak⟩();
+
+## 共有する入れ物（shared_ptr） | shared_ptr make_shared 共有
+auto ⟨p⟩ = std::make_shared<⟨Point⟩>();
+
+## ないかもしれない値（optional） | optional 値なし nullopt
+#include <optional>
+
+std::optional<int> ⟨find⟩(int x) {
+    if (x > 0) return x;
+    return std::nullopt;
+}
+
+@ 便利
+## ファイルを 1 行ずつ読む | ifstream ファイル 読む getline
+#include <fstream>
+
+std::ifstream ⟨in⟩("⟨data.txt⟩");
+std::string ⟨line⟩;
+while (std::getline(⟨in⟩, ⟨line⟩)) {
+    std::cout << ⟨line⟩ << "\n";
+}
+
+## ファイルに書く | ofstream ファイル 書く 保存
+#include <fstream>
+
+std::ofstream ⟨out⟩("⟨out.txt⟩");
+⟨out⟩ << ⟨text⟩ << "\n";
+
+## ランダムな整数（新しい書き方） | random mt19937 乱数 uniform_int_distribution
+#include <random>
+
+std::mt19937 ⟨rng⟩(std::random_device{}());
+std::uniform_int_distribution<int> ⟨dist⟩(⟨1⟩, ⟨6⟩);
+int ⟨n⟩ = ⟨dist⟩(⟨rng⟩);
+
+## シャッフル | shuffle シャッフル ランダム
+#include <random>
+
+std::mt19937 ⟨rng⟩(std::random_device{}());
+std::shuffle(⟨a⟩.begin(), ⟨a⟩.end(), ⟨rng⟩);
+
+## かかった時間を計る | chrono 計測 時間
+#include <chrono>
+
+auto ⟨start⟩ = std::chrono::steady_clock::now();
+⟨⟩
+auto ⟨ms⟩ = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - ⟨start⟩).count();
+
+## 少し待つ | sleep_for 待つ thread
+#include <thread>
+
+std::this_thread::sleep_for(std::chrono::milliseconds(⟨500⟩));
+
+## 同時に動かす（thread） | thread スレッド 並行 join
+#include <thread>
+
+std::thread ⟨t⟩([] {
+    ⟨⟩
+});
+⟨t⟩.join();
+
+## エラーを受け止める | try catch 例外 exception
+try {
+    ⟨⟩
+} catch (const std::exception& e) {
+    std::cerr << e.what() << "\n";
+}
+
+## エラーを起こす | throw 例外 runtime_error
+throw std::runtime_error("⟨まちがった値です⟩");
+
+## 数学の関数 | cmath sqrt pow abs 数学
+#include <cmath>
+
+double ⟨r⟩ = std::sqrt(⟨x⟩);
+double ⟨p⟩ = std::pow(⟨x⟩, 2);
+
+## 最大公約数・最小公倍数 | gcd lcm numeric
+#include <numeric>
+
+int ⟨g⟩ = std::gcd(⟨a⟩, ⟨b⟩);
+int ⟨l⟩ = std::lcm(⟨a⟩, ⟨b⟩);
+
+## とても大きな数の型 | long long 大きい数 オーバーフロー
+long long ⟨big⟩ = 1LL << 40;
+
+## 無限大の代わり（大きな数） | INF 最大 numeric_limits
+#include <limits>
+
+const int ⟨INF⟩ = std::numeric_limits<int>::max();
+
+## 競プロのひな形 | 競プロ テンプレート bits/stdc++
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    ⟨⟩
+    return 0;
+}
+
+## 幅優先探索（BFS） | BFS 幅優先探索 最短 グラフ 迷路
+std::vector<int> ⟨dist⟩(⟨n⟩, -1);
+std::queue<int> ⟨q⟩;
+⟨dist⟩[⟨start⟩] = 0;
+⟨q⟩.push(⟨start⟩);
+while (!⟨q⟩.empty()) {
+    int v = ⟨q⟩.front();
+    ⟨q⟩.pop();
+    for (int nv : ⟨graph⟩[v]) {
+        if (⟨dist⟩[nv] != -1) continue;
+        ⟨dist⟩[nv] = ⟨dist⟩[v] + 1;
+        ⟨q⟩.push(nv);
+    }
+}

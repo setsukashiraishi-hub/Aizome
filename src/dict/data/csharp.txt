@@ -1,0 +1,844 @@
+;; C#（Unity）の追加分
+
+@ Unity 基本
+## 最初に 1 回だけ動かす（Awake / Start） | Awake Start 初期化 最初
+void Awake()
+{
+    ⟨⟩
+}
+
+void Start()
+{
+    ⟨⟩
+}
+
+## 毎フレーム動かす（Update） | Update 毎フレーム ループ
+void Update()
+{
+    ⟨⟩
+}
+
+## 物理の計算のたびに動かす（FixedUpdate） | FixedUpdate 物理 Rigidbody
+void FixedUpdate()
+{
+    ⟨⟩
+}
+
+## カメラを動かすとき（LateUpdate） | LateUpdate カメラ 追従 最後
+void LateUpdate()
+{
+    ⟨⟩
+}
+
+## 有効・無効になったとき | OnEnable OnDisable 有効 無効
+void OnEnable()
+{
+    ⟨⟩
+}
+
+void OnDisable()
+{
+    ⟨⟩
+}
+
+## 子のオブジェクトの部品を取る | GetComponentInChildren 子 部品
+var ⟨renderer⟩ = GetComponentInChildren<⟨Renderer⟩>();
+
+## 部品があれば取る（TryGetComponent） | TryGetComponent 部品 あれば
+if (TryGetComponent(out ⟨Rigidbody⟩ ⟨rb⟩))
+{
+    ⟨⟩
+}
+
+## 部品を後から付ける | AddComponent 部品 追加
+var ⟨rb⟩ = gameObject.AddComponent<⟨Rigidbody⟩>();
+
+## 位置を変える | position 位置 座標 transform
+transform.position = new Vector3(⟨0⟩, ⟨1⟩, ⟨0⟩);
+
+## 大きさを変える | localScale 大きさ 拡大 縮小
+transform.localScale = Vector3.one * ⟨2f⟩;
+
+## 親のオブジェクトを決める | SetParent 親 子 階層
+⟨child⟩.transform.SetParent(⟨parent⟩.transform);
+
+## 子のオブジェクトを順に | 子 transform foreach 階層
+foreach (Transform ⟨child⟩ in transform)
+{
+    Debug.Log(⟨child⟩.name);
+}
+
+## タグで全部探す | FindGameObjectsWithTag タグ 全部 探す
+GameObject[] ⟨enemies⟩ = GameObject.FindGameObjectsWithTag("⟨Enemy⟩");
+
+## 型で探す（シーンの中から） | FindFirstObjectByType FindObjectsByType 探す
+var ⟨player⟩ = FindFirstObjectByType<⟨Player⟩>();
+
+## 何秒後に消す | Destroy 時間 消す 秒
+Destroy(gameObject, ⟨3f⟩);
+
+## シーンが変わっても消さない | DontDestroyOnLoad 残す シーン
+DontDestroyOnLoad(gameObject);
+
+## 位置と向きを指定して作る | Instantiate 位置 回転 生成 弾
+Instantiate(⟨bulletPrefab⟩, ⟨firePoint⟩.position, ⟨firePoint⟩.rotation);
+
+## インスペクターに見出し・範囲をつける | Header Range Tooltip インスペクター
+[Header("⟨移動⟩")]
+[Range(⟨0f⟩, ⟨10f⟩)]
+[SerializeField] float ⟨speed⟩ = ⟨5f⟩;
+
+## Debug に警告・エラーを出す | Debug LogWarning LogError
+Debug.LogWarning("⟨注意⟩");
+Debug.LogError("⟨エラー⟩");
+
+## シーンに線を描く（デバッグ） | DrawLine DrawRay Gizmos 線
+Debug.DrawRay(transform.position, transform.forward * ⟨5f⟩, Color.red);
+
+## エディタに範囲を描く（Gizmos） | OnDrawGizmos Gizmos 範囲 球
+void OnDrawGizmos()
+{
+    Gizmos.color = Color.yellow;
+    Gizmos.DrawWireSphere(transform.position, ⟨1f⟩);
+}
+
+@ 移動・入力
+## 前に進む（向いている方向） | forward 前進 移動 Translate
+transform.Translate(Vector3.forward * ⟨speed⟩ * Time.deltaTime);
+
+## マウスの位置 | mousePosition マウス 位置 画面
+Vector3 ⟨mouse⟩ = Input.mousePosition;
+
+## マウスの位置をゲームの中の位置に | ScreenToWorldPoint マウス ワールド 2D
+Vector3 ⟨world⟩ = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+⟨world⟩.z = 0;
+
+## クリックした物を調べる | Raycast クリック 選択 ScreenPointToRay
+if (Input.GetMouseButtonDown(0))
+{
+    Ray ⟨ray⟩ = Camera.main.ScreenPointToRay(Input.mousePosition);
+    if (Physics.Raycast(⟨ray⟩, out RaycastHit ⟨hit⟩))
+    {
+        Debug.Log(⟨hit⟩.collider.name);
+    }
+}
+
+## キーが押されているあいだ | GetKey 押しっぱなし キー
+if (Input.GetKey(KeyCode.⟨Space⟩))
+{
+    ⟨⟩
+}
+
+## キーを離した瞬間 | GetKeyUp 離す キー
+if (Input.GetKeyUp(KeyCode.⟨Space⟩))
+{
+    ⟨⟩
+}
+
+## マウスホイール | ホイール スクロール ズーム
+float ⟨scroll⟩ = Input.GetAxis("Mouse ScrollWheel");
+
+## マウスで視点を回す | マウス 視点 回転 FPS カメラ
+float ⟨mx⟩ = Input.GetAxis("Mouse X") * ⟨sensitivity⟩;
+transform.Rotate(0, ⟨mx⟩, 0);
+
+## キャラクターコントローラーで動かす | CharacterController Move 移動
+var ⟨cc⟩ = GetComponent<CharacterController>();
+Vector3 ⟨move⟩ = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+⟨cc⟩.Move(⟨move⟩ * ⟨speed⟩ * Time.deltaTime);
+
+## 新しい入力の仕組み（Input System）でキー | Input System Keyboard 新しい
+using UnityEngine.InputSystem;
+
+if (Keyboard.current.spaceKey.wasPressedThisFrame)
+{
+    ⟨⟩
+}
+
+## 一定の速さで近づける | MoveTowards 近づく 一定 移動
+transform.position = Vector3.MoveTowards(transform.position, ⟨target⟩.position, ⟨speed⟩ * Time.deltaTime);
+
+## なめらかに回す | Slerp RotateTowards 回転 なめらか
+transform.rotation = Quaternion.Slerp(transform.rotation, ⟨targetRot⟩, ⟨5f⟩ * Time.deltaTime);
+
+## 角度を指定して向ける | Euler 角度 回転 rotation
+transform.rotation = Quaternion.Euler(⟨0⟩, ⟨90⟩, ⟨0⟩);
+
+## 2D で相手のほうを向く | 2D 向き 角度 Atan2
+Vector2 ⟨dir⟩ = ⟨target⟩.position - transform.position;
+float ⟨angle⟩ = Mathf.Atan2(⟨dir⟩.y, ⟨dir⟩.x) * Mathf.Rad2Deg;
+transform.rotation = Quaternion.Euler(0, 0, ⟨angle⟩);
+
+## 2D で左右の向きを反転 | flipX 反転 向き 2D
+GetComponent<SpriteRenderer>().flipX = ⟨x⟩ < 0;
+
+## 画面の外に出ないようにする | Clamp 範囲 画面 制限
+Vector3 ⟨p⟩ = transform.position;
+⟨p⟩.x = Mathf.Clamp(⟨p⟩.x, ⟨-8f⟩, ⟨8f⟩);
+transform.position = ⟨p⟩;
+
+## 2 点の距離 | Distance 距離 近い
+float ⟨d⟩ = Vector3.Distance(transform.position, ⟨target⟩.position);
+
+## 向き（長さ 1）にする | normalized 方向 向き ベクトル
+Vector3 ⟨dir⟩ = (⟨target⟩.position - transform.position).normalized;
+
+@ 物理・カメラ
+## 力を加える | AddForce 力 Rigidbody 押す
+⟨rb⟩.AddForce(Vector3.forward * ⟨10f⟩, ForceMode.Impulse);
+
+## 速さを直接決める | velocity 速度 Rigidbody
+⟨rb⟩.linearVelocity = new Vector3(⟨0⟩, ⟨5f⟩, ⟨0⟩);  // 古い Unity は velocity
+
+## 2D の物理で動かす | Rigidbody2D 2D 速度 移動
+var ⟨rb⟩ = GetComponent<Rigidbody2D>();
+⟨rb⟩.linearVelocity = new Vector2(Input.GetAxis("Horizontal") * ⟨speed⟩, ⟨rb⟩.linearVelocity.y);
+
+## 地面に立っているか | 接地 地面 Raycast ジャンプ
+bool ⟨grounded⟩ = Physics.Raycast(transform.position, Vector3.down, ⟨1.1f⟩);
+
+## 2D で地面に立っているか | 接地 2D OverlapCircle 地面
+bool ⟨grounded⟩ = Physics2D.OverlapCircle(⟨groundCheck⟩.position, ⟨0.2f⟩, ⟨groundLayer⟩);
+
+## 近くにあるものを全部 | OverlapSphere 範囲 近く 爆発
+foreach (Collider ⟨c⟩ in Physics.OverlapSphere(transform.position, ⟨5f⟩))
+{
+    Debug.Log(⟨c⟩.name);
+}
+
+## ぶつかり終わったとき・ふれているあいだ | OnCollisionExit OnCollisionStay 衝突
+void OnCollisionExit(Collision ⟨other⟩)
+{
+    ⟨⟩
+}
+
+## 範囲から出たとき（トリガー） | OnTriggerExit トリガー 出る
+void OnTriggerExit(Collider ⟨other⟩)
+{
+    ⟨⟩
+}
+
+## 2D のトリガーに入ったとき | OnTriggerEnter2D トリガー 2D アイテム
+void OnTriggerEnter2D(Collider2D ⟨other⟩)
+{
+    if (⟨other⟩.CompareTag("⟨Item⟩"))
+    {
+        Destroy(⟨other⟩.gameObject);
+    }
+}
+
+## 重力を止める | useGravity gravityScale 重力
+⟨rb⟩.useGravity = false;  // 2D は rb.gravityScale = 0;
+
+## カメラでプレイヤーを追いかける | カメラ 追従 offset LateUpdate
+[SerializeField] Transform ⟨target⟩;
+[SerializeField] Vector3 ⟨offset⟩ = new Vector3(0, 5, -10);
+
+void LateUpdate()
+{
+    transform.position = ⟨target⟩.position + ⟨offset⟩;
+}
+
+## カメラを揺らす | カメラ 揺れ シェイク コルーチン
+IEnumerator ⟨Shake⟩(float ⟨time⟩, float ⟨power⟩)
+{
+    Vector3 ⟨origin⟩ = transform.localPosition;
+    for (float t = 0; t < ⟨time⟩; t += Time.deltaTime)
+    {
+        transform.localPosition = ⟨origin⟩ + Random.insideUnitSphere * ⟨power⟩;
+        yield return null;
+    }
+    transform.localPosition = ⟨origin⟩;
+}
+
+## レイヤーで当たる相手をしぼる | LayerMask レイヤー Raycast
+[SerializeField] LayerMask ⟨mask⟩;
+
+bool ⟨hit⟩ = Physics.Raycast(transform.position, transform.forward, ⟨10f⟩, ⟨mask⟩);
+
+@ 時間・シーン・UI
+## 同じ間隔でくり返す（InvokeRepeating） | InvokeRepeating くり返し 間隔 生成
+InvokeRepeating(nameof(⟨Spawn⟩), ⟨1f⟩, ⟨2f⟩);
+
+## コルーチンをずっと回す | コルーチン ループ while WaitForSeconds
+IEnumerator ⟨Loop⟩()
+{
+    while (true)
+    {
+        ⟨⟩
+        yield return new WaitForSeconds(⟨1f⟩);
+    }
+}
+
+## コルーチンを止める | StopCoroutine StopAllCoroutines 止める
+StopAllCoroutines();
+
+## 次のフレームまで待つ | yield null フレーム 待つ
+yield return null;
+
+## タイマー（残り時間） | タイマー 残り時間 カウントダウン deltaTime
+float ⟨timeLeft⟩ = ⟨60f⟩;
+
+void Update()
+{
+    ⟨timeLeft⟩ -= Time.deltaTime;
+    if (⟨timeLeft⟩ <= 0)
+    {
+        ⟨⟩
+    }
+}
+
+## 今のシーンをやり直す | リスタート やり直し シーン 再読み込み
+SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+## 次のシーンへ | 次 シーン buildIndex
+SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+
+## ゲームを終わらせる | Quit 終了 アプリ
+Application.Quit();
+
+## スライダー（HP バー） | Slider HP バー ゲージ UI
+using UnityEngine.UI;
+
+[SerializeField] Slider ⟨hpBar⟩;
+⟨hpBar⟩.value = ⟨hp⟩ / ⟨maxHp⟩;
+
+## 画像を差し替える（UI） | Image sprite 画像 UI
+using UnityEngine.UI;
+
+[SerializeField] Image ⟨icon⟩;
+⟨icon⟩.sprite = ⟨newSprite⟩;
+
+## ゲージの量で画像を減らす | fillAmount ゲージ Image
+⟨image⟩.fillAmount = ⟨0.5f⟩;
+
+## ボタンを押せなくする | interactable ボタン 無効
+⟨button⟩.interactable = false;
+
+## スコアを表示する | スコア TextMeshPro 表示 加算
+using TMPro;
+
+[SerializeField] TMP_Text ⟨scoreText⟩;
+int ⟨score⟩;
+
+public void ⟨AddScore⟩(int ⟨n⟩)
+{
+    ⟨score⟩ += ⟨n⟩;
+    ⟨scoreText⟩.text = $"SCORE: {⟨score⟩}";
+}
+
+## 音を 1 回だけ鳴らす（重ねて鳴る） | PlayOneShot 効果音 SE
+[SerializeField] AudioClip ⟨se⟩;
+GetComponent<AudioSource>().PlayOneShot(⟨se⟩);
+
+## 音量を変える | volume 音量 AudioSource
+GetComponent<AudioSource>().volume = ⟨0.5f⟩;
+
+## マウスカーソルを隠して固定 | Cursor カーソル ロック 隠す FPS
+Cursor.lockState = CursorLockMode.Locked;
+Cursor.visible = false;
+
+## 画面の大きさ | Screen width height 解像度
+int ⟨w⟩ = Screen.width;
+int ⟨h⟩ = Screen.height;
+
+## ハイスコアを保存 | ハイスコア PlayerPrefs 保存 記録
+if (⟨score⟩ > PlayerPrefs.GetInt("⟨HighScore⟩", 0))
+{
+    PlayerPrefs.SetInt("⟨HighScore⟩", ⟨score⟩);
+    PlayerPrefs.Save();
+}
+
+## データを JSON で保存・読み込み | JsonUtility JSON 保存 セーブ
+[System.Serializable]
+public class ⟨SaveData⟩
+{
+    public int ⟨level⟩;
+    public float ⟨hp⟩;
+}
+
+string ⟨json⟩ = JsonUtility.ToJson(⟨data⟩);
+⟨SaveData⟩ ⟨loaded⟩ = JsonUtility.FromJson<⟨SaveData⟩>(⟨json⟩);
+
+## セーブファイルの場所 | persistentDataPath 保存 場所 ファイル
+string ⟨path⟩ = System.IO.Path.Combine(Application.persistentDataPath, "⟨save.json⟩");
+System.IO.File.WriteAllText(⟨path⟩, ⟨json⟩);
+
+@ アニメーション・エフェクト
+## アニメーションを切り替える（Trigger） | Animator SetTrigger アニメーション
+GetComponent<Animator>().SetTrigger("⟨Jump⟩");
+
+## アニメーションの値を渡す | Animator SetFloat SetBool 速さ
+var ⟨anim⟩ = GetComponent<Animator>();
+⟨anim⟩.SetFloat("⟨Speed⟩", ⟨speed⟩);
+⟨anim⟩.SetBool("⟨IsGround⟩", ⟨grounded⟩);
+
+## 色を変える | color 色 マテリアル SpriteRenderer
+GetComponent<Renderer>().material.color = Color.⟨red⟩;  // 2D は SpriteRenderer.color
+
+## だんだん透明にする | フェード 透明 alpha コルーチン
+IEnumerator ⟨FadeOut⟩(SpriteRenderer ⟨sr⟩, float ⟨time⟩)
+{
+    Color ⟨c⟩ = ⟨sr⟩.color;
+    for (float t = 0; t < ⟨time⟩; t += Time.deltaTime)
+    {
+        ⟨c⟩.a = 1 - t / ⟨time⟩;
+        ⟨sr⟩.color = ⟨c⟩;
+        yield return null;
+    }
+}
+
+## ダメージで点滅させる | 点滅 無敵 ダメージ enabled
+IEnumerator ⟨Blink⟩(Renderer ⟨r⟩)
+{
+    for (int i = 0; i < ⟨5⟩; i++)
+    {
+        ⟨r⟩.enabled = false;
+        yield return new WaitForSeconds(0.1f);
+        ⟨r⟩.enabled = true;
+        yield return new WaitForSeconds(0.1f);
+    }
+}
+
+## パーティクルを出す | ParticleSystem Play エフェクト 爆発
+[SerializeField] ParticleSystem ⟨effect⟩;
+⟨effect⟩.Play();
+
+## 爆発のエフェクトを出して消す | エフェクト 生成 Destroy 爆発
+var ⟨fx⟩ = Instantiate(⟨explosionPrefab⟩, transform.position, Quaternion.identity);
+Destroy(⟨fx⟩, ⟨2f⟩);
+
+## ゆらゆら上下させる | Sin 上下 浮く ゆらゆら
+float ⟨y⟩ = Mathf.Sin(Time.time * ⟨2f⟩) * ⟨0.5f⟩;
+transform.localPosition = new Vector3(0, ⟨y⟩, 0);
+
+## くるくる回し続ける | Rotate 回転 ずっと コイン
+transform.Rotate(0, ⟨90f⟩ * Time.deltaTime, 0);
+
+@ ゲームの仕組み
+## HP とダメージ | HP ダメージ 体力 死亡
+[SerializeField] int ⟨maxHp⟩ = ⟨100⟩;
+int ⟨hp⟩;
+
+void Start() => ⟨hp⟩ = ⟨maxHp⟩;
+
+public void ⟨TakeDamage⟩(int ⟨damage⟩)
+{
+    ⟨hp⟩ = Mathf.Max(⟨hp⟩ - ⟨damage⟩, 0);
+    if (⟨hp⟩ == 0)
+    {
+        Destroy(gameObject);
+    }
+}
+
+## 弾を撃つ | 弾 発射 射撃 Instantiate velocity
+if (Input.GetMouseButtonDown(0))
+{
+    var ⟨b⟩ = Instantiate(⟨bulletPrefab⟩, ⟨firePoint⟩.position, ⟨firePoint⟩.rotation);
+    ⟨b⟩.GetComponent<Rigidbody>().linearVelocity = ⟨firePoint⟩.forward * ⟨20f⟩;
+}
+
+## 連射の間隔をあける | 連射 クールダウン 間隔
+float ⟨nextFire⟩;
+
+void Update()
+{
+    if (Input.GetKey(KeyCode.Space) && Time.time >= ⟨nextFire⟩)
+    {
+        ⟨nextFire⟩ = Time.time + ⟨0.2f⟩;
+        ⟨⟩
+    }
+}
+
+## 敵をランダムな場所に出す | 生成 スポーン ランダム 敵
+Vector3 ⟨pos⟩ = new Vector3(Random.Range(⟨-8f⟩, ⟨8f⟩), 0, Random.Range(⟨-8f⟩, ⟨8f⟩));
+Instantiate(⟨enemyPrefab⟩, ⟨pos⟩, Quaternion.identity);
+
+## プレイヤーを追いかける敵 | 追跡 敵 追いかける AI
+[SerializeField] Transform ⟨player⟩;
+[SerializeField] float ⟨speed⟩ = ⟨3f⟩;
+
+void Update()
+{
+    transform.LookAt(⟨player⟩);
+    transform.position = Vector3.MoveTowards(transform.position, ⟨player⟩.position, ⟨speed⟩ * Time.deltaTime);
+}
+
+## 経路を探して動く（NavMeshAgent） | NavMesh 経路 AI 移動
+using UnityEngine.AI;
+
+GetComponent<NavMeshAgent>().SetDestination(⟨target⟩.position);
+
+## 2 か所を行ったり来たり | 往復 PingPong 移動 床
+transform.position = Vector3.Lerp(⟨pointA⟩, ⟨pointB⟩, Mathf.PingPong(Time.time * ⟨speed⟩, 1));
+
+## アイテムを拾う | アイテム 拾う トリガー 取得
+void OnTriggerEnter(Collider ⟨other⟩)
+{
+    if (⟨other⟩.CompareTag("⟨Player⟩"))
+    {
+        ⟨⟩
+        Destroy(gameObject);
+    }
+}
+
+## ゲームオーバーの画面を出す | ゲームオーバー パネル 表示
+[SerializeField] GameObject ⟨gameOverPanel⟩;
+
+public void ⟨GameOver⟩()
+{
+    ⟨gameOverPanel⟩.SetActive(true);
+    Time.timeScale = 0;
+}
+
+## ゲームの状態を分ける | 状態 ステート enum switch
+enum ⟨State⟩ { ⟨Title⟩, ⟨Playing⟩, ⟨GameOver⟩ }
+⟨State⟩ ⟨state⟩ = ⟨State⟩.⟨Title⟩;
+
+void Update()
+{
+    switch (⟨state⟩)
+    {
+        case ⟨State⟩.⟨Playing⟩:
+            ⟨⟩
+            break;
+    }
+}
+
+## 出来事を知らせる（イベント） | event Action 通知 イベント
+public static event System.Action<int> ⟨OnScoreChanged⟩;
+
+⟨OnScoreChanged⟩?.Invoke(⟨score⟩);
+
+## インスペクターで呼ぶ処理を決める（UnityEvent） | UnityEvent イベント インスペクター
+using UnityEngine.Events;
+
+[SerializeField] UnityEvent ⟨onClear⟩;
+
+⟨onClear⟩.Invoke();
+
+## データ用のアセット（ScriptableObject） | ScriptableObject データ アセット 設定
+[CreateAssetMenu(menuName = "⟨Game/ItemData⟩")]
+public class ⟨ItemData⟩ : ScriptableObject
+{
+    public string ⟨itemName⟩;
+    public int ⟨price⟩;
+}
+
+@ C# 基本
+## 名前空間を使う（using） | using 名前空間 System
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+## コンソールアプリのひな形 | Main コンソール ひな形 Program
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        ⟨Console.WriteLine("こんにちは");⟩
+    }
+}
+
+## コンソールに表示・入力 | Console WriteLine ReadLine 表示 入力
+Console.WriteLine("⟨名前は？⟩");
+string ⟨name⟩ = Console.ReadLine();
+
+## 数を入力 | int.Parse 入力 数 変換
+int ⟨n⟩ = int.Parse(Console.ReadLine());
+
+## 文字列を数に（失敗してもエラーにしない） | TryParse 変換 失敗 数
+if (int.TryParse(⟨s⟩, out int ⟨n⟩))
+{
+    ⟨⟩
+}
+
+## 変数の型を自動で決める（var） | var 型推論 変数
+var ⟨items⟩ = new List<int>();
+
+## 値によって分ける（switch） | switch case 場合分け
+switch (⟨x⟩)
+{
+    case ⟨1⟩:
+        ⟨⟩
+        break;
+    default:
+        break;
+}
+
+## switch 式（1 行で値を決める） | switch 式 => パターン
+string ⟨label⟩ = ⟨score⟩ switch
+{
+    >= 80 => "A",
+    >= 60 => "B",
+    _ => "C",
+};
+
+## 1 行で条件分岐（三項演算子） | 三項 ? : 条件
+int ⟨max⟩ = ⟨a⟩ > ⟨b⟩ ? ⟨a⟩ : ⟨b⟩;
+
+## null なら既定値（??） | null ?? 既定値 合体
+string ⟨s⟩ = ⟨input⟩ ?? "⟨なし⟩";
+
+## null でないときだけたどる（?.） | null ?. 安全 参照
+int? ⟨len⟩ = ⟨s⟩?.Length;
+
+## 条件のあいだくり返す（while） | while ループ 条件
+while (⟨条件⟩)
+{
+    ⟨⟩
+}
+
+## 配列を作る | 配列 array new
+int[] ⟨nums⟩ = { ⟨1, 2, 3⟩ };
+string[] ⟨names⟩ = new string[⟨5⟩];
+
+## 2 次元配列 | 二次元 配列 表 [,]
+int[,] ⟨grid⟩ = new int[⟨3⟩, ⟨4⟩];
+⟨grid⟩[0, 1] = ⟨5⟩;
+
+## 配列の長さ・並べ替え | Length Array.Sort 並べ替え
+Array.Sort(⟨nums⟩);
+int ⟨n⟩ = ⟨nums⟩.Length;
+
+## 定数 | const readonly 定数
+const int ⟨Max⟩ = ⟨100⟩;
+
+## 選択肢を名前で決める（enum） | enum 列挙 定数
+enum ⟨Direction⟩ { ⟨Up⟩, ⟨Down⟩, ⟨Left⟩, ⟨Right⟩ }
+
+## 型を変換する（キャスト） | キャスト 変換 int float
+int ⟨i⟩ = (int)⟨3.7f⟩;
+float ⟨f⟩ = ⟨i⟩;
+
+## 小数の型（float と double） | float double f 小数
+float ⟨f⟩ = ⟨1.5f⟩;
+double ⟨d⟩ = ⟨1.5⟩;
+
+@ C# 文字列
+## 文字列の長さ・一部 | Length Substring 部分 長さ
+int ⟨len⟩ = ⟨s⟩.Length;
+string ⟨part⟩ = ⟨s⟩.Substring(⟨0⟩, ⟨3⟩);
+
+## 区切って分ける | Split 分割 カンマ
+string[] ⟨parts⟩ = ⟨s⟩.Split('⟨,⟩');
+
+## つなげる | Join 結合 つなげる
+string ⟨s⟩ = string.Join("⟨, ⟩", ⟨items⟩);
+
+## 置き換える・含むか | Replace Contains 置換 含む
+⟨s⟩ = ⟨s⟩.Replace("⟨古い⟩", "⟨新しい⟩");
+bool ⟨has⟩ = ⟨s⟩.Contains("⟨word⟩");
+
+## 前後の空白を取る・大文字に | Trim ToUpper ToLower
+⟨s⟩ = ⟨s⟩.Trim().ToUpper();
+
+## 空か調べる | IsNullOrEmpty IsNullOrWhiteSpace 空
+if (string.IsNullOrWhiteSpace(⟨s⟩))
+{
+    ⟨⟩
+}
+
+## 小数の桁をそろえる・0 で埋める | ToString F2 D3 書式 桁
+⟨x⟩.ToString("F2");    // 小数 2 けた
+⟨n⟩.ToString("D3");    // 007
+⟨n⟩.ToString("N0");    // 1,234
+
+## たくさんつなげるときは StringBuilder | StringBuilder 連結 速い
+var ⟨sb⟩ = new System.Text.StringBuilder();
+⟨sb⟩.Append("⟨abc⟩");
+string ⟨s⟩ = ⟨sb⟩.ToString();
+
+## 複数行の文字列 | 複数行 @ 逐語的 改行
+string ⟨text⟩ = @"⟨1 行目
+2 行目⟩";
+
+@ C# コレクション・LINQ
+## リストの便利な操作 | List Remove Contains Insert Sort
+⟨list⟩.Insert(0, ⟨x⟩);
+⟨list⟩.Remove(⟨x⟩);
+bool ⟨has⟩ = ⟨list⟩.Contains(⟨x⟩);
+⟨list⟩.Sort();
+
+## 辞書を順に取り出す | Dictionary foreach KeyValuePair
+foreach (var (⟨key⟩, ⟨value⟩) in ⟨dict⟩)
+{
+    Console.WriteLine($"{⟨key⟩}: {⟨value⟩}");
+}
+
+## 辞書にキーがあれば取り出す | TryGetValue 辞書 キー
+if (⟨dict⟩.TryGetValue("⟨key⟩", out var ⟨value⟩))
+{
+    ⟨⟩
+}
+
+## 重複しない集まり（HashSet） | HashSet 集合 重複なし
+var ⟨set⟩ = new HashSet<int>();
+⟨set⟩.Add(⟨1⟩);
+
+## 先に入れたものから取り出す（Queue） | Queue キュー 順番 Enqueue
+var ⟨q⟩ = new Queue<int>();
+⟨q⟩.Enqueue(⟨1⟩);
+int ⟨x⟩ = ⟨q⟩.Dequeue();
+
+## 後に入れたものから取り出す（Stack） | Stack スタック Push Pop
+var ⟨st⟩ = new Stack<int>();
+⟨st⟩.Push(⟨1⟩);
+int ⟨x⟩ = ⟨st⟩.Pop();
+
+## 条件で絞る（LINQ Where） | LINQ Where 絞り込み フィルタ
+var ⟨evens⟩ = ⟨nums⟩.Where(n => n % 2 == 0).ToList();
+
+## 全部変換する（LINQ Select） | LINQ Select 変換 map
+var ⟨names⟩ = ⟨people⟩.Select(p => p.⟨Name⟩).ToList();
+
+## 並べ替え（LINQ OrderBy） | LINQ OrderBy 並べ替え 降順
+var ⟨sorted⟩ = ⟨people⟩.OrderByDescending(p => p.⟨Score⟩).ToList();
+
+## 合計・平均・最大（LINQ） | LINQ Sum Average Max 合計
+int ⟨total⟩ = ⟨nums⟩.Sum();
+double ⟨avg⟩ = ⟨nums⟩.Average();
+int ⟨max⟩ = ⟨nums⟩.Max();
+
+## 最初の 1 つ・あるか（LINQ） | LINQ FirstOrDefault Any 探す
+var ⟨found⟩ = ⟨items⟩.FirstOrDefault(x => ⟨条件⟩);
+bool ⟨any⟩ = ⟨items⟩.Any(x => ⟨条件⟩);
+
+## 数える・重複をなくす（LINQ） | LINQ Count Distinct 重複
+int ⟨count⟩ = ⟨items⟩.Count(x => ⟨条件⟩);
+var ⟨unique⟩ = ⟨items⟩.Distinct().ToList();
+
+## グループに分ける（LINQ GroupBy） | LINQ GroupBy グループ 集計
+foreach (var ⟨g⟩ in ⟨people⟩.GroupBy(p => p.⟨Team⟩))
+{
+    Console.WriteLine($"{⟨g⟩.Key}: {⟨g⟩.Count()}");
+}
+
+## リストからランダムに 1 つ | ランダム 選ぶ リスト Random
+var ⟨pick⟩ = ⟨list⟩[UnityEngine.Random.Range(0, ⟨list⟩.Count)];
+
+## シャッフル | シャッフル ランダム 並べ替え
+var ⟨rng⟩ = new System.Random();
+var ⟨shuffled⟩ = ⟨list⟩.OrderBy(_ => ⟨rng⟩.Next()).ToList();
+
+@ C# クラス
+## クラスを作る | class クラス コンストラクタ
+public class ⟨Player⟩
+{
+    public string ⟨Name⟩ { get; set; }
+    public int ⟨Hp⟩ { get; private set; } = ⟨100⟩;
+
+    public ⟨Player⟩(string ⟨name⟩)
+    {
+        ⟨Name⟩ = ⟨name⟩;
+    }
+}
+
+## 継承 | 継承 : override virtual base
+public class ⟨Enemy⟩ : ⟨Character⟩
+{
+    public override void ⟨Attack⟩()
+    {
+        base.⟨Attack⟩();
+    }
+}
+
+## インターフェース | interface 約束 実装
+public interface ⟨IDamageable⟩
+{
+    void ⟨TakeDamage⟩(int ⟨amount⟩);
+}
+
+## インターフェースを持っていたら呼ぶ | is インターフェース パターン 型
+if (⟨other⟩.TryGetComponent(out ⟨IDamageable⟩ ⟨target⟩))
+{
+    ⟨target⟩.⟨TakeDamage⟩(⟨10⟩);
+}
+
+## 値をまとめる型（struct / record） | struct record データ
+public record ⟨Item⟩(string ⟨Name⟩, int ⟨Price⟩);
+
+## static なクラス・メソッド | static 静的 ユーティリティ
+public static class ⟨Util⟩
+{
+    public static int ⟨Twice⟩(int x) => x * 2;
+}
+
+## 1 行で書くメソッド（=>） | 式 => ラムダ メソッド
+int ⟨Square⟩(int x) => x * x;
+
+## 関数を変数に入れる（Action / Func） | Action Func ラムダ デリゲート
+System.Func<int, int, int> ⟨add⟩ = (a, b) => a + b;
+System.Action ⟨hello⟩ = () => Console.WriteLine("hi");
+
+## 複数の値を返す（タプル） | タプル 複数 戻り値
+(int ⟨min⟩, int ⟨max⟩) ⟨MinMax⟩(int[] ⟨a⟩) => (⟨a⟩.Min(), ⟨a⟩.Max());
+
+## どんな型でも使える（ジェネリクス） | ジェネリクス <T> generics
+T ⟨First⟩<T>(List<T> ⟨items⟩) => ⟨items⟩[0];
+
+@ C# ファイル・その他
+## ファイルを読む・書く | File ReadAllText WriteAllText
+using System.IO;
+
+string ⟨text⟩ = File.ReadAllText("⟨data.txt⟩");
+File.WriteAllText("⟨out.txt⟩", ⟨text⟩);
+
+## 1 行ずつ読む | ReadAllLines 行 ファイル
+foreach (string ⟨line⟩ in File.ReadAllLines("⟨data.txt⟩"))
+{
+    Console.WriteLine(⟨line⟩);
+}
+
+## ファイルの最後に追記 | AppendAllText 追記 ログ
+File.AppendAllText("⟨log.txt⟩", ⟨text⟩ + "\n");
+
+## ファイルがあるか | File.Exists 存在 確認
+if (File.Exists("⟨data.txt⟩"))
+{
+    ⟨⟩
+}
+
+## エラーを受け止める（try / catch） | try catch 例外 エラー
+try
+{
+    ⟨⟩
+}
+catch (Exception e)
+{
+    Console.WriteLine(e.Message);
+}
+
+## エラーを起こす | throw 例外 Exception
+throw new ArgumentException("⟨まちがった値です⟩");
+
+## 今の日時 | DateTime Now 日付 時刻
+DateTime ⟨now⟩ = DateTime.Now;
+Console.WriteLine(⟨now⟩.ToString("yyyy/MM/dd HH:mm"));
+
+## かかった時間を計る | Stopwatch 計測 時間
+var ⟨sw⟩ = System.Diagnostics.Stopwatch.StartNew();
+⟨⟩
+Console.WriteLine(⟨sw⟩.ElapsedMilliseconds);
+
+## 非同期で待つ（async / await） | async await Task 非同期 Delay
+async System.Threading.Tasks.Task ⟨WaitAsync⟩()
+{
+    await System.Threading.Tasks.Task.Delay(⟨1000⟩);
+}
+
+## 数学の関数（Mathf） | Mathf Abs Sqrt Pow 数学
+float ⟨a⟩ = Mathf.Abs(⟨x⟩);
+float ⟨r⟩ = Mathf.Sqrt(⟨x⟩);
+int ⟨i⟩ = Mathf.RoundToInt(⟨x⟩);
+
+## 小数の範囲のランダム | Random.Range 小数 乱数
+float ⟨f⟩ = Random.Range(⟨0f⟩, ⟨1f⟩);
+
+## 確率で分ける | 確率 Random.value パーセント
+if (Random.value < ⟨0.3f⟩)  // 30%
+{
+    ⟨⟩
+}

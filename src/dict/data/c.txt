@@ -1,0 +1,329 @@
+;; C の追加分
+
+@ 基本
+## 書式の指定（よく使うもの） | printf %d %f %s %c 書式
+printf("%d %.2f %s %c\n", ⟨n⟩, ⟨x⟩, ⟨s⟩, ⟨c⟩);
+
+## 小数を入力 | scanf double %lf 小数 入力
+double ⟨x⟩;
+scanf("%lf", &⟨x⟩);
+
+## 文字列（単語）を入力 | scanf %s 文字列 入力
+char ⟨name⟩[⟨64⟩];
+scanf("%63s", ⟨name⟩);
+
+## 1 行まるごと入力 | fgets 1行 入力 文字列 改行
+char ⟨line⟩[⟨256⟩];
+if (fgets(⟨line⟩, sizeof ⟨line⟩, stdin)) {
+    ⟨line⟩[strcspn(⟨line⟩, "\n")] = '\0';
+}
+
+## 入力がなくなるまで読む | scanf EOF 全部 読む
+int ⟨x⟩;
+while (scanf("%d", &⟨x⟩) == 1) {
+    ⟨⟩
+}
+
+## 1 文字ずつ表示・入力 | putchar getchar 文字
+int ⟨c⟩ = getchar();
+putchar(⟨c⟩);
+
+## 定数を決める | #define const 定数 マクロ
+#define ⟨MAX⟩ ⟨100⟩
+const int ⟨size⟩ = ⟨10⟩;
+
+## 真・偽の型（bool） | bool stdbool true false
+#include <stdbool.h>
+
+bool ⟨done⟩ = false;
+
+## 型を変換する（キャスト） | キャスト 変換 割り算 小数
+double ⟨avg⟩ = (double)⟨sum⟩ / ⟨n⟩;
+
+## 1 行で条件分岐（三項演算子） | 三項 ? : 条件
+int ⟨max⟩ = ⟨a⟩ > ⟨b⟩ ? ⟨a⟩ : ⟨b⟩;
+
+## 少なくとも 1 回くり返す（do-while） | do while 一回 ループ
+do {
+    ⟨⟩
+} while (⟨条件⟩);
+
+## 今回だけ飛ばす・抜ける | continue break ループ
+if (⟨条件⟩) continue;
+if (⟨条件2⟩) break;
+
+## 二重ループ（九九の表） | 二重 九九 入れ子
+for (int ⟨i⟩ = 1; ⟨i⟩ <= 9; ⟨i⟩++) {
+    for (int ⟨j⟩ = 1; ⟨j⟩ <= 9; ⟨j⟩++) {
+        printf("%3d", ⟨i⟩ * ⟨j⟩);
+    }
+    printf("\n");
+}
+
+## 列挙（enum） | enum 列挙 定数
+enum ⟨Color⟩ { ⟨RED⟩, ⟨GREEN⟩, ⟨BLUE⟩ };
+
+## 型に別名をつける（typedef） | typedef 別名 構造体
+typedef struct {
+    int ⟨x⟩;
+    int ⟨y⟩;
+} ⟨Point⟩;
+
+@ データ
+## 配列の要素の数 | sizeof 配列 長さ 要素数
+int ⟨n⟩ = sizeof ⟨arr⟩ / sizeof ⟨arr⟩[0];
+
+## 2 次元配列 | 二次元 配列 表 行列
+int ⟨grid⟩[⟨3⟩][⟨4⟩] = {0};
+⟨grid⟩[⟨1⟩][⟨2⟩] = ⟨5⟩;
+
+## 配列の最大値を探す | 最大 配列 探す
+int ⟨max⟩ = ⟨arr⟩[0];
+for (int i = 1; i < ⟨n⟩; i++) {
+    if (⟨arr⟩[i] > ⟨max⟩) ⟨max⟩ = ⟨arr⟩[i];
+}
+
+## 配列を並べ替え（qsort） | qsort 並べ替え ソート
+int ⟨cmp⟩(const void *a, const void *b) {
+    return *(const int *)a - *(const int *)b;
+}
+
+qsort(⟨arr⟩, ⟨n⟩, sizeof(int), ⟨cmp⟩);
+
+## バブルソート | バブルソート 並べ替え 入れ替え
+for (int i = 0; i < ⟨n⟩ - 1; i++) {
+    for (int j = 0; j < ⟨n⟩ - 1 - i; j++) {
+        if (⟨arr⟩[j] > ⟨arr⟩[j + 1]) {
+            int t = ⟨arr⟩[j];
+            ⟨arr⟩[j] = ⟨arr⟩[j + 1];
+            ⟨arr⟩[j + 1] = t;
+        }
+    }
+}
+
+## 配列から値を探す（線形探索） | 線形探索 探す 位置
+int ⟨found⟩ = -1;
+for (int i = 0; i < ⟨n⟩; i++) {
+    if (⟨arr⟩[i] == ⟨target⟩) {
+        ⟨found⟩ = i;
+        break;
+    }
+}
+
+## 二分探索 | 二分探索 探す 並んだ 速い
+int ⟨lo⟩ = 0, ⟨hi⟩ = ⟨n⟩ - 1;
+while (⟨lo⟩ <= ⟨hi⟩) {
+    int mid = (⟨lo⟩ + ⟨hi⟩) / 2;
+    if (⟨arr⟩[mid] == ⟨target⟩) break;
+    if (⟨arr⟩[mid] < ⟨target⟩) ⟨lo⟩ = mid + 1;
+    else ⟨hi⟩ = mid - 1;
+}
+
+## 配列をまとめてコピー・0 で埋める | memcpy memset コピー 初期化
+memcpy(⟨dst⟩, ⟨src⟩, sizeof ⟨src⟩);
+memset(⟨arr⟩, 0, sizeof ⟨arr⟩);
+
+## 文字列の長さ | strlen 長さ 文字数
+size_t ⟨len⟩ = strlen(⟨s⟩);
+
+## 文字列を数に | atoi strtol 変換 数
+int ⟨n⟩ = atoi(⟨s⟩);
+long ⟨l⟩ = strtol(⟨s⟩, NULL, 10);
+
+## 数を文字列に（snprintf） | snprintf 変換 文字列 書式
+char ⟨buf⟩[⟨32⟩];
+snprintf(⟨buf⟩, sizeof ⟨buf⟩, "%d", ⟨n⟩);
+
+## 文字列の中から探す | strstr strchr 探す 含む
+if (strstr(⟨s⟩, "⟨word⟩") != NULL) {
+    ⟨⟩
+}
+
+## 区切って分ける（strtok） | strtok 分割 カンマ
+for (char *⟨tok⟩ = strtok(⟨s⟩, ","); ⟨tok⟩ != NULL; ⟨tok⟩ = strtok(NULL, ",")) {
+    printf("%s\n", ⟨tok⟩);
+}
+
+## 大文字・小文字・数字か調べる | ctype isdigit isalpha toupper
+#include <ctype.h>
+
+if (isdigit(⟨c⟩)) {
+    ⟨⟩
+}
+char ⟨u⟩ = toupper(⟨c⟩);
+
+## 文字列を逆順にする | 逆順 反転 文字列
+for (size_t i = 0, j = strlen(⟨s⟩) - 1; i < j; i++, j--) {
+    char t = ⟨s⟩[i];
+    ⟨s⟩[i] = ⟨s⟩[j];
+    ⟨s⟩[j] = t;
+}
+
+## 構造体の配列 | 構造体 配列 名簿
+struct ⟨Student⟩ {
+    char ⟨name⟩[32];
+    int ⟨score⟩;
+};
+
+struct ⟨Student⟩ ⟨list⟩[] = {{"⟨たろう⟩", 80}, {"⟨はなこ⟩", 90}};
+
+## 構造体をポインタで使う（->） | ポインタ -> 構造体 アロー
+⟨Point⟩ *⟨p⟩ = &⟨pt⟩;
+⟨p⟩->⟨x⟩ = ⟨10⟩;
+
+## 伸びる配列（realloc） | realloc 動的 配列 追加
+int *⟨arr⟩ = NULL;
+size_t ⟨n⟩ = 0;
+⟨arr⟩ = realloc(⟨arr⟩, (⟨n⟩ + 1) * sizeof *⟨arr⟩);
+⟨arr⟩[⟨n⟩++] = ⟨x⟩;
+
+## 連結リスト | 連結リスト リスト ノード ポインタ
+typedef struct ⟨Node⟩ {
+    int ⟨value⟩;
+    struct ⟨Node⟩ *next;
+} ⟨Node⟩;
+
+⟨Node⟩ *⟨push⟩(⟨Node⟩ *head, int v) {
+    ⟨Node⟩ *n = malloc(sizeof *n);
+    n->⟨value⟩ = v;
+    n->next = head;
+    return n;
+}
+
+@ 関数
+## 配列を関数に渡す | 配列 引数 渡す ポインタ
+int ⟨sum⟩(const int ⟨arr⟩[], int ⟨n⟩) {
+    int ⟨total⟩ = 0;
+    for (int i = 0; i < ⟨n⟩; i++) ⟨total⟩ += ⟨arr⟩[i];
+    return ⟨total⟩;
+}
+
+## 関数の宣言（プロトタイプ） | プロトタイプ 宣言 前
+int ⟨add⟩(int a, int b);
+
+## 自分自身を呼ぶ関数（再帰） | 再帰 階乗 フィボナッチ
+int ⟨fact⟩(int ⟨n⟩) {
+    return ⟨n⟩ <= 1 ? 1 : ⟨n⟩ * ⟨fact⟩(⟨n⟩ - 1);
+}
+
+## 値を覚えておく変数（static） | static 静的 覚える 回数
+void ⟨counter⟩(void) {
+    static int ⟨count⟩ = 0;
+    ⟨count⟩++;
+    printf("%d 回目\n", ⟨count⟩);
+}
+
+## 関数を渡す（関数ポインタ） | 関数ポインタ コールバック
+int (*⟨op⟩)(int, int) = ⟨add⟩;
+int ⟨r⟩ = ⟨op⟩(⟨1⟩, ⟨2⟩);
+
+## コマンドラインの引数 | argc argv 引数 main
+int main(int argc, char *argv[]) {
+    for (int i = 1; i < argc; i++) {
+        printf("%s\n", argv[i]);
+    }
+    return 0;
+}
+
+@ 便利
+## ファイルに書く | fopen fprintf 書く 保存
+FILE *⟨fp⟩ = fopen("⟨out.txt⟩", "w");
+if (⟨fp⟩ == NULL) {
+    perror("fopen");
+    return 1;
+}
+fprintf(⟨fp⟩, "%d\n", ⟨n⟩);
+fclose(⟨fp⟩);
+
+## ファイルの最後に追記 | fopen a 追記
+FILE *⟨fp⟩ = fopen("⟨log.txt⟩", "a");
+
+## ファイルから数を読む | fscanf ファイル 数 読む
+int ⟨x⟩;
+while (fscanf(⟨fp⟩, "%d", &⟨x⟩) == 1) {
+    ⟨⟩
+}
+
+## 数学の関数 | math sqrt pow fabs 数学
+#include <math.h>
+
+double ⟨r⟩ = sqrt(⟨x⟩);
+double ⟨p⟩ = pow(⟨x⟩, 2);
+
+## 四捨五入・切り上げ・切り捨て | round ceil floor 四捨五入
+#include <math.h>
+
+round(⟨x⟩);
+ceil(⟨x⟩);
+floor(⟨x⟩);
+
+## 範囲のランダムな整数 | rand 範囲 乱数 サイコロ
+int ⟨n⟩ = rand() % (⟨max⟩ - ⟨min⟩ + 1) + ⟨min⟩;
+
+## 今の日時を表示 | time localtime strftime 日付
+#include <time.h>
+
+time_t ⟨t⟩ = time(NULL);
+char ⟨buf⟩[64];
+strftime(⟨buf⟩, sizeof ⟨buf⟩, "%Y/%m/%d %H:%M", localtime(&⟨t⟩));
+printf("%s\n", ⟨buf⟩);
+
+## かかった時間を計る | clock 計測 時間
+#include <time.h>
+
+clock_t ⟨start⟩ = clock();
+⟨⟩
+printf("%.3f 秒\n", (double)(clock() - ⟨start⟩) / CLOCKS_PER_SEC);
+
+## 少し待つ | sleep Sleep 待つ 秒
+#ifdef _WIN32
+#include <windows.h>
+#define sleep_sec(s) Sleep((s) * 1000)
+#else
+#include <unistd.h>
+#define sleep_sec(s) sleep(s)
+#endif
+
+## プログラムを終わらせる | exit 終了
+exit(⟨0⟩);
+
+## 素数か調べる | 素数 判定 prime
+int ⟨is_prime⟩(int ⟨n⟩) {
+    if (⟨n⟩ < 2) return 0;
+    for (int i = 2; i * i <= ⟨n⟩; i++) if (⟨n⟩ % i == 0) return 0;
+    return 1;
+}
+
+## 最大公約数 | gcd ユークリッド 最大公約数
+int ⟨gcd⟩(int a, int b) {
+    return b == 0 ? a : ⟨gcd⟩(b, a % b);
+}
+
+## 日本語を正しく表示（Windows） | 文字化け 日本語 Windows UTF-8 SetConsoleOutputCP
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+int main(void) {
+#ifdef _WIN32
+    SetConsoleOutputCP(65001);
+#endif
+    printf("こんにちは\n");
+    return 0;
+}
+
+## ビット演算 | ビット & | ^ << >> シフト
+int ⟨a⟩ = ⟨x⟩ & 1;    // 奇数なら 1
+int ⟨b⟩ = ⟨x⟩ << 1;   // 2 倍
+int ⟨c⟩ = ⟨x⟩ ^ ⟨y⟩;  // 排他的論理和
+
+## 2 進数で表示 | 2進数 ビット 表示
+for (int i = 7; i >= 0; i--) {
+    putchar((⟨n⟩ >> i) & 1 ? '1' : '0');
+}
+putchar('\n');
+
+## 条件が正しいか確かめる（assert） | assert 確認 テスト
+#include <assert.h>
+
+assert(⟨x⟩ > 0);

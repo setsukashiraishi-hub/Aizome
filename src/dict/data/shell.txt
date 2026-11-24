@@ -1,0 +1,313 @@
+;; シェル / PowerShell / コマンドプロンプト / Git の追加分
+
+@ PowerShell
+## 文字を表示 | Write-Host echo 表示
+Write-Host "⟨こんにちは⟩"
+
+## 変数を使う（PowerShell） | 変数 $ PowerShell
+$⟨name⟩ = "⟨たろう⟩"
+Write-Host "こんにちは、$⟨name⟩"
+
+## キーボードから入力 | Read-Host 入力
+$⟨answer⟩ = Read-Host "⟨名前は？⟩"
+
+## もし〜なら（PowerShell） | if elseif else -eq -gt 条件
+if ($⟨x⟩ -gt ⟨10⟩) {
+    ⟨⟩
+} elseif ($⟨x⟩ -eq 10) {
+
+} else {
+
+}
+
+## くり返す（PowerShell） | foreach for くり返し
+foreach ($⟨item⟩ in ⟨1..5⟩) {
+    Write-Host $⟨item⟩
+}
+
+## フォルダを作る・ファイルを作る | New-Item mkdir フォルダ ファイル 作成
+New-Item -ItemType Directory -Path "⟨folder⟩"
+New-Item -ItemType File -Path "⟨memo.txt⟩"
+
+## ファイルをコピー・移動・削除（PowerShell） | Copy-Item Move-Item Remove-Item
+Copy-Item "⟨a.txt⟩" "⟨b.txt⟩"
+Move-Item "⟨a.txt⟩" "⟨folder\⟩"
+Remove-Item "⟨b.txt⟩"
+
+## フォルダを中身ごと削除 | Remove-Item Recurse 削除 フォルダ
+Remove-Item "⟨folder⟩" -Recurse -Force
+
+## ファイルの中身を見る（PowerShell） | Get-Content cat 中身 表示
+Get-Content "⟨data.txt⟩" -Encoding UTF8
+
+## ファイルの最後の数行を見続ける（ログ） | Get-Content Tail Wait ログ
+Get-Content "⟨log.txt⟩" -Tail ⟨20⟩ -Wait
+
+## ファイルに書く・追記 | Set-Content Add-Content Out-File 書く
+Set-Content "⟨out.txt⟩" "⟨中身⟩" -Encoding UTF8
+Add-Content "⟨out.txt⟩" "⟨追記⟩"
+
+## 名前をまとめて変える | Rename-Item 一括 リネーム
+Get-ChildItem *.⟨txt⟩ | Rename-Item -NewName { "⟨new_⟩" + $_.Name }
+
+## 動いているプログラムを見る・止める（PowerShell） | Get-Process Stop-Process プロセス 終了
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
+Stop-Process -Name "⟨notepad⟩"
+
+## 使っているポートを調べる | netstat ポート 使用中 Get-NetTCPConnection
+Get-NetTCPConnection -LocalPort ⟨8000⟩
+
+## コマンドの場所を調べる | Get-Command where which 場所
+Get-Command ⟨python⟩
+
+## スクリプトを実行できるようにする | ExecutionPolicy 実行ポリシー ps1 許可
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+## 仮想環境を作って有効にする（Windows） | venv 仮想環境 Activate
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+## 文字化けを直す（UTF-8 にする） | 文字化け UTF-8 chcp 日本語
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+## 結果を絞り込む・並べ替える | Where-Object Sort-Object パイプ
+Get-ChildItem | Where-Object { $_.Length -gt ⟨1MB⟩ } | Sort-Object Length -Descending
+
+## 今の日時 | Get-Date 日付 時刻
+Get-Date -Format "yyyy-MM-dd HH:mm"
+
+## Web からファイルを取る | Invoke-WebRequest ダウンロード curl
+Invoke-WebRequest "⟨https://example.com/file.zip⟩" -OutFile "⟨file.zip⟩"
+
+## ZIP にまとめる・開く | Compress-Archive Expand-Archive ZIP
+Compress-Archive -Path "⟨folder⟩" -DestinationPath "⟨archive.zip⟩"
+Expand-Archive "⟨archive.zip⟩" -DestinationPath "⟨out⟩"
+
+## コンピューターの情報 | systeminfo OS バージョン 情報
+Get-ComputerInfo | Select-Object OsName, OsVersion
+
+## IP アドレスを調べる | ipconfig IP アドレス ネットワーク
+ipconfig
+
+## 前に打ったコマンドの一覧 | Get-History 履歴
+Get-History
+
+@ コマンドプロンプト
+## フォルダを移動・中身を見る（cmd） | cd dir フォルダ コマンドプロンプト
+cd ⟨folder⟩
+dir
+
+## 画面をきれいにする（cmd） | cls クリア 画面
+cls
+
+## ファイルをコピー・削除（cmd） | copy del コピー 削除
+copy ⟨a.txt⟩ ⟨b.txt⟩
+del ⟨b.txt⟩
+
+## フォルダを作る・消す（cmd） | mkdir rmdir フォルダ
+mkdir ⟨folder⟩
+rmdir /s /q ⟨folder⟩
+
+## ファイルの中身を見る（cmd） | type 中身 表示
+type ⟨data.txt⟩
+
+## 変数を使う（バッチファイル） | set 変数 バッチ %
+set ⟨NAME⟩=⟨たろう⟩
+echo こんにちは、%⟨NAME⟩%
+
+## 入力を受け取る（バッチファイル） | set /p 入力 バッチ
+set /p ⟨NAME⟩=⟨名前は？⟩
+echo %⟨NAME⟩%
+
+## もし〜なら（バッチファイル） | if exist バッチ 条件
+if exist "⟨data.txt⟩" (
+    echo あります
+) else (
+    echo ありません
+)
+
+## くり返す（バッチファイル） | for バッチ くり返し
+for %%⟨f⟩ in (*.⟨txt⟩) do echo %%⟨f⟩
+
+## 一時停止（何かキーを押すまで） | pause 一時停止 バッチ
+pause
+
+## 日本語を正しく表示（cmd） | chcp 65001 文字化け UTF-8
+chcp 65001
+
+@ シェル
+## 今いる場所・中身を見る | pwd ls 場所 一覧
+pwd
+ls -la
+
+## ファイルをコピー・移動・削除 | cp mv rm コピー 移動 削除
+cp ⟨a.txt⟩ ⟨b.txt⟩
+mv ⟨a.txt⟩ ⟨folder/⟩
+rm ⟨b.txt⟩
+
+## フォルダを作る・中身ごと消す | mkdir rm -r フォルダ
+mkdir -p ⟨folder/sub⟩
+rm -r ⟨folder⟩
+
+## ファイルの中身を見る | cat less head tail 中身
+cat ⟨data.txt⟩
+head -n ⟨10⟩ ⟨data.txt⟩
+tail -n ⟨10⟩ ⟨data.txt⟩
+
+## ファイルを探す（find） | find 探す ファイル 名前
+find ⟨.⟩ -name "⟨*.txt⟩"
+
+## 行数・文字数を数える | wc 行数 数える
+wc -l ⟨data.txt⟩
+
+## 並べ替えて重複を数える | sort uniq 並べ替え 重複 数える
+sort ⟨data.txt⟩ | uniq -c | sort -nr
+
+## 置き換えて表示（sed） | sed 置換 置き換え
+sed 's/⟨古い⟩/⟨新しい⟩/g' ⟨data.txt⟩
+
+## 列を取り出す（awk・cut） | awk cut 列 CSV
+cut -d, -f⟨2⟩ ⟨data.csv⟩
+awk '{ print $⟨1⟩ }' ⟨data.txt⟩
+
+## 結果をファイルに書く・追記 | > >> リダイレクト 保存
+⟨command⟩ > ⟨out.txt⟩
+⟨command⟩ >> ⟨out.txt⟩
+
+## 前のコマンドの結果を次に渡す（パイプ） | パイプ | つなぐ
+ls | grep "⟨txt⟩"
+
+## うまくいったら次を実行 | && || 続けて 実行
+⟨make⟩ && ⟨./app⟩
+
+## 実行できるようにする | chmod 権限 実行
+chmod +x ⟨script.sh⟩
+
+## スクリプトのひな形 | shebang bash スクリプト ひな形
+#!/usr/bin/env bash
+set -euo pipefail
+
+⟨echo "こんにちは"⟩
+
+## 関数を作る（シェル） | 関数 function シェル
+⟨greet⟩() {
+    echo "こんにちは、$1"
+}
+⟨greet⟩ "⟨たろう⟩"
+
+## 入力を受け取る（シェル） | read 入力 シェル
+read -rp "⟨名前は？⟩ " ⟨name⟩
+echo "$⟨name⟩"
+
+## 引数を使う（シェル） | 引数 $1 $@ スクリプト
+echo "1 つ目: $1"
+echo "全部: $@"
+echo "数: $#"
+
+## 計算する（シェル） | 計算 $(( )) 算術
+⟨n⟩=$(( ⟨3⟩ + ⟨4⟩ ))
+
+## コマンドの結果を変数に | $( ) 結果 変数
+⟨today⟩=$(date +%Y-%m-%d)
+
+## ファイルがあるか調べる（シェル） | -f -d test ファイル 存在
+if [ -f "⟨data.txt⟩" ]; then
+    echo "あります"
+fi
+
+## 1 行ずつ読んで処理（シェル） | while read 1行ずつ
+while IFS= read -r ⟨line⟩; do
+    echo "$⟨line⟩"
+done < ⟨data.txt⟩
+
+## ファイルごとに処理（シェル） | for ファイル 一括
+for ⟨f⟩ in *.⟨txt⟩; do
+    echo "$⟨f⟩"
+done
+
+## Web からファイルを取る（curl） | curl wget ダウンロード
+curl -L -o ⟨file.zip⟩ "⟨https://example.com/file.zip⟩"
+
+## ZIP・tar にまとめる・開く | zip tar 圧縮 展開
+tar czf ⟨archive.tar.gz⟩ ⟨folder⟩
+tar xzf ⟨archive.tar.gz⟩
+
+## 動いているプログラムを見る・止める | ps kill プロセス
+ps aux | grep ⟨python⟩
+kill ⟨PID⟩
+
+## 仮想環境を作って有効にする（Mac・Linux） | venv 仮想環境 activate
+python3 -m venv .venv
+source .venv/bin/activate
+
+## 環境変数を設定（シェル） | export 環境変数
+export ⟨API_KEY⟩="⟨xxxx⟩"
+
+## コマンドの場所 | which 場所 コマンド
+which ⟨python3⟩
+
+## 前に打ったコマンドを探す | history 履歴 Ctrl+R
+history | grep ⟨git⟩
+
+## ディスクの空きを調べる | df du 容量 空き
+df -h
+du -sh ⟨folder⟩
+
+@ Git
+## 最初の設定（名前とメール） | git config 名前 メール 設定
+git config --global user.name "⟨名前⟩"
+git config --global user.email "⟨mail@example.com⟩"
+
+## 新しく始める・取ってくる | git init clone 始める
+git init
+git clone ⟨https://github.com/user/repo.git⟩
+
+## 変えたものを記録する（add と commit） | git add commit 記録 保存
+git add .
+git commit -m "⟨変更の説明⟩"
+
+## 今の状態・変えたところを見る | git status diff 状態 差分
+git status
+git diff
+
+## 記録の一覧を見る | git log 履歴 一覧
+git log --oneline --graph
+
+## GitHub に送る・取ってくる | git push pull 送る 受け取る
+git push
+git pull
+
+## ブランチを作って切り替える | git branch switch ブランチ
+git switch -c ⟨feature⟩
+git switch ⟨main⟩
+
+## ブランチをまとめる | git merge まとめる 合流
+git merge ⟨feature⟩
+
+## 変えたところを元に戻す（まだ add していない） | git restore 戻す 取り消し
+git restore ⟨file.txt⟩
+
+## add を取り消す | git restore staged 取り消し
+git restore --staged ⟨file.txt⟩
+
+## 直前の commit のメッセージを直す | git commit amend 直す
+git commit --amend -m "⟨正しいメッセージ⟩"
+
+## 作業をいったんしまう | git stash しまう 一時保存
+git stash
+git stash pop
+
+## 送る先（リモート）を登録 | git remote add origin GitHub
+git remote add origin ⟨https://github.com/user/repo.git⟩
+git push -u origin ⟨main⟩
+
+## 記録しないファイルを決める（.gitignore） | gitignore 無視 除外
+;; .gitignore というファイルに書く
+.venv/
+__pycache__/
+node_modules/
+*.log
+
+## 版に名前をつける（タグ） | git tag タグ 版
+git tag ⟨v1.0.0⟩
+git push origin ⟨v1.0.0⟩

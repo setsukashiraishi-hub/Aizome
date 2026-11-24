@@ -1,0 +1,836 @@
+;; JavaScript / TypeScript の追加分
+
+@ 入出力
+## 表のように表示（console.table） | console.table 表 一覧 確認
+console.table(⟨items⟩);
+
+## 警告・エラーとして表示 | console.warn console.error 警告 エラー
+console.warn("⟨気をつけて⟩");
+console.error("⟨エラーです⟩");
+
+## 3 けたごとにカンマを入れる | toLocaleString カンマ 桁 金額
+⟨n⟩.toLocaleString();  // 1,234,567
+
+## お金の形で表示 | 通貨 円 Intl NumberFormat 金額
+new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY" }).format(⟨n⟩);
+
+## 確認の小窓（はい・いいえ） | confirm 確認 ダイアログ OK キャンセル
+if (confirm("⟨消しますか？⟩")) {
+    ⟨⟩
+}
+
+## かかった時間を計る | console.time 計測 時間 performance
+console.time("⟨計測⟩");
+⟨⟩
+console.timeEnd("⟨計測⟩");
+
+## まとめて表示（グループ） | console.group グループ 折りたたみ
+console.group("⟨見出し⟩");
+console.log(⟨x⟩);
+console.groupEnd();
+
+@ 変数・条件・繰り返し
+## 変えない値（const）と変える値（let） | const let 定数 再代入
+const ⟨MAX⟩ = ⟨100⟩;
+let ⟨count⟩ = 0;
+
+## 同じか比べる（=== を使う） | === 比較 等しい 厳密
+if (⟨a⟩ === ⟨b⟩) {
+    ⟨⟩
+}
+
+## どちらも・どちらか（&& ||） | && || かつ または 条件
+if (⟨a⟩ && (⟨b⟩ || ⟨c⟩)) {
+    ⟨⟩
+}
+
+## 中身があるときだけ動かす（&&） | && 短絡 あるときだけ
+⟨user⟩ && console.log(⟨user⟩.name);
+
+## なければ入れる（??=） | ??= ||= 既定値 代入
+⟨options⟩.⟨size⟩ ??= ⟨10⟩;
+
+## 逆の順にくり返す | 逆順 カウントダウン for
+for (let ⟨i⟩ = ⟨10⟩; ⟨i⟩ > 0; ⟨i⟩--) {
+    console.log(⟨i⟩);
+}
+
+## 番号つきで順に取り出す | entries 番号 インデックス for of
+for (const [⟨i⟩, ⟨item⟩] of ⟨items⟩.entries()) {
+    console.log(⟨i⟩, ⟨item⟩);
+}
+
+## 配列の中身を順に（forEach） | forEach 順に 全部
+⟨items⟩.forEach((⟨item⟩, ⟨i⟩) => {
+    console.log(⟨i⟩, ⟨item⟩);
+});
+
+## 少なくとも 1 回はくり返す（do-while） | do while 一回 ループ
+do {
+    ⟨⟩
+} while (⟨条件⟩);
+
+## 二重ループを一気に抜ける（ラベル） | ラベル break 二重 抜ける
+⟨outer⟩: for (const ⟨row⟩ of ⟨table⟩) {
+    for (const ⟨x⟩ of ⟨row⟩) {
+        if (⟨条件⟩) break ⟨outer⟩;
+    }
+}
+
+## 型を調べる（typeof） | typeof 型 判定 string number
+if (typeof ⟨x⟩ === "⟨string⟩") {
+    ⟨⟩
+}
+
+## 配列かどうか調べる | Array.isArray 配列 判定
+if (Array.isArray(⟨x⟩)) {
+    ⟨⟩
+}
+
+## 分割代入（まとめて取り出す） | 分割代入 destructuring 取り出す
+const { ⟨name⟩, ⟨age⟩ } = ⟨user⟩;
+const [⟨first⟩, ⟨second⟩] = ⟨items⟩;
+
+## 2 つの変数を入れ替える | 入れ替え swap 交換 分割代入
+[⟨a⟩, ⟨b⟩] = [⟨b⟩, ⟨a⟩];
+
+@ 文字列
+## 大文字・小文字にする | toUpperCase toLowerCase 大文字 小文字
+⟨s⟩.toUpperCase();
+⟨s⟩.toLowerCase();
+
+## 一部を取り出す | slice substring 切り出し 部分
+⟨s⟩.slice(⟨0⟩, ⟨3⟩);
+
+## 最後の n 文字 | slice 末尾 後ろ
+⟨s⟩.slice(-⟨3⟩);
+
+## 〜で始まる・終わるか | startsWith endsWith 先頭 末尾
+if (⟨s⟩.startsWith("⟨abc⟩")) {
+    ⟨⟩
+}
+
+## 位置を探す | indexOf 位置 何文字目 探す
+const ⟨i⟩ = ⟨s⟩.indexOf("⟨word⟩");  // ないと -1
+
+## 文字列をくり返す | repeat くり返し 線
+"⟨-⟩".repeat(⟨20⟩);
+
+## 逆順にする | 逆順 反転 reverse さかさま
+[...⟨s⟩].reverse().join("");
+
+## 1 文字ずつの配列に | 分解 文字 配列 スプレッド
+const ⟨chars⟩ = [...⟨s⟩];
+
+## n 番目の文字 | at charAt 文字 番目
+⟨s⟩.at(⟨0⟩);  // 最後は s.at(-1)
+
+## 文字コードに・文字コードから | charCodeAt fromCharCode codePointAt 文字コード
+"⟨A⟩".codePointAt(0);
+String.fromCodePoint(⟨65⟩);
+
+## 先頭だけ大文字に | 頭文字 大文字 capitalize
+⟨s⟩.charAt(0).toUpperCase() + ⟨s⟩.slice(1);
+
+## 数字だけか調べる | 数字 判定 正規表現 test
+if (/^\d+$/.test(⟨s⟩)) {
+    ⟨⟩
+}
+
+## 全角英数字を半角に | 全角 半角 normalize NFKC
+⟨s⟩ = ⟨s⟩.normalize("NFKC");
+
+## 複数行の文字列 | 複数行 テンプレート バッククォート
+const ⟨text⟩ = `⟨1 行目⟩
+⟨2 行目⟩`;
+
+## 文字列を数に（整数・小数） | parseInt parseFloat Number 変換
+parseInt(⟨s⟩, 10);
+parseFloat(⟨s⟩);
+
+## 小数の桁をそろえる | toFixed 小数 桁 四捨五入
+⟨x⟩.toFixed(⟨2⟩);
+
+## 数を 2 進数・16 進数の文字列に | toString 2進数 16進数 基数
+(⟨255⟩).toString(16);  // "ff"
+parseInt("⟨ff⟩", 16);   // 255
+
+## 文字列を比べて並べる（日本語） | localeCompare 比較 日本語 並べ替え
+⟨a⟩.localeCompare(⟨b⟩, "ja");
+
+## 正規表現で置き換える | replace 正規表現 置換 /g
+⟨s⟩ = ⟨s⟩.replace(/⟨\d+⟩/g, "⟨#⟩");
+
+## 正規表現で全部取り出す | match matchAll 正規表現 全部
+const ⟨nums⟩ = ⟨s⟩.match(/\d+/g) ?? [];
+
+## 正規表現でかっこの中を取り出す | exec グループ 正規表現 取り出す
+const ⟨m⟩ = /⟨(\d+)年(\d+)月⟩/.exec(⟨s⟩);
+if (⟨m⟩) console.log(⟨m⟩[1], ⟨m⟩[2]);
+
+## メールアドレスの形か調べる | メール 正規表現 判定 形式
+/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(⟨email⟩);
+
+## HTML の特別な文字を逃がす | エスケープ HTML & < > XSS
+const ⟨escapeHtml⟩ = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+@ 配列
+## 同じ値で n 個の配列を作る | fill 初期化 n個
+const ⟨items⟩ = new Array(⟨n⟩).fill(⟨0⟩);
+
+## 0 から n-1 までの配列 | 連番 Array.from keys range
+const ⟨nums⟩ = Array.from({ length: ⟨n⟩ }, (_, i) => i);
+
+## 2 次元配列を作る | 二次元 表 行列 Array.from
+const ⟨grid⟩ = Array.from({ length: ⟨rows⟩ }, () => new Array(⟨cols⟩).fill(⟨0⟩));
+
+## 先頭に追加・先頭を取り出す | unshift shift 先頭 追加
+⟨items⟩.unshift(⟨x⟩);
+const ⟨first⟩ = ⟨items⟩.shift();
+
+## 位置を指定して削除・追加 | splice 削除 挿入 位置
+⟨items⟩.splice(⟨i⟩, 1);          // i 番目を消す
+⟨items⟩.splice(⟨i⟩, 0, ⟨x⟩);     // i 番目に入れる
+
+## 一部を取り出す（元はそのまま） | slice 部分 コピー
+⟨items⟩.slice(⟨1⟩, ⟨3⟩);
+
+## 配列をつなげる | concat スプレッド 結合
+const ⟨all⟩ = [...⟨a⟩, ...⟨b⟩];
+
+## 配列をコピー | コピー スプレッド structuredClone
+const ⟨copy⟩ = [...⟨items⟩];  // 中身まで丸ごとなら structuredClone(items)
+
+## 最初・最後の要素 | 先頭 末尾 at 最後
+⟨items⟩[0];
+⟨items⟩.at(-1);
+
+## 何番目にあるか | indexOf findIndex 位置
+⟨items⟩.indexOf(⟨x⟩);
+⟨items⟩.findIndex((⟨v⟩) => ⟨条件⟩);
+
+## 全部が・どれかが条件に合うか | every some 全部 どれか
+⟨items⟩.every((⟨v⟩) => ⟨v⟩ > 0);
+⟨items⟩.some((⟨v⟩) => ⟨v⟩ < 0);
+
+## 最大・最小 | Math.max min 最大 最小 スプレッド
+Math.max(...⟨nums⟩);
+Math.min(...⟨nums⟩);
+
+## 平均 | 平均 reduce 合計
+const ⟨avg⟩ = ⟨nums⟩.reduce((a, b) => a + b, 0) / ⟨nums⟩.length;
+
+## 大きい順に並べ替え（数） | 降順 並べ替え sort 大きい順
+⟨nums⟩.sort((a, b) => b - a);
+
+## オブジェクトの配列を並べ替え | 並べ替え キー sort オブジェクト
+⟨people⟩.sort((a, b) => a.⟨age⟩ - b.⟨age⟩);
+
+## 元を変えずに並べ替え | toSorted 並べ替え 新しい
+const ⟨sorted⟩ = ⟨items⟩.toSorted((a, b) => a - b);
+
+## 配列を逆順にする | reverse 逆順 toReversed
+⟨items⟩.reverse();  // 元を変えないなら toReversed()
+
+## 平たくする（2 次元を 1 次元に） | flat flatMap 平坦
+⟨table⟩.flat();
+
+## 文字列につなげる | join つなげる 区切り
+⟨items⟩.join("⟨, ⟩");
+
+## n 個ずつに分ける | 分割 チャンク グループ
+const ⟨chunks⟩ = [];
+for (let i = 0; i < ⟨items⟩.length; i += ⟨3⟩) ⟨chunks⟩.push(⟨items⟩.slice(i, i + ⟨3⟩));
+
+## グループに分ける（Object.groupBy） | groupBy グループ 分類
+const ⟨groups⟩ = Object.groupBy(⟨people⟩, (p) => p.⟨team⟩);
+
+## 数を数える（出てきた回数） | 回数 数える カウント reduce
+const ⟨counts⟩ = {};
+for (const ⟨x⟩ of ⟨items⟩) ⟨counts⟩[⟨x⟩] = (⟨counts⟩[⟨x⟩] ?? 0) + 1;
+
+## シャッフル（ランダムに並べ替え） | シャッフル ランダム 並べ替え Fisher-Yates
+for (let i = ⟨items⟩.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [⟨items⟩[i], ⟨items⟩[j]] = [⟨items⟩[j], ⟨items⟩[i]];
+}
+
+## ランダムに 1 つ選ぶ | ランダム 選ぶ 抽選
+const ⟨pick⟩ = ⟨items⟩[Math.floor(Math.random() * ⟨items⟩.length)];
+
+## 2 つの配列に共通するもの | 共通 積集合 filter includes
+const ⟨common⟩ = ⟨a⟩.filter((x) => ⟨b⟩.includes(x));
+
+## 2 つの配列を組にする（zip） | zip 組 同時 ペア
+const ⟨pairs⟩ = ⟨a⟩.map((x, i) => [x, ⟨b⟩[i]]);
+
+## 配列を空にする | 空 クリア length 0
+⟨items⟩.length = 0;
+
+@ オブジェクト
+## オブジェクトを作る | オブジェクト 連想配列 辞書 キー
+const ⟨user⟩ = { ⟨name⟩: "⟨たろう⟩", ⟨age⟩: ⟨15⟩ };
+
+## キーで値を取り出す・入れる | プロパティ キー [] 取り出す
+⟨user⟩.⟨name⟩;
+⟨user⟩["⟨age⟩"] = ⟨16⟩;
+
+## キーがあるか調べる | in hasOwn キー 存在
+if ("⟨name⟩" in ⟨user⟩) {
+    ⟨⟩
+}
+
+## キーを消す | delete キー 削除
+delete ⟨user⟩.⟨age⟩;
+
+## キー・値の一覧 | Object.keys values entries 一覧
+Object.keys(⟨obj⟩);
+Object.values(⟨obj⟩);
+Object.entries(⟨obj⟩);
+
+## 2 つのオブジェクトをまとめる | スプレッド マージ assign 結合
+const ⟨merged⟩ = { ...⟨a⟩, ...⟨b⟩ };
+
+## 一部を変えた新しいオブジェクト | スプレッド コピー 変更
+const ⟨updated⟩ = { ...⟨user⟩, ⟨age⟩: ⟨16⟩ };
+
+## [キー, 値] の配列からオブジェクトを作る | fromEntries 変換 オブジェクト
+const ⟨obj⟩ = Object.fromEntries(⟨pairs⟩);
+
+## オブジェクトの値を全部変換 | 変換 map entries fromEntries
+const ⟨doubled⟩ = Object.fromEntries(Object.entries(⟨obj⟩).map(([k, v]) => [k, v * 2]));
+
+## 書き換えられないようにする | freeze 定数 変更禁止
+const ⟨CONFIG⟩ = Object.freeze({ ⟨debug⟩: false });
+
+## 変数名をそのままキーにする | 省略 プロパティ ショートハンド
+const ⟨point⟩ = { ⟨x⟩, ⟨y⟩ };
+
+## 深くコピーする | structuredClone 深いコピー JSON
+const ⟨copy⟩ = structuredClone(⟨obj⟩);
+
+## Map（キーに何でも使える辞書） | Map 辞書 set get has
+const ⟨m⟩ = new Map();
+⟨m⟩.set("⟨key⟩", ⟨1⟩);
+⟨m⟩.get("⟨key⟩");
+⟨m⟩.has("⟨key⟩");
+
+## Map を順に取り出す | Map for of entries 順に
+for (const [⟨k⟩, ⟨v⟩] of ⟨m⟩) {
+    console.log(⟨k⟩, ⟨v⟩);
+}
+
+## Set（重複しない集まり） | Set 集合 重複なし add has
+const ⟨s⟩ = new Set();
+⟨s⟩.add(⟨1⟩);
+⟨s⟩.has(⟨1⟩);
+⟨s⟩.size;
+
+@ 関数・クラス
+## 引数の初期値 | 既定値 デフォルト 引数
+function ⟨greet⟩(⟨name⟩ = "⟨ゲスト⟩") {
+    return `こんにちは、${⟨name⟩}`;
+}
+
+## いくつでも引数を受け取る | 可変長 ...args 残り引数
+function ⟨sum⟩(...⟨nums⟩) {
+    return ⟨nums⟩.reduce((a, b) => a + b, 0);
+}
+
+## オブジェクトで引数を受け取る | 分割代入 引数 オプション
+function ⟨create⟩({ ⟨name⟩, ⟨age⟩ = 0 }) {
+    ⟨⟩
+}
+
+## 自分自身を呼ぶ関数（再帰） | 再帰 階乗 recursion
+function ⟨fact⟩(⟨n⟩) {
+    return ⟨n⟩ <= 1 ? 1 : ⟨n⟩ * ⟨fact⟩(⟨n⟩ - 1);
+}
+
+## 関数を返す関数（クロージャ） | クロージャ カウンター closure
+function ⟨makeCounter⟩() {
+    let ⟨n⟩ = 0;
+    return () => ++⟨n⟩;
+}
+
+## クラスを受け継ぐ（継承） | 継承 extends super
+class ⟨Dog⟩ extends ⟨Animal⟩ {
+    constructor(⟨name⟩) {
+        super(⟨name⟩);
+    }
+    ⟨speak⟩() {
+        return "ワン";
+    }
+}
+
+## 読むだけ・書くときの処理（get / set） | getter setter プロパティ
+class ⟨Circle⟩ {
+    constructor(⟨r⟩) {
+        this.⟨r⟩ = ⟨r⟩;
+    }
+    get ⟨area⟩() {
+        return Math.PI * this.⟨r⟩ ** 2;
+    }
+}
+
+## クラスの外から見えない値（#） | private # 隠す フィールド
+class ⟨Account⟩ {
+    #⟨balance⟩ = 0;
+    ⟨deposit⟩(⟨n⟩) {
+        this.#⟨balance⟩ += ⟨n⟩;
+    }
+}
+
+## インスタンスを作らずに呼べる（static） | static 静的 メソッド
+class ⟨MathUtil⟩ {
+    static ⟨add⟩(a, b) {
+        return a + b;
+    }
+}
+
+## 何回も呼ばれても最後だけ動かす（debounce） | debounce 間引き 入力
+function ⟨debounce⟩(fn, ms) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+    };
+}
+
+## ほかのファイルから読み込む（import / export） | import export モジュール
+export function ⟨add⟩(a, b) {
+    return a + b;
+}
+// 使う側：import { ⟨add⟩ } from "./⟨math.js⟩";
+
+@ 非同期・通信
+## Promise を作る | Promise resolve reject 非同期
+const ⟨p⟩ = new Promise((resolve, reject) => {
+    ⟨⟩
+    resolve(⟨value⟩);
+});
+
+## 全部終わるのを待つ（Promise.all） | Promise.all 同時 並列 全部
+const [⟨a⟩, ⟨b⟩] = await Promise.all([⟨fetchA()⟩, ⟨fetchB()⟩]);
+
+## 失敗したものがあっても全部待つ | allSettled 全部 失敗 結果
+const ⟨results⟩ = await Promise.allSettled(⟨promises⟩);
+
+## データを POST で送る | fetch POST 送信 JSON
+const ⟨res⟩ = await fetch("⟨/api/items⟩", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(⟨data⟩),
+});
+
+## 通信がうまくいったか調べる | fetch ok status エラー
+if (!⟨res⟩.ok) throw new Error(`通信エラー: ${⟨res⟩.status}`);
+
+## 時間がかかりすぎたら止める | タイムアウト AbortSignal fetch
+const ⟨res⟩ = await fetch(⟨url⟩, { signal: AbortSignal.timeout(⟨5000⟩) });
+
+## 一定時間ごとのくり返しを止める | clearInterval 止める タイマー
+const ⟨id⟩ = setInterval(⟨tick⟩, ⟨1000⟩);
+clearInterval(⟨id⟩);
+
+## なめらかに動かす（アニメーション） | requestAnimationFrame アニメーション ループ
+function ⟨loop⟩(⟨time⟩) {
+    ⟨⟩
+    requestAnimationFrame(⟨loop⟩);
+}
+requestAnimationFrame(⟨loop⟩);
+
+## 画像などのファイルを読み込む（ブラウザ） | FileReader ファイル 読み込み input file
+⟨input⟩.addEventListener("change", async () => {
+    const ⟨file⟩ = ⟨input⟩.files[0];
+    const ⟨text⟩ = await ⟨file⟩.text();
+});
+
+@ 画面（ブラウザ）
+## 条件に合う要素を全部 | querySelectorAll 全部 複数 要素
+document.querySelectorAll("⟨.item⟩").forEach((⟨el⟩) => {
+    ⟨⟩
+});
+
+## 入力欄の値を読む・入れる | value 入力欄 input 値
+const ⟨v⟩ = document.querySelector("⟨#name⟩").value;
+
+## 入力されるたびに動かす | input イベント 入力 リアルタイム
+⟨input⟩.addEventListener("input", (e) => {
+    console.log(e.target.value);
+});
+
+## フォームを送らずに処理する | submit preventDefault フォーム
+⟨form⟩.addEventListener("submit", (e) => {
+    e.preventDefault();
+    ⟨⟩
+});
+
+## キーが押されたら動かす | keydown キー キーボード イベント
+document.addEventListener("keydown", (e) => {
+    if (e.key === "⟨Enter⟩") {
+        ⟨⟩
+    }
+});
+
+## マウスの位置 | mousemove マウス 位置 座標
+document.addEventListener("mousemove", (e) => {
+    console.log(e.clientX, e.clientY);
+});
+
+## ページを読み込み終わってから動かす | DOMContentLoaded 読み込み 準備
+document.addEventListener("DOMContentLoaded", () => {
+    ⟨⟩
+});
+
+## スタイルを変える | style 色 大きさ CSS 変更
+⟨el⟩.style.⟨color⟩ = "⟨red⟩";
+
+## 表示・非表示を切り替える | hidden 表示 非表示 隠す
+⟨el⟩.hidden = !⟨el⟩.hidden;
+
+## HTML ごと書き換える | innerHTML 書き換え HTML
+⟨el⟩.innerHTML = `<b>${⟨name⟩}</b>`;
+
+## 要素を消す | remove 削除 要素
+⟨el⟩.remove();
+
+## 属性を読む・入れる | getAttribute setAttribute dataset 属性
+⟨el⟩.setAttribute("⟨src⟩", ⟨url⟩);
+⟨el⟩.dataset.⟨id⟩;  // data-id
+
+## リストを画面に並べる | 一覧 リスト 表示 生成
+⟨list⟩.innerHTML = "";
+for (const ⟨item⟩ of ⟨items⟩) {
+    const li = document.createElement("li");
+    li.textContent = ⟨item⟩;
+    ⟨list⟩.append(li);
+}
+
+## 別のページへ移動 | location 移動 遷移 ページ
+location.href = "⟨next.html⟩";
+
+## URL の ? のあとを読む | URLSearchParams クエリ パラメータ
+const ⟨params⟩ = new URLSearchParams(location.search);
+const ⟨id⟩ = ⟨params⟩.get("⟨id⟩");
+
+## 一番上へスクロール | scrollTo スクロール 上へ
+window.scrollTo({ top: 0, behavior: "smooth" });
+
+## 要素が見えるところまでスクロール | scrollIntoView スクロール 表示
+⟨el⟩.scrollIntoView({ behavior: "smooth" });
+
+## クリップボードにコピー | clipboard コピー writeText
+await navigator.clipboard.writeText(⟨text⟩);
+
+## ブラウザに保存したものを読む・消す | localStorage getItem removeItem
+const ⟨saved⟩ = JSON.parse(localStorage.getItem("⟨key⟩") ?? "null");
+localStorage.removeItem("⟨key⟩");
+
+## 音を鳴らす | Audio 音 play 効果音
+new Audio("⟨se.mp3⟩").play();
+
+## 画面の幅・高さ | innerWidth innerHeight 画面 サイズ
+window.innerWidth;
+window.innerHeight;
+
+## 画面の大きさが変わったとき | resize イベント 大きさ
+window.addEventListener("resize", () => {
+    ⟨⟩
+});
+
+## ファイルとしてダウンロードさせる | ダウンロード Blob 保存 a
+const ⟨blob⟩ = new Blob([⟨text⟩], { type: "text/plain" });
+const a = document.createElement("a");
+a.href = URL.createObjectURL(⟨blob⟩);
+a.download = "⟨data.txt⟩";
+a.click();
+
+## 図を描く（canvas） | canvas 描く 四角 丸 2d
+const ⟨ctx⟩ = document.querySelector("⟨canvas⟩").getContext("2d");
+⟨ctx⟩.fillStyle = "⟨skyblue⟩";
+⟨ctx⟩.fillRect(⟨10⟩, ⟨10⟩, ⟨100⟩, ⟨50⟩);
+⟨ctx⟩.beginPath();
+⟨ctx⟩.arc(⟨200⟩, ⟨60⟩, ⟨30⟩, 0, Math.PI * 2);
+⟨ctx⟩.fill();
+
+## canvas に文字を書く | canvas 文字 fillText font
+⟨ctx⟩.font = "⟨24px sans-serif⟩";
+⟨ctx⟩.fillText("⟨SCORE: 0⟩", ⟨10⟩, ⟨30⟩);
+
+## canvas を消す | canvas クリア clearRect 消す
+⟨ctx⟩.clearRect(0, 0, ⟨canvas⟩.width, ⟨canvas⟩.height);
+
+## canvas に画像を描く | canvas 画像 drawImage
+const ⟨img⟩ = new Image();
+⟨img⟩.src = "⟨player.png⟩";
+⟨img⟩.onload = () => ⟨ctx⟩.drawImage(⟨img⟩, ⟨x⟩, ⟨y⟩);
+
+## 四角どうしがぶつかったか | 当たり判定 衝突 矩形 ゲーム
+const ⟨hit⟩ = ⟨a⟩.x < ⟨b⟩.x + ⟨b⟩.w && ⟨a⟩.x + ⟨a⟩.w > ⟨b⟩.x && ⟨a⟩.y < ⟨b⟩.y + ⟨b⟩.h && ⟨a⟩.y + ⟨a⟩.h > ⟨b⟩.y;
+
+## 押されているキーを覚えておく（ゲーム） | キー 押しっぱなし ゲーム 移動
+const ⟨keys⟩ = {};
+addEventListener("keydown", (e) => (⟨keys⟩[e.key] = true));
+addEventListener("keyup", (e) => (⟨keys⟩[e.key] = false));
+// ループの中で：if (keys["ArrowLeft"]) x -= 5;
+
+@ 数学・乱数
+## 範囲のランダムな整数 | 乱数 範囲 整数 random
+const ⟨n⟩ = Math.floor(Math.random() * (⟨max⟩ - ⟨min⟩ + 1)) + ⟨min⟩;
+
+## 四捨五入・切り上げ・切り捨て | round ceil floor trunc 四捨五入
+Math.round(⟨x⟩);
+Math.ceil(⟨x⟩);
+Math.floor(⟨x⟩);
+
+## 小数第 n 位で四捨五入 | 四捨五入 小数 桁 round
+Math.round(⟨x⟩ * 100) / 100;
+
+## べき乗・平方根 | ** pow sqrt べき乗 平方根
+⟨x⟩ ** 2;
+Math.sqrt(⟨x⟩);
+
+## 絶対値 | abs 絶対値
+Math.abs(⟨x⟩);
+
+## 割り算の余り（マイナスでも 0 以上） | 余り % mod 負
+((⟨a⟩ % ⟨n⟩) + ⟨n⟩) % ⟨n⟩;
+
+## 範囲におさめる | clamp 範囲 制限 おさめる
+const ⟨v⟩ = Math.min(Math.max(⟨x⟩, ⟨lo⟩), ⟨hi⟩);
+
+## 2 点の距離 | 距離 hypot ピタゴラス
+Math.hypot(⟨x2⟩ - ⟨x1⟩, ⟨y2⟩ - ⟨y1⟩);
+
+## 角度をラジアンに | ラジアン 角度 度 三角関数 sin
+Math.sin((⟨30⟩ * Math.PI) / 180);
+
+## 2 点を結ぶ向き（角度） | atan2 角度 向き
+const ⟨angle⟩ = Math.atan2(⟨dy⟩, ⟨dx⟩);
+
+## 数かどうか調べる | isNaN Number.isFinite 数 判定
+if (Number.isFinite(Number(⟨s⟩))) {
+    ⟨⟩
+}
+
+## 整数かどうか | isInteger 整数 判定
+Number.isInteger(⟨x⟩);
+
+## 最大公約数 | gcd 最大公約数 ユークリッド
+const ⟨gcd⟩ = (a, b) => (b === 0 ? a : ⟨gcd⟩(b, a % b));
+
+## 素数か調べる | 素数 prime 判定
+function ⟨isPrime⟩(⟨n⟩) {
+    if (⟨n⟩ < 2) return false;
+    for (let i = 2; i * i <= ⟨n⟩; i++) if (⟨n⟩ % i === 0) return false;
+    return true;
+}
+
+## とても大きな整数（BigInt） | BigInt 大きい数 n
+const ⟨big⟩ = ⟨2n⟩ ** ⟨100n⟩;
+
+## 小数の誤差に気をつけて比べる | 誤差 EPSILON 比較 小数
+Math.abs(⟨a⟩ - ⟨b⟩) < Number.EPSILON;
+
+@ 日付・時刻
+## 日付を好きな形で表示 | 日付 表示 書式 年月日
+const ⟨d⟩ = new Date();
+`${⟨d⟩.getFullYear()}年${⟨d⟩.getMonth() + 1}月${⟨d⟩.getDate()}日`;
+
+## 日本の形で日付・時刻を表示 | toLocaleString 日本 日付 時刻
+new Date().toLocaleString("ja-JP");
+
+## 曜日 | 曜日 getDay 何曜日
+"日月火水木金土"[new Date().getDay()];
+
+## 何日後・何日前 | 日後 日前 足す setDate
+const ⟨d⟩ = new Date();
+⟨d⟩.setDate(⟨d⟩.getDate() + ⟨7⟩);
+
+## 2 つの日付の差（何日） | 差 日数 何日 引き算
+const ⟨days⟩ = Math.floor((⟨d2⟩ - ⟨d1⟩) / (1000 * 60 * 60 * 24));
+
+## 文字列から日付に | Date 文字列 変換 parse
+const ⟨d⟩ = new Date("⟨2025-04-01T09:00:00⟩");
+
+## 今の時刻（ミリ秒） | Date.now ミリ秒 時刻 タイムスタンプ
+const ⟨t⟩ = Date.now();
+
+## 時・分・秒を 2 けたで | padStart 時計 2桁 時刻
+const ⟨d⟩ = new Date();
+[⟨d⟩.getHours(), ⟨d⟩.getMinutes(), ⟨d⟩.getSeconds()].map((n) => String(n).padStart(2, "0")).join(":");
+
+@ エラー処理
+## エラーを受け止める（try / catch） | try catch エラー 例外
+try {
+    ⟨⟩
+} catch (e) {
+    console.error(e.message);
+}
+
+## 必ず最後にやる（finally） | finally 後片付け 必ず
+try {
+    ⟨⟩
+} finally {
+    ⟨⟩
+}
+
+## エラーを自分で起こす | throw Error エラー 起こす
+throw new Error("⟨まちがった値です⟩");
+
+## 自分用のエラーの種類 | カスタムエラー extends Error クラス
+class ⟨MyError⟩ extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "⟨MyError⟩";
+    }
+}
+
+## JSON の読み込みに失敗したとき | JSON.parse エラー 失敗 try
+let ⟨data⟩;
+try {
+    ⟨data⟩ = JSON.parse(⟨text⟩);
+} catch {
+    ⟨data⟩ = ⟨null⟩;
+}
+
+## 止めてデバッグする（debugger） | debugger デバッグ 止める
+debugger;
+
+@ Node.js
+## フォルダの中のファイル一覧 | readdir ファイル 一覧 fs
+import { readdirSync } from "node:fs";
+
+for (const ⟨name⟩ of readdirSync("⟨.⟩")) console.log(⟨name⟩);
+
+## ファイルがあるか調べる | existsSync 存在 ファイル
+import { existsSync } from "node:fs";
+
+if (existsSync("⟨data.txt⟩")) {
+    ⟨⟩
+}
+
+## フォルダを作る | mkdir フォルダ 作成 recursive
+import { mkdirSync } from "node:fs";
+
+mkdirSync("⟨out/sub⟩", { recursive: true });
+
+## JSON ファイルを読む・書く | JSON ファイル 読む 書く fs
+import { readFileSync, writeFileSync } from "node:fs";
+
+const ⟨data⟩ = JSON.parse(readFileSync("⟨data.json⟩", "utf8"));
+writeFileSync("⟨data.json⟩", JSON.stringify(⟨data⟩, null, 2));
+
+## パスをつなげる | path join パス 結合
+import path from "node:path";
+
+const ⟨p⟩ = path.join("⟨folder⟩", "⟨file.txt⟩");
+
+## コマンドラインの引数 | process.argv 引数 コマンド
+const ⟨args⟩ = process.argv.slice(2);
+
+## 環境変数を読む | process.env 環境変数
+const ⟨key⟩ = process.env.⟨API_KEY⟩ ?? "";
+
+## キーボードから 1 行入力（Node.js） | readline 入力 question
+import readline from "node:readline/promises";
+
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const ⟨answer⟩ = await rl.question("⟨名前は？⟩ ");
+rl.close();
+
+## 入力を全部読む（競プロ） | 標準入力 stdin 競プロ 全部
+import { readFileSync } from "node:fs";
+
+const ⟨lines⟩ = readFileSync(0, "utf8").trim().split("\n");
+
+## プログラムを終わらせる | exit 終了 process
+process.exit(⟨0⟩);
+
+## 簡単な Web サーバー | http サーバー server listen
+import http from "node:http";
+
+http.createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("⟨こんにちは⟩");
+}).listen(⟨3000⟩);
+
+## コマンドを実行する | child_process execSync コマンド
+import { execSync } from "node:child_process";
+
+const ⟨out⟩ = execSync("⟨node --version⟩", { encoding: "utf8" });
+
+@ TypeScript
+## 型の形を決める（interface） | interface 型 定義 オブジェクト
+interface ⟨User⟩ {
+    ⟨name⟩: string;
+    ⟨age⟩?: number;
+}
+
+## 型に名前をつける（type） | type 型 エイリアス ユニオン
+type ⟨Status⟩ = "⟨ok⟩" | "⟨error⟩";
+
+## 配列・オブジェクトの型 | 型 配列 Record
+const ⟨nums⟩: number[] = [];
+const ⟨scores⟩: Record<string, number> = {};
+
+## どんな型でも使える関数（ジェネリクス） | ジェネリクス generics <T>
+function ⟨first⟩<T>(⟨items⟩: T[]): T | undefined {
+    return ⟨items⟩[0];
+}
+
+## 選択肢を名前で決める（enum） | enum 列挙 定数
+enum ⟨Color⟩ {
+    ⟨Red⟩,
+    ⟨Green⟩,
+}
+
+## 関数の型 | 関数 型 引数 戻り値
+const ⟨add⟩ = (a: number, b: number): number => a + b;
+
+## 型を確かめて分ける（型ガード） | 型ガード typeof in 絞り込み
+function ⟨show⟩(⟨x⟩: string | number) {
+    if (typeof ⟨x⟩ === "string") {
+        return ⟨x⟩.toUpperCase();
+    }
+    return ⟨x⟩.toFixed(2);
+}
+
+## 一部だけ・読むだけの型 | Partial Readonly Pick Omit ユーティリティ型
+type ⟨Draft⟩ = Partial<⟨User⟩>;
+type ⟨Fixed⟩ = Readonly<⟨User⟩>;
+
+## 書き換えない配列・値（as const） | as const 定数 readonly
+const ⟨COLORS⟩ = ["⟨red⟩", "⟨blue⟩"] as const;
+
+@ React
+## 関数コンポーネント | React コンポーネント JSX
+export function ⟨Hello⟩({ ⟨name⟩ }) {
+    return <p>こんにちは、{⟨name⟩}</p>;
+}
+
+## 変わる値を持つ（useState） | useState 状態 state カウンター
+const [⟨count⟩, ⟨setCount⟩] = useState(⟨0⟩);
+// <button onClick={() => setCount(count + 1)}>{count}</button>
+
+## 表示されたときに動かす（useEffect） | useEffect 副作用 読み込み
+useEffect(() => {
+    ⟨⟩
+    return () => {
+        // 後片付け
+    };
+}, [⟨⟩]);
+
+## 配列を並べて表示 | map key 一覧 リスト React
+<ul>
+    {⟨items⟩.map((⟨item⟩) => (
+        <li key={⟨item⟩.id}>{⟨item⟩.name}</li>
+    ))}
+</ul>
+
+## 条件で表示を分ける | 条件 表示 三項 && React
+{⟨isLoggedIn⟩ ? <p>ようこそ</p> : <button>ログイン</button>}
+
+## 入力欄と値をつなぐ | input value onChange フォーム React
+<input value={⟨text⟩} onChange={(e) => ⟨setText⟩(e.target.value)} />

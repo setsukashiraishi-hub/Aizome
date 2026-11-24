@@ -1,0 +1,427 @@
+;; CSS の追加分
+
+@ 配置
+## 縦に並べる（flex） | flex column 縦 並べる
+.⟨box⟩ {
+    display: flex;
+    flex-direction: column;
+    gap: ⟨8px⟩;
+}
+
+## 両はしに寄せる | space-between 両端 flex
+.⟨box⟩ {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+## はみ出したら折り返す（flex） | flex-wrap 折り返し 並べる
+.⟨box⟩ {
+    display: flex;
+    flex-wrap: wrap;
+    gap: ⟨16px⟩;
+}
+
+## 残りの幅をいっぱいに使う | flex 1 伸ばす 残り
+.⟨main⟩ {
+    flex: 1;
+}
+
+## 画面の幅に合わせて自動で並べる（grid） | grid auto-fill minmax カード 自動
+.⟨cards⟩ {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(⟨200px⟩, 1fr));
+    gap: ⟨16px⟩;
+}
+
+## 2 列に分ける（サイドバーと本文） | grid 2列 サイドバー レイアウト
+.⟨layout⟩ {
+    display: grid;
+    grid-template-columns: ⟨240px⟩ 1fr;
+    gap: ⟨24px⟩;
+}
+
+## grid で場所に名前をつける | grid-template-areas 名前 レイアウト
+.⟨page⟩ {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "side main"
+        "footer footer";
+}
+.⟨header⟩ { grid-area: header; }
+
+## 横の真ん中に置く（ブロック） | margin auto 中央 真ん中
+.⟨box⟩ {
+    width: ⟨600px⟩;
+    margin: 0 auto;
+}
+
+## 文字を真ん中・右に寄せる | text-align center 中央 右寄せ
+.⟨box⟩ {
+    text-align: ⟨center⟩;
+}
+
+## 位置を少しずらす（relative） | position relative ずらす
+.⟨box⟩ {
+    position: relative;
+    top: ⟨10px⟩;
+    left: ⟨10px⟩;
+}
+
+## 親の中の決まった場所に置く（absolute） | position absolute 重ねる 右上
+.⟨parent⟩ {
+    position: relative;
+}
+.⟨badge⟩ {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+## スクロールしても上にくっつく | sticky 固定 ヘッダー スクロール
+.⟨header⟩ {
+    position: sticky;
+    top: 0;
+}
+
+## 重なりの順番 | z-index 重なり 前 後ろ
+.⟨modal⟩ {
+    z-index: ⟨100⟩;
+}
+
+## 画面いっぱいの高さ | 100vh 画面 高さ いっぱい
+.⟨hero⟩ {
+    min-height: 100vh;
+}
+
+## 内側・外側の余白 | padding margin 余白 すき間
+.⟨box⟩ {
+    padding: ⟨16px⟩;
+    margin: ⟨8px⟩ 0;
+}
+
+## はみ出した部分 | overflow スクロール 隠す はみ出し
+.⟨box⟩ {
+    overflow: ⟨auto⟩;  /* 隠すなら hidden */
+}
+
+## 幅に余白と枠をふくめる | box-sizing border-box 幅
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+## 回り込み（float）をやめる | float clear 回り込み
+.⟨img⟩ {
+    float: left;
+    margin-right: ⟨16px⟩;
+}
+.⟨next⟩ {
+    clear: both;
+}
+
+## 縦横の比をそろえる | aspect-ratio 比率 16/9
+.⟨video⟩ {
+    aspect-ratio: 16 / 9;
+}
+
+## 画像を枠いっぱいにトリミング | object-fit cover 画像 切り抜き
+.⟨thumb⟩ {
+    width: 100%;
+    height: ⟨200px⟩;
+    object-fit: cover;
+}
+
+@ 見た目
+## 枠線 | border 枠 線
+.⟨box⟩ {
+    border: ⟨1px⟩ solid ⟨#ccc⟩;
+}
+
+## 下線だけ・点線 | border-bottom dashed dotted 線
+.⟨box⟩ {
+    border-bottom: 2px ⟨dashed⟩ ⟨#999⟩;
+}
+
+## 丸い画像・丸いボタン | 丸 円 border-radius 50%
+.⟨avatar⟩ {
+    width: ⟨80px⟩;
+    height: ⟨80px⟩;
+    border-radius: 50%;
+}
+
+## 色を少し透明に | rgba 透明 opacity 半透明
+.⟨box⟩ {
+    background: rgba(⟨0, 0, 0⟩, ⟨0.5⟩);
+}
+
+## グラデーション | グラデーション linear-gradient 背景
+.⟨box⟩ {
+    background: linear-gradient(⟨135deg⟩, ⟨#667eea⟩, ⟨#764ba2⟩);
+}
+
+## 背景画像を画面いっぱいに | background-size cover 背景 画像
+.⟨hero⟩ {
+    background: url("⟨bg.jpg⟩") center / cover no-repeat;
+}
+
+## 文字の影 | text-shadow 影 文字
+.⟨title⟩ {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+## 行の高さ・文字の間 | line-height letter-spacing 行間 字間
+.⟨text⟩ {
+    line-height: ⟨1.8⟩;
+    letter-spacing: ⟨0.05em⟩;
+}
+
+## 長い文字を「…」で切る | ellipsis 省略 … 1行
+.⟨title⟩ {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+## 下線を消す（リンク） | text-decoration 下線 リンク
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+## マウスの形を指にする | cursor pointer 指 マウス
+.⟨button⟩ {
+    cursor: pointer;
+}
+
+## ボタンの見た目 | ボタン デザイン
+.⟨btn⟩ {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: ⟨#3366ff⟩;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+.⟨btn⟩:hover {
+    filter: brightness(1.1);
+}
+
+## カードの見た目 | カード 影 角丸
+.⟨card⟩ {
+    padding: 20px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+## 少し大きくする・回す・ずらす | transform scale rotate translate
+.⟨box⟩:hover {
+    transform: scale(⟨1.05⟩) rotate(⟨3deg⟩);
+}
+
+## ぼかす・白黒にする | filter blur grayscale ぼかし
+.⟨img⟩ {
+    filter: ⟨blur(4px)⟩;  /* 白黒は grayscale(1) */
+}
+
+## 後ろをすりガラスにする | backdrop-filter すりガラス ぼかし
+.⟨panel⟩ {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+}
+
+## 押したとき・選んだとき | active focus 押した 選択
+.⟨btn⟩:active {
+    transform: scale(0.97);
+}
+input:focus {
+    outline: 2px solid ⟨#3366ff⟩;
+}
+
+## 最初・最後・奇数番目だけ | first-child last-child nth-child 偶数 奇数
+li:first-child { ⟨font-weight: bold;⟩ }
+tr:nth-child(even) { background: #f5f5f5; }
+
+## 前後に飾りをつける（::before） | before after 疑似要素 飾り
+.⟨item⟩::before {
+    content: "⟨★ ⟩";
+    color: ⟨gold⟩;
+}
+
+## 箇条書きの点を消す | list-style 点 消す リスト
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+## 色をまとめて決めておく（変数） | 変数 カスタムプロパティ var --
+:root {
+    --⟨main⟩: ⟨#3366ff⟩;
+}
+.⟨btn⟩ {
+    background: var(--⟨main⟩);
+}
+
+## 暗い画面（ダークモード）のときだけ | prefers-color-scheme dark ダークモード
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #111;
+        color: #eee;
+    }
+}
+
+## フォントを読み込む（Google Fonts） | Google Fonts フォント 読み込み import
+@import url("https://fonts.googleapis.com/css2?family=⟨Noto+Sans+JP⟩:wght@400;700&display=swap");
+
+body {
+    font-family: "⟨Noto Sans JP⟩", sans-serif;
+}
+
+## 画面の幅に合わせて文字の大きさを変える | clamp vw 文字 大きさ レスポンシブ
+h1 {
+    font-size: clamp(⟨1.5rem⟩, ⟨4vw⟩, ⟨3rem⟩);
+}
+
+## 選んだ文字の色 | selection 選択 色
+::selection {
+    background: ⟨#ffe066⟩;
+}
+
+## スクロールをなめらかに | scroll-behavior smooth スクロール
+html {
+    scroll-behavior: smooth;
+}
+
+## 縦書き | 縦書き writing-mode 和文
+.⟨tategaki⟩ {
+    writing-mode: vertical-rl;
+}
+
+@ 動き
+## ふわっと出てくる | fadeIn フェード アニメーション
+@keyframes ⟨fadeIn⟩ {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+}
+.⟨box⟩ {
+    animation: ⟨fadeIn⟩ 0.6s ease both;
+}
+
+## くるくる回る（読み込み中） | spin 回転 ローディング
+@keyframes ⟨spin⟩ {
+    to { transform: rotate(360deg); }
+}
+.⟨loader⟩ {
+    width: 32px;
+    height: 32px;
+    border: 4px solid #ddd;
+    border-top-color: ⟨#3366ff⟩;
+    border-radius: 50%;
+    animation: ⟨spin⟩ 1s linear infinite;
+}
+
+## ぴょんぴょん跳ねる | bounce 跳ねる アニメーション
+@keyframes ⟨bounce⟩ {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+.⟨icon⟩ {
+    animation: ⟨bounce⟩ 1s ease-in-out infinite;
+}
+
+## 点滅する | blink 点滅 opacity
+@keyframes ⟨blink⟩ {
+    50% { opacity: 0; }
+}
+.⟨text⟩ {
+    animation: ⟨blink⟩ 1s step-end infinite;
+}
+
+## マウスを乗せると浮き上がる | hover 浮く 影 transition
+.⟨card⟩ {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.⟨card⟩:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+## 文字が流れる | marquee 流れる 横スクロール
+@keyframes ⟨scroll⟩ {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+}
+.⟨news⟩ {
+    white-space: nowrap;
+    animation: ⟨scroll⟩ 10s linear infinite;
+}
+
+@ 便利
+## 最初の余白などをそろえる（リセット） | リセット reset 初期化 margin 0
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+## 画像がはみ出さないように | 画像 max-width 100% レスポンシブ
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+## 広い画面のときだけ | min-width メディアクエリ PC
+@media (min-width: ⟨1024px⟩) {
+    ⟨.container { max-width: 960px; }⟩
+}
+
+## 印刷するときだけ | print 印刷 メディアクエリ
+@media print {
+    .⟨no-print⟩ {
+        display: none;
+    }
+}
+
+## 見えなくする（3 つのちがい） | display none visibility opacity 隠す
+.⟨a⟩ { display: none; }        /* 場所もなくなる */
+.⟨b⟩ { visibility: hidden; }   /* 場所は残る */
+.⟨c⟩ { opacity: 0; }           /* 透明（クリックはできる） */
+
+## 子の要素をまとめて指定 | 子孫 セレクタ > 入れ子
+.⟨menu⟩ > li {
+    ⟨display: inline-block;⟩
+}
+
+## 属性で選ぶ | 属性セレクタ [type] input
+input[type="⟨text⟩"] {
+    ⟨border: 1px solid #ccc;⟩
+}
+
+## 入れ子で書く（CSS ネスト） | ネスト 入れ子 &
+.⟨card⟩ {
+    padding: 16px;
+    & h2 {
+        font-size: 1.2rem;
+    }
+    &:hover {
+        background: #f5f5f5;
+    }
+}
+
+## 幅を計算する（calc） | calc 計算 幅
+.⟨main⟩ {
+    width: calc(100% - ⟨240px⟩);
+}
+
+## スクロールバーの見た目 | scrollbar スクロールバー 細く
+* {
+    scrollbar-width: thin;
+    scrollbar-color: ⟨#888⟩ transparent;
+}
+
+## 優先して使う（!important） | important 優先 上書き
+.⟨box⟩ {
+    color: ⟨red⟩ !important;
+}

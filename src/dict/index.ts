@@ -6,10 +6,39 @@ import { python } from "./python";
 import { javascript } from "./javascript";
 import { csharp } from "./csharp";
 import { c, cpp, css, go, html, java, shell } from "./others";
+import { mergeEntries, parseDictText } from "./parse";
+// 追加分は読みやすいように、ふつうの文字のファイルで書いている（書き方は parse.ts）
+import pythonText from "./data/python.txt?raw";
+import javascriptText from "./data/javascript.txt?raw";
+import csharpText from "./data/csharp.txt?raw";
+import goText from "./data/go.txt?raw";
+import cText from "./data/c.txt?raw";
+import cppText from "./data/cpp.txt?raw";
+import javaText from "./data/java.txt?raw";
+import htmlText from "./data/html.txt?raw";
+import cssText from "./data/css.txt?raw";
+import shellText from "./data/shell.txt?raw";
+import sqlText from "./data/sql.txt?raw";
 
 export type { DictEntry, DictLanguage } from "./types";
 
-export const DICT_LANGUAGES: DictLanguage[] = [python, javascript, csharp, go, c, cpp, java, html, css, shell];
+const withExtra = (lang: DictLanguage, text: string): DictLanguage => ({ ...lang, entries: mergeEntries(lang.entries, parseDictText(text)) });
+
+const sql: DictLanguage = { id: "sql", label: "SQL", exts: [".sql"], entries: [] };
+
+export const DICT_LANGUAGES: DictLanguage[] = [
+  withExtra(python, pythonText),
+  withExtra(javascript, javascriptText),
+  withExtra(csharp, csharpText),
+  withExtra(go, goText),
+  withExtra(c, cText),
+  withExtra(cpp, cppText),
+  withExtra(java, javaText),
+  withExtra(html, htmlText),
+  withExtra(css, cssText),
+  withExtra(shell, shellText),
+  withExtra(sql, sqlText),
+];
 
 export interface UserDictEntry {
   lang: string;
