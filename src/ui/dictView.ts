@@ -23,6 +23,8 @@ export interface DictViewDeps {
   editor: EditorHost;
   activeName: () => string | null;
   hasDoc: () => boolean;
+  /** 大きく開く（本の辞書のような画面） */
+  openBook: (query?: string) => void;
 }
 
 export interface DictView {
@@ -53,13 +55,15 @@ export function createDictView(deps: DictViewDeps): DictView {
     spellcheck: "false",
     "aria-label": "コード辞書を探す",
   });
+  const bigBtn = h("button", { class: "icon-btn", type: "button", title: "辞書を大きく開く", "aria-label": "辞書を大きく開く", html: icon("book", 15) });
+  bigBtn.addEventListener("click", () => deps.openBook(input.value));
   const addBtn = h("button", { class: "icon-btn", type: "button", title: "選んでいるコードを自分の辞書に追加", "aria-label": "自分の辞書に追加", html: icon("plus", 15) });
   const chips = h("div", { class: "dict-chips" });
   const list = h("div", { class: "dict-list", role: "listbox" });
   const el = h(
     "div",
     { class: "view dict-view" },
-    h("div", { class: "dict-head" }, langSelect, addBtn),
+    h("div", { class: "dict-head" }, langSelect, bigBtn, addBtn),
     h("div", { class: "dict-search" }, input),
     chips,
     list,

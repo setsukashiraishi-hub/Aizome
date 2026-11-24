@@ -4919,3 +4919,398 @@ html.has-bg .pane-bar {
 .blocks-page .blocklyTrash:hover {
   opacity: 0.8;
 }
+
+/* コード辞書を大きく開く画面（本の辞書のように：目次・見出し・ページ） */
+.dictbook {
+  --d-accent: #2e98b0;
+  --d-indigo: #3d5bb5;
+  position: fixed;
+  top: var(--top-h);
+  bottom: var(--status-h);
+  left: 48px;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--editor-bg);
+  border-top: 1px solid var(--border);
+}
+.dictbook-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px 10px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, var(--d-indigo) 8%), var(--panel));
+}
+.dictbook-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.dictbook-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--d-indigo), var(--d-accent));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--d-indigo) 45%, transparent);
+}
+.dictbook-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+.dictbook-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.dictbook-search {
+  flex: 1;
+  max-width: 640px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--editor-bg);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dictbook-search:focus-within {
+  border-color: var(--d-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--d-accent) 22%, transparent);
+}
+.dictbook-search-icon {
+  display: inline-flex;
+  color: var(--text-muted);
+}
+.dictbook-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: 500 14px var(--font-ui);
+}
+.dictbook-tool {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: 500 12px var(--font-ui);
+  padding: 7px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.dictbook-tool:hover,
+.dictbook-close:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+.dictbook-close {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.dictbook-langs {
+  display: flex;
+  gap: 4px;
+  padding: 0 18px 10px;
+  background: var(--panel);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.dictbook-lang {
+  flex: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font: 600 12px var(--font-ui);
+  padding: 5px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.dictbook-lang:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--border) 90%, transparent);
+}
+.dictbook-lang.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--d-indigo), color-mix(in srgb, var(--d-indigo) 55%, var(--d-accent)));
+}
+.dictbook-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 200px 300px minmax(0, 1fr);
+}
+.dictbook-side {
+  overflow-y: auto;
+  padding: 14px 10px;
+  background: color-mix(in srgb, var(--panel) 60%, var(--editor-bg));
+  border-right: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.dictbook-side-label,
+.dictbook-code-label {
+  font: 700 11px var(--font-ui);
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  padding: 0 8px 8px;
+}
+.dictbook-cat {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: 500 13px var(--font-ui);
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.dictbook-cat span:first-child {
+  flex: 1;
+}
+.dictbook-cat:hover {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+}
+.dictbook-cat.active {
+  background: color-mix(in srgb, var(--d-accent) 18%, transparent);
+  box-shadow: inset 3px 0 0 var(--d-accent);
+  font-weight: 700;
+}
+.dictbook-cat:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.dictbook-cat-n {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.dictbook-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.dictbook-count {
+  padding: 12px 16px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.dictbook-words {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 16px;
+}
+.dictbook-group {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 10px 5px;
+  font: 700 11px var(--font-ui);
+  letter-spacing: 0.08em;
+  color: var(--d-accent);
+  background: var(--editor-bg);
+}
+.dictbook-word {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: 500 13px/1.45 var(--font-ui);
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.dictbook-word-title {
+  flex: 1;
+}
+.dictbook-word-cat {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.dictbook-word:hover {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+}
+.dictbook-word.active {
+  background: color-mix(in srgb, var(--d-accent) 20%, transparent);
+  color: var(--text);
+  font-weight: 700;
+}
+.dictbook-empty {
+  padding: 18px 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.dictbook-empty-hint {
+  font-size: 12px;
+}
+.dictbook-page {
+  overflow-y: auto;
+  padding: 28px 36px 40px;
+  max-width: 900px;
+}
+.dictbook-page-empty {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+.dictbook-page-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.dictbook-badge {
+  font: 700 11px var(--font-ui);
+  letter-spacing: 0.05em;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--d-indigo), var(--d-accent));
+}
+.dictbook-page-title {
+  margin: 12px 0 10px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text);
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+.dictbook-note {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+}
+.dictbook-page .dictbook-code-label {
+  padding: 12px 0 8px;
+}
+.dictbook-code {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--panel) 50%, var(--editor-bg));
+}
+.dictbook-code .cm-editor {
+  background: transparent;
+  font-size: 14px;
+}
+.dictbook-code .cm-content {
+  padding: 14px 4px;
+}
+.dictbook-code .cm-gutters {
+  display: none;
+}
+.dictbook-tip {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.dictbook-actions {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0 24px;
+}
+.dictbook-actions .btn span {
+  display: inline-flex;
+  vertical-align: -2px;
+}
+.dictbook-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.dictbook-keys-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+.dictbook-key {
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  background: transparent;
+  color: var(--text);
+  font: 500 12px var(--font-ui);
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.dictbook-key:hover {
+  border-color: var(--d-accent);
+  color: var(--d-accent);
+}
+.dictbook-related {
+  border-top: 1px dashed color-mix(in srgb, var(--border) 80%, transparent);
+  padding-top: 8px;
+}
+.dictbook-rel {
+  display: block;
+  border: 0;
+  background: transparent;
+  color: var(--d-accent);
+  font: 500 13px var(--font-ui);
+  padding: 5px 0;
+  cursor: pointer;
+  text-align: left;
+}
+.dictbook-rel::before {
+  content: "→ ";
+  color: var(--text-muted);
+}
+.dictbook-rel:hover {
+  text-decoration: underline;
+}
+@media (max-width: 1000px) {
+  .dictbook-body {
+    grid-template-columns: 160px 240px minmax(0, 1fr);
+  }
+  .dictbook-page {
+    padding: 20px;
+  }
+  .dictbook-sub {
+    display: none;
+  }
+}
+.dictbook-empty .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dictbook-empty .btn span {
+  display: inline-flex;
+}

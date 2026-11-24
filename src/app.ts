@@ -30,6 +30,8 @@ import { ExtensionHost } from "./extensions/host";
 import { createSearchView, type SearchView } from "./ui/searchView";
 import { createAiChatView, type AiChatView } from "./ui/aiChatView";
 import { createDictView, type DictView } from "./ui/dictView";
+import { dictBook } from "./ui/dictBook";
+import { toSnippetTemplate } from "./dict";
 import { aiRewrite } from "./ui/aiRewrite";
 import { renderMarkdown } from "./ui/markdown";
 import { PagePreview, previewKind } from "./ui/pagePreview";
@@ -224,7 +226,32 @@ export class App {
     });
     this.searchView = createSearchView({ root: () => this.root, open: (p, l, c) => void this.openFile(p, l, c) });
     this.chatView = createAiChatView({ editor: this.editor, activeName: () => this.activeDoc()?.name ?? null });
-    this.dictView = createDictView({ editor: this.editor, activeName: () => this.activeDoc()?.name ?? null, hasDoc: () => !!this.activeDoc() });
+    this.dictView = createDictView({
+      editor: this.editor,
+      activeName: () => this.activeDoc()?.name ?? null,
+      hasDoc: () => !!this.activeDoc(),
+      openBook: (q) => this.toggleDictBook(q),
+    });
+    dictBook.setDeps({
+      activeName: () => this.activeDoc()?.name ?? null,
+      insert: (hit, ext) => {
+        // ファイルが開いていなければ、その言語の新しいファイルを作って入れる
+        if (!this.activeDoc()) this.newUntitled("", ext);
+        requestAnimationFrame(() => {
+          this.editor.insertSnippet(toSnippetTemplate(hit.code));
+          this.editor.focus();
+          toast(/⟨[^⟩]+⟩/.test(hit.code) ? t("dict.insertedTab", { title: hit.title }) : t("dict.inserted", { title: hit.title }), "success", 3500);
+        });
+      },
+      askAi: (q) => {
+        this.showView("dict");
+        this.dictView.focus(q);
+      },
+      toSide: (q) => {
+        this.showView("dict");
+        this.dictView.focus(q);
+      },
+    });
   }
 
   async start() {
@@ -516,6 +543,12 @@ export class App {
           h("span", { class: "top-blocks-icon", html: icon("blocks", 15) }),
           h("span", {}, t("blocks.button")),
         ),
+        h(
+          "button",
+          { class: "top-blocks top-dict", type: "button", title: `${t("cmd.dict")} (${formatKey("Mod-Shift-D")})`, onclick: () => this.toggleDictBook() },
+          h("span", { class: "top-blocks-icon", html: icon("book", 15) }),
+          h("span", {}, t("dict.button")),
+        ),
         h("span", { class: "top-sep", "aria-hidden": "true" }),
         this.undoBtn,
         this.redoBtn,
@@ -533,6 +566,8 @@ export class App {
         name,
         label,
         () => {
+          // コード辞書は、本のように大きく開く
+          if (view === "dict") return this.toggleDictBook();
           this.closeBlocks();
           this.toggleView(view);
         },
@@ -925,12 +960,22 @@ export class App {
       openInEditor: (code, ext) => this.newUntitled(code, ext),
     });
     this.blocksPage = blocksPage;
+    dictBook.close();
     blocksPage.toggle();
   }
 
   /** ブロックでつくるの画面が開いていたら閉じる（左のバーの別のボタンを押したとき） */
   private closeBlocks() {
     if (this.blocksPage?.isOpen) this.blocksPage.close();
+    dictBook.close();
+  }
+
+  /** コード辞書を大きく開く／閉じる */
+  toggleDictBook(query?: string) {
+    if (dictBook.isOpen && query === undefined) return dictBook.close();
+    if (this.blocksPage?.isOpen) this.blocksPage.close();
+    if (settingsPage.isOpen) settingsPage.close();
+    dictBook.open(query);
   }
 
   newUntitled(text = "", ext?: string) {
@@ -2887,10 +2932,7 @@ export class App {
       explainError: () => void this.explainLastError(),
       openSettings: (section) => settingsPage.open(section),
       openHelp: (section) => helpPage.open(section),
-      openDict: (query) => {
-        this.showView("dict");
-        this.dictView.focus(query);
-      },
+      openDict: (query) => this.toggleDictBook(query ?? ""),
     });
     // ヘルプの中の「/〜」をクリックしたとき
     helpPage.runSlash = (name) => {
@@ -3081,10 +3123,12 @@ export class App {
     reg("run.stepAll", "cmd.stepAll", () => this.stepTrace(0));
     reg("view.sideExplain", "cmd.sideExplain", () => settings.set("editor.sideView", "explain"));
     reg("view.sideValues", "cmd.sideValues", () => settings.set("editor.sideView", "values"));
-    reg("view.dict", "cmd.dict", () => {
+    reg("view.dict", "cmd.dict", () => this.toggleDictBook(), "Mod-Shift-D", true);
+    reg("view.dictSide", "cmd.dictSide", () => {
+      dictBook.close();
       this.showView("dict");
       this.dictView.focus();
-    }, "Mod-Shift-D", true);
+    });
     reg("help.shortcuts", "help.shortcuts", () => this.showShortcuts(), "Mod-K");
     reg("help.about", "help.about", () => this.showAbout());
     reg("app.checkUpdates", "cmd.checkUpdates", () => checkForUpdates(this.updateDeps, true));
